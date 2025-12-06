@@ -108,11 +108,12 @@ class SponsorSignupController extends GetxController {
   }
 
   // Helper method to add file based on its type
- Future<void> _addFileToRequest(http.MultipartRequest request, File file,String imageKey) async {
+// Helper method to add file based on its type
+  Future<void> _addFileToRequest(http.MultipartRequest request, File file, String imageKey) async {
     String fileName = file.path.split('/').last;
     String fileType = fileName.split('.').last.toLowerCase();
 
-    if (fileType == 'png') {
+    if (fileType == "png") {
       request.files.add(http.MultipartFile.fromBytes(
         imageKey,
         await file.readAsBytes(),
@@ -120,8 +121,7 @@ class SponsorSignupController extends GetxController {
         contentType: MediaType('image', 'png'),
       ));
       debugPrint("Media type png ==== $fileName");
-    }
-    if (fileType == 'jpg' || fileType == 'jpeg') {
+    } else if (fileType == "jpg" || fileType == "jpeg") {
       request.files.add(http.MultipartFile.fromBytes(
         imageKey,
         await file.readAsBytes(),
@@ -131,7 +131,7 @@ class SponsorSignupController extends GetxController {
       debugPrint("Media type $fileType ==== $fileName");
     } else {
       debugPrint("Unsupported media type: $fileName");
-      throw Exception('Unsupported file type');
+      throw Exception('Unsupported file type: $fileType');
     }
   }
 
