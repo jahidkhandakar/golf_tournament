@@ -187,6 +187,9 @@ class AppString {
   static String memberText="Members";
   static String seeALlText="See All";
   static String leaveGroupText="Leave Group";
+  static String tournamentSpecificDesText="Tournaments may include entry requirements, tee assignments, scoring criteria, and prize distribution set by the organizer. Final standings are determined by the event’s scoring rules, and any ties may be broken using predefined tie-break methods. All participants must adhere to tournament guidelines for a fair and enjoyable experience.";
+  static String formatPlayDesText="A Gaggle may be played in various styles such as stroke play, stableford, or shamble, depending on the organizer’s choice. Players are placed into groups, complete the round together, and record their scores according to the chosen format. Local course rules and conditions apply throughout the match.";
+  static String tournamentRulesDesText="Gaggle is a casual golf-outing format where players group together to enjoy a friendly round. Participants join a Gaggle at a selected course, follow standard golf etiquette, and play cooperatively while maintaining fair play, pace of play, and respect for other golfers on the course.";
   ///============Change password screen======
   static String returnToTheLoginPageText="Return to the login page to enter your account with your new password.";
   static String passwordChangedText="Password Changed!";

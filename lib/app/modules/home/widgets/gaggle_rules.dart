@@ -44,19 +44,19 @@ class GaggleRules extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(AppString.gaggleRulesText, style: AppStyles.h2()),
-                  Text(AppString.subonboardingText, style: AppStyles.h6()),
+                  Text(AppString.tournamentRulesDesText, style: AppStyles.h6()),
                   SizedBox(height: 10.h),
                   Text(
                     AppString.formatOfPlayText,
                     style: AppStyles.h2(),
                   ),
-                  Text(AppString.subonboardingText, style: AppStyles.h6()),
+                  Text(AppString.formatPlayDesText, style: AppStyles.h6()),
                   SizedBox(height: 10.h),
                   Text(
                     AppString.tournamentSpecificsText,
                     style: AppStyles.h2(),
                   ),
-                  Text(AppString.subonboardingText, style: AppStyles.h6()),
+                  Text(AppString.tournamentSpecificDesText, style: AppStyles.h6()),
                 ],
               )
             ],
