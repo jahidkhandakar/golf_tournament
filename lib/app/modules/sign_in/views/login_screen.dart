@@ -26,7 +26,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BackgroundImage(children: [
+    return BackgroundImage(
+        children: [
       SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: 10.w),
@@ -112,7 +113,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         )
                       ],
                     ),*/
-
                     /// Forgot password
                     InkWell(
                       onTap: () async {

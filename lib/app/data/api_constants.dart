@@ -4,10 +4,10 @@ class ApiConstants{
   static String googleBaseUrl="https://maps.googleapis.com/maps/api/place/autocomplete/json";
   static String estimatedTimeUrl="https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&";
    /// App Url
-    static String baseUrl="http://72.167.225.61:9090/v1"; // Server
+    static String baseUrl="https://wn85j8p6-9090.asse.devtunnels.ms/v1"; // Server
     //static String baseUrl="https://ariful9090.sobhoy.com/v1"; // local
-    static String  imageBaseUrl="http://72.167.225.61:9090";
-    static String socketUrl="http://72.167.225.61:8443";
+    static String  imageBaseUrl="https://wn85j8p6-9090.asse.devtunnels.ms";
+    static String socketUrl="https://wn85j8p6-9090.asse.devtunnels.ms";
 
   //static String googleApiKey="AIzaSyBFi80uuJIWkkLCpodFa8oXmD8XD_h8LMc"; //Company
   static String googleApiKey="AIzaSyBI8fHu17r7bJcDz4eV8MdiVOIbYVG6fTI"; //client
@@ -69,7 +69,7 @@ static String sponsorContentUrl= '$baseUrl/sponser-tournament';
   static String showAllMatchesUrl(String type,String tournamentId) => '$baseUrl/chaleng?id=$tournamentId&type=$type';
   static String tournamentCompletionStatusUrl(String type,String tournamentId) => '$baseUrl/small-tournament/make-tournament-complete?id=$tournamentId&type=$type';
 
-
+//===================X===============================================
 
 static String timelinePostUrl= '$baseUrl/post/home';
 static String myPostUrl= '$baseUrl/post';
