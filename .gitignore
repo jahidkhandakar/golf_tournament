@@ -46,3 +46,4 @@ app.*.map.json
 
 # key
 /lib/sk_key.dart
+PROJECT_STRUCTURE.md

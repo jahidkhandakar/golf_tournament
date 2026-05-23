@@ -1,14 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:golf_game_play/app/routes/app_pages.dart';
 import 'package:golf_game_play/common/app_images/app_images.dart';
 import 'package:golf_game_play/common/prefs_helper/prefs_helpers.dart';
 import 'package:golf_game_play/common/widgets/background_image.dart';
-import 'package:golf_game_play/common/widgets/golf_logo.dart';
-import 'package:golf_game_play/main.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
