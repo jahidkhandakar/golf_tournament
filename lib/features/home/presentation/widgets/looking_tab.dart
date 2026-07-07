@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/permission/feature.dart';
 import '../../../../core/permission/permission_service.dart';
+import '../../../../core/router/app_routes.dart';
 import '../../../../core/widgets/upgrade_prompt.dart';
 import '../../domain/entities/looking_post.dart';
 import '../../domain/repositories/looking_repository.dart';
@@ -16,18 +18,24 @@ class LookingTab extends StatefulWidget {
 }
 
 class _LookingTabState extends State<LookingTab> {
-  late final Future<List<LookingPost>> _future = GetIt.instance<LookingRepository>().getLookingPosts();
+  late Future<List<LookingPost>> _future = _load();
+
+  Future<List<LookingPost>> _load() => GetIt.instance<LookingRepository>().getLookingPosts();
 
   void _showMock(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
-  void _onPost() {
+  Future<void> _onPost() async {
     final permissionService = GetIt.instance<PermissionService>();
-    if (permissionService.can(Feature.lookingToPlayPost)) {
-      _showMock('Post created (mock)');
-    } else {
+    if (!permissionService.can(Feature.lookingToPlayPost)) {
       UpgradePrompt.show(context, message: 'Upgrade to post to Looking to Play.');
+      return;
+    }
+    final created = await context.push(AppRoutes.createLookingPost);
+    if (created == true) {
+      setState(() => _future = _load());
+      if (mounted) _showMock('Post created');
     }
   }
 

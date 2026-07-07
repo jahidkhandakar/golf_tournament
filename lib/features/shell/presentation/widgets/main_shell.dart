@@ -81,7 +81,7 @@ class _MainShellState extends State<MainShell> {
           ),
           IconButton(
             icon: const Icon(Icons.search),
-            onPressed: () {},
+            onPressed: () => context.push(AppRoutes.search),
           ),
         ],
         titleWidget: Text(

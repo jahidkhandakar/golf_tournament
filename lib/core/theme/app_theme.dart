@@ -25,6 +25,7 @@ class AppTheme {
         backgroundColor: AppColors.gold,
         foregroundColor: AppColors.black,
         elevation: 0,
+        centerTitle: true,
         titleTextStyle: AppTextStyles.heading3(AppColors.black),
       ),
       textTheme: TextTheme(
@@ -73,6 +74,7 @@ class AppTheme {
         backgroundColor: AppColors.gold,
         foregroundColor: AppColors.black,
         elevation: 0,
+        centerTitle: true,
         titleTextStyle: AppTextStyles.heading3(AppColors.black),
       ),
       textTheme: TextTheme(

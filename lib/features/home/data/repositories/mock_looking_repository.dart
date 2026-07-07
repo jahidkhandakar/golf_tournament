@@ -35,4 +35,10 @@ class MockLookingRepository implements LookingRepository {
     await Future.delayed(const Duration(milliseconds: 300));
     return _posts;
   }
+
+  @override
+  Future<void> createPost(LookingPost post) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    _posts.insert(0, post);
+  }
 }

@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 
 import '../../../../core/permission/feature.dart';
 import '../../../../core/permission/permission_service.dart';
+import '../../../../core/widgets/info_dialog.dart';
 import '../../../../core/widgets/upgrade_prompt.dart';
 import '../../domain/entities/leaderboard_entry.dart';
 import '../../domain/repositories/leaderboard_repository.dart';
@@ -28,18 +29,10 @@ class _Top50PageState extends State<Top50Page> {
     }
 
     // Stub — the real ranking/challenge engine is backend/Phase 2.
-    showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Challenge sent'),
-        content: Text('Your challenge to ${entry.playerName} has been sent (mock).'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
+    InfoDialog.show(
+      context,
+      title: 'Challenge Sent',
+      message: 'Your challenge to ${entry.playerName} has been sent (mock).',
     );
   }
 

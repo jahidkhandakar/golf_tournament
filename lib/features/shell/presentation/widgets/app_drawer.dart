@@ -21,6 +21,7 @@ class _DrawerDestination {
 
 const _destinations = [
   _DrawerDestination('My Clubs', Icons.sports_golf_outlined, AppRoutes.myClubs),
+  _DrawerDestination('Marketplace', Icons.storefront_outlined, AppRoutes.marketplace),
   _DrawerDestination('Subscription & Payment', Icons.payment_outlined, AppRoutes.subscriptionPayment),
   _DrawerDestination('Settings', Icons.settings_outlined, AppRoutes.settings),
   _DrawerDestination('Help & Support', Icons.help_outline, AppRoutes.helpSupport),
@@ -76,19 +77,22 @@ class _DrawerContent extends StatelessWidget {
 
     return Column(
       children: [
-        UserAccountsDrawerHeader(
+        DrawerHeader(
           decoration: BoxDecoration(color: theme.colorScheme.surface),
-          currentAccountPicture: const CircleAvatar(
-            backgroundColor: AppColors.gold,
-            child: Icon(Icons.person, color: AppColors.white, size: 32),
-          ),
-          accountName: Text(user.name, style: AppTextStyles.heading3(textColor)),
-          accountEmail: Align(
-            alignment: Alignment.centerLeft,
-            // A plain Chip overflows this slot by a few pixels — it has a
-            // built-in minimum height too tall for the tight space
-            // UserAccountsDrawerHeader gives the accountEmail row.
-            child: TagChip(label: user.tier.label, background: user.tier.color, foreground: AppColors.white),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const CircleAvatar(
+                radius: 32,
+                backgroundColor: AppColors.gold,
+                child: Icon(Icons.person, color: AppColors.white, size: 32),
+              ),
+              const SizedBox(height: 10),
+              Text(user.name, style: AppTextStyles.heading3(textColor)),
+              const SizedBox(height: 6),
+              TagChip(label: user.tier.label, background: user.tier.color, foreground: AppColors.white),
+            ],
           ),
         ),
         if (user.tier == UserTier.free)

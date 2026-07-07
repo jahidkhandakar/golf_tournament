@@ -1,21 +1,42 @@
 import 'package:go_router/go_router.dart';
 
+import '../../features/about_legal/presentation/pages/about_legal_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/sign_up_page.dart';
 import '../../features/auth/presentation/pages/splash_page.dart';
 import '../../features/club/presentation/pages/club_page.dart';
+import '../../features/help_support/presentation/pages/help_support_page.dart';
+import '../../features/home/presentation/pages/create_looking_post_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
+import '../../features/home/presentation/pages/search_page.dart';
 import '../../features/location/presentation/pages/location_page.dart';
 import '../../features/location/presentation/pages/location_permission_page.dart';
+import '../../features/marketplace/domain/entities/marketplace_listing.dart';
+import '../../features/marketplace/presentation/pages/listing_detail_page.dart';
+import '../../features/marketplace/presentation/pages/marketplace_page.dart';
 import '../../features/messages/domain/entities/conversation.dart';
 import '../../features/messages/presentation/pages/chat_detail_page.dart';
 import '../../features/messages/presentation/pages/messages_page.dart';
+import '../../features/my_clubs/presentation/pages/my_clubs_page.dart';
 import '../../features/notifications/presentation/pages/notifications_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
+import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/shell/presentation/widgets/main_shell.dart';
+import '../../features/subscription/presentation/pages/subscription_page.dart';
 import '../../features/top50/presentation/pages/top50_page.dart';
+import '../widgets/legal_text_page.dart';
 import '../widgets/placeholder_scaffold.dart';
 import 'app_routes.dart';
+
+const _termsPlaceholder =
+    'These are placeholder Terms & Conditions for GGW Connect. Real terms will be provided before launch. '
+    'By using this app, you agree to treat other golfers with respect, keep your account information '
+    'accurate, and use the platform for its intended purpose of organizing and joining golf rounds.';
+
+const _privacyPlaceholder =
+    'This is a placeholder Privacy Policy for GGW Connect. Real policy details will be provided before '
+    'launch. Location, profile and activity data are used only to power features like nearby gaggles, '
+    'outings and player matchmaking, and are never sold to third parties.';
 
 class AppRouter {
   AppRouter._();
@@ -111,6 +132,11 @@ class AppRouter {
         builder: (context, state) => const LocationPage(),
       ),
       GoRoute(
+        path: AppRoutes.search,
+        name: 'search',
+        builder: (context, state) => const SearchPage(),
+      ),
+      GoRoute(
         path: '/messages/chat/:conversationId',
         name: 'chatDetail',
         builder: (context, state) => ChatDetailPage(conversation: state.extra as Conversation),
@@ -118,32 +144,57 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.myClubs,
         name: 'myClubs',
-        builder: (context, state) => const PlaceholderScaffold(title: 'My Clubs'),
+        builder: (context, state) => const MyClubsPage(),
       ),
       GoRoute(
         path: AppRoutes.subscriptionPayment,
         name: 'subscriptionPayment',
-        builder: (context, state) => const PlaceholderScaffold(title: 'Subscription & Payment'),
+        builder: (context, state) => const SubscriptionPage(),
       ),
       GoRoute(
         path: AppRoutes.settings,
         name: 'settings',
-        builder: (context, state) => const PlaceholderScaffold(title: 'Settings'),
+        builder: (context, state) => const SettingsPage(),
       ),
       GoRoute(
         path: AppRoutes.helpSupport,
         name: 'helpSupport',
-        builder: (context, state) => const PlaceholderScaffold(title: 'Help & Support'),
+        builder: (context, state) => const HelpSupportPage(),
       ),
       GoRoute(
         path: AppRoutes.aboutLegal,
         name: 'aboutLegal',
-        builder: (context, state) => const PlaceholderScaffold(title: 'About & Legal'),
+        builder: (context, state) => const AboutLegalPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.termsOfService,
+        name: 'termsOfService',
+        builder: (context, state) => const LegalTextPage(title: 'Terms & Conditions', body: _termsPlaceholder),
+      ),
+      GoRoute(
+        path: AppRoutes.privacyPolicy,
+        name: 'privacyPolicy',
+        builder: (context, state) => const LegalTextPage(title: 'Privacy Policy', body: _privacyPlaceholder),
       ),
       GoRoute(
         path: AppRoutes.createClub,
         name: 'createClub',
         builder: (context, state) => const PlaceholderScaffold(title: 'Start a Club'),
+      ),
+      GoRoute(
+        path: AppRoutes.marketplace,
+        name: 'marketplace',
+        builder: (context, state) => const MarketplacePage(),
+      ),
+      GoRoute(
+        path: '/marketplace/:id',
+        name: 'marketplaceListingDetail',
+        builder: (context, state) => ListingDetailPage(listing: state.extra as MarketplaceListing),
+      ),
+      GoRoute(
+        path: AppRoutes.createLookingPost,
+        name: 'createLookingPost',
+        builder: (context, state) => const CreateLookingPostPage(),
       ),
     ],
   );

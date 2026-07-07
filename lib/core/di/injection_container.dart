@@ -9,10 +9,14 @@ import '../../features/home/data/repositories/mock_outing_repository.dart';
 import '../../features/home/domain/repositories/gaggle_repository.dart';
 import '../../features/home/domain/repositories/looking_repository.dart';
 import '../../features/home/domain/repositories/outing_repository.dart';
+import '../../features/marketplace/data/repositories/mock_marketplace_repository.dart';
+import '../../features/marketplace/domain/repositories/marketplace_repository.dart';
 import '../../features/messages/data/repositories/mock_conversation_repository.dart';
 import '../../features/messages/data/repositories/mock_message_repository.dart';
 import '../../features/messages/domain/repositories/conversation_repository.dart';
 import '../../features/messages/domain/repositories/message_repository.dart';
+import '../../features/my_clubs/data/repositories/mock_club_membership_repository.dart';
+import '../../features/my_clubs/domain/repositories/club_membership_repository.dart';
 import '../../features/notifications/data/repositories/mock_notification_repository.dart';
 import '../../features/notifications/domain/repositories/notification_repository.dart';
 import '../../features/profile/data/repositories/mock_challenge_repository.dart';
@@ -54,4 +58,6 @@ Future<void> setupLocator() async {
   sl.registerLazySingleton<ConversationRepository>(() => MockConversationRepository());
   sl.registerLazySingleton<MessageRepository>(() => MockMessageRepository());
   sl.registerLazySingleton<NotificationRepository>(() => MockNotificationRepository());
+  sl.registerLazySingleton<MarketplaceRepository>(() => MockMarketplaceRepository());
+  sl.registerLazySingleton<ClubMembershipRepository>(() => MockClubMembershipRepository());
 }
