@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../../core/widgets/info_dialog.dart';
-import '../../domain/entities/gaggle.dart';
-import '../../domain/repositories/gaggle_repository.dart';
-import 'gaggle_card.dart';
+import '../../domain/entities/club_round.dart';
+import '../../domain/repositories/club_round_repository.dart';
+import 'club_round_card.dart';
 
 enum _RequestStatus { none, pending, accepted, denied }
 
@@ -18,17 +18,18 @@ const _deniedMessage =
     'Not this time, this may be full, but do not count yourself out. Clubs and tournaments '
     'post new openings all the time, feel free to request again whenever you see one.';
 
-class GagglesTab extends StatefulWidget {
-  const GagglesTab({super.key});
+class ClubRoundsTab extends StatefulWidget {
+  const ClubRoundsTab({super.key});
 
   @override
-  State<GagglesTab> createState() => _GagglesTabState();
+  State<ClubRoundsTab> createState() => _ClubRoundsTabState();
 }
 
-class _GagglesTabState extends State<GagglesTab> {
-  late final Future<List<Gaggle>> _future = GetIt.instance<GaggleRepository>().getGaggles();
+class _ClubRoundsTabState extends State<ClubRoundsTab> {
+  late final Future<List<ClubRound>> _future =
+      GetIt.instance<ClubRoundRepository>().getClubRounds();
 
-  // Per-gaggle mock request lifecycle — there's no backend review process to
+  // Per-round mock request lifecycle — there's no backend review process to
   // poll, so tapping "Request to Play" again on a pending request is what
   // simulates the club's decision coming back.
   final Map<String, _RequestStatus> _requestStatus = {};
@@ -38,18 +39,18 @@ class _GagglesTabState extends State<GagglesTab> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
-  void _onRequestToPlay(Gaggle gaggle) {
-    final current = _requestStatus[gaggle.id] ?? _RequestStatus.none;
+  void _onRequestToPlay(ClubRound clubRound) {
+    final current = _requestStatus[clubRound.id] ?? _RequestStatus.none;
 
     if (current == _RequestStatus.none) {
-      setState(() => _requestStatus[gaggle.id] = _RequestStatus.pending);
+      setState(() => _requestStatus[clubRound.id] = _RequestStatus.pending);
       InfoDialog.show(context, title: 'Request Sent', message: _sentMessage);
       return;
     }
 
     if (current == _RequestStatus.pending) {
       final resolved = _random.nextBool() ? _RequestStatus.accepted : _RequestStatus.denied;
-      setState(() => _requestStatus[gaggle.id] = resolved);
+      setState(() => _requestStatus[clubRound.id] = resolved);
       InfoDialog.show(
         context,
         title: resolved == _RequestStatus.accepted ? 'Request Accepted' : 'Request Update',
@@ -68,22 +69,22 @@ class _GagglesTabState extends State<GagglesTab> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Gaggle>>(
+    return FutureBuilder<List<ClubRound>>(
       future: _future,
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
         }
-        final gaggles = snapshot.data!;
+        final clubRounds = snapshot.data!;
         return ListView.builder(
           padding: const EdgeInsets.only(bottom: 16),
-          itemCount: gaggles.length,
+          itemCount: clubRounds.length,
           itemBuilder: (context, index) {
-            final gaggle = gaggles[index];
-            return GaggleCard(
-              gaggle: gaggle,
-              onRequestToPlay: () => _onRequestToPlay(gaggle),
-              onJoinClub: () => _showMock('Joined ${gaggle.clubName} (mock)'),
+            final clubRound = clubRounds[index];
+            return ClubRoundCard(
+              clubRound: clubRound,
+              onRequestToPlay: () => _onRequestToPlay(clubRound),
+              onJoinClub: () => _showMock('Joined ${clubRound.clubName} (mock)'),
             );
           },
         );

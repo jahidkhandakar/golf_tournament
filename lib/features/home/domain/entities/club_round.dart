@@ -1,8 +1,9 @@
 import 'package:equatable/equatable.dart';
 
-/// A club-run tournament round ("gaggle") a player can request to join.
-class Gaggle extends Equatable {
-  const Gaggle({
+/// A club-run tournament round a player can request to join. Shown to users
+/// as a "Club" — the same idea as a club's own tournament, surfaced globally.
+class ClubRound extends Equatable {
+  const ClubRound({
     required this.id,
     required this.clubName,
     required this.format,

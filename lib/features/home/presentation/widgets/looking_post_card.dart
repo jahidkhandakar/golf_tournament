@@ -71,7 +71,7 @@ class LookingPostCard extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: OutlinedButton(onPressed: onInvite, child: const Text('Invite to gaggle')),
+                  child: OutlinedButton(onPressed: onInvite, child: const Text('Invite to Club')),
                 ),
                 const SizedBox(width: 8),
                 Expanded(

@@ -3,19 +3,19 @@ import 'package:get_it/get_it.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../domain/entities/gaggle.dart';
+import '../../domain/entities/club_round.dart';
 import '../../domain/entities/looking_post.dart';
 import '../../domain/entities/outing.dart';
-import '../../domain/repositories/gaggle_repository.dart';
+import '../../domain/repositories/club_round_repository.dart';
 import '../../domain/repositories/looking_repository.dart';
 import '../../domain/repositories/outing_repository.dart';
-import '../widgets/gaggle_card.dart';
+import '../widgets/club_round_card.dart';
 import '../widgets/looking_post_card.dart';
 import '../widgets/outing_card.dart';
 
-typedef _SearchData = ({List<Gaggle> gaggles, List<Outing> outings, List<LookingPost> lookingPosts});
+typedef _SearchData = ({List<ClubRound> clubRounds, List<Outing> outings, List<LookingPost> lookingPosts});
 
-/// Searches across Gaggles, Outings, and Looking to Play posts — the content
+/// Searches across Clubs, Outings, and Looking to Play posts — the content
 /// already shown on Home. Opened from the search icon in Home's AppBar.
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -29,10 +29,10 @@ class _SearchPageState extends State<SearchPage> {
   late final Future<_SearchData> _future = _load();
 
   Future<_SearchData> _load() async {
-    final gaggles = await GetIt.instance<GaggleRepository>().getGaggles();
+    final clubRounds = await GetIt.instance<ClubRoundRepository>().getClubRounds();
     final outings = await GetIt.instance<OutingRepository>().getOutings();
     final lookingPosts = await GetIt.instance<LookingRepository>().getLookingPosts();
-    return (gaggles: gaggles, outings: outings, lookingPosts: lookingPosts);
+    return (clubRounds: clubRounds, outings: outings, lookingPosts: lookingPosts);
   }
 
   void _showMock(String message) {
@@ -65,7 +65,7 @@ class _SearchPageState extends State<SearchPage> {
           cursorColor: AppColors.white,
           style: AppTextStyles.body(AppColors.white),
           decoration: InputDecoration(
-            hintText: 'Search gaggles, outings, players...',
+            hintText: 'Search clubs, outings, players...',
             hintStyle: AppTextStyles.body(AppColors.white),
             border: InputBorder.none,
           ),
@@ -84,8 +84,8 @@ class _SearchPageState extends State<SearchPage> {
           }
 
           final data = snapshot.data!;
-          final gaggles = data.gaggles
-              .where((g) => _matches(query, [g.clubName, g.courseName, g.format]))
+          final clubRounds = data.clubRounds
+              .where((c) => _matches(query, [c.clubName, c.courseName, c.format]))
               .toList();
           final outings = data.outings
               .where((o) => _matches(query, [o.title, o.hostName, o.format]))
@@ -94,7 +94,7 @@ class _SearchPageState extends State<SearchPage> {
               .where((p) => _matches(query, [p.playerName, p.location, p.note, ...p.preferredFormats]))
               .toList();
 
-          if (gaggles.isEmpty && outings.isEmpty && lookingPosts.isEmpty) {
+          if (clubRounds.isEmpty && outings.isEmpty && lookingPosts.isEmpty) {
             return Center(
               child: Text('No results for "$query"', style: AppTextStyles.body(secondaryText)),
             );
@@ -103,13 +103,13 @@ class _SearchPageState extends State<SearchPage> {
           return ListView(
             padding: const EdgeInsets.only(top: 8, bottom: 16),
             children: [
-              if (gaggles.isNotEmpty) ...[
-                _SectionLabel(title: 'Gaggles', color: primaryText),
-                for (final gaggle in gaggles)
-                  GaggleCard(
-                    gaggle: gaggle,
-                    onRequestToPlay: () => _showMock('Requested to play at ${gaggle.clubName} (mock)'),
-                    onJoinClub: () => _showMock('Joined ${gaggle.clubName} (mock)'),
+              if (clubRounds.isNotEmpty) ...[
+                _SectionLabel(title: 'Clubs', color: primaryText),
+                for (final clubRound in clubRounds)
+                  ClubRoundCard(
+                    clubRound: clubRound,
+                    onRequestToPlay: () => _showMock('Requested to play at ${clubRound.clubName} (mock)'),
+                    onJoinClub: () => _showMock('Joined ${clubRound.clubName} (mock)'),
                   ),
               ],
               if (outings.isNotEmpty) ...[
@@ -122,7 +122,7 @@ class _SearchPageState extends State<SearchPage> {
                 for (final post in lookingPosts)
                   LookingPostCard(
                     post: post,
-                    onInvite: () => _showMock('Invited ${post.playerName} to your gaggle (mock)'),
+                    onInvite: () => _showMock('Invited ${post.playerName} to your club (mock)'),
                     onMessage: () => _showMock('Opening chat with ${post.playerName} (mock)'),
                   ),
               ],

@@ -13,7 +13,7 @@ class FeedTab extends StatelessWidget {
 
   List<_FeedPost> _mockPosts() {
     const bodies = [
-      'Great turnout for the Saturday gaggle — course was in perfect shape!',
+      "Great turnout for Saturday's round — course was in perfect shape!",
       'Reminder: club championship signups close this Friday.',
       'Anyone up for a twilight nine this week?',
       'New pin placements on 4 and 11 are brutal. Bring your A game.',

@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-/// A casual, player-organized round — lighter weight than a club [Gaggle]
+/// A casual, player-organized round — lighter weight than a club [ClubRound]
 /// and never counted toward handicap.
 class Outing extends Equatable {
   const Outing({

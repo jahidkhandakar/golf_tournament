@@ -12,7 +12,7 @@ class MockMessageRepository implements MessageRepository {
       Message(
         id: 'm1',
         conversationId: 'conv1',
-        text: 'Hey, still on for the gaggle tomorrow?',
+        text: 'Hey, still on for the club round tomorrow?',
         timestamp: DateTime.now().subtract(const Duration(minutes: 40)),
         isMine: false,
       ),

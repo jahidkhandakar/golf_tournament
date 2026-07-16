@@ -13,7 +13,7 @@ class MockNotificationRepository implements NotificationRepository {
     AppNotification(
       id: 'n2',
       type: NotificationType.teeTimePosted,
-      text: 'A new tee sheet was posted for Saturday\'s gaggle.',
+      text: 'A new tee sheet was posted for Saturday\'s club round.',
       timestamp: DateTime.now().subtract(const Duration(hours: 2)),
       isRead: false,
     ),

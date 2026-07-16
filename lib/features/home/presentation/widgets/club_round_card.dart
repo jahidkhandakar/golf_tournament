@@ -4,17 +4,17 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/date_formatter.dart';
 import '../../../../core/widgets/tag_chip.dart';
-import '../../domain/entities/gaggle.dart';
+import '../../domain/entities/club_round.dart';
 
-class GaggleCard extends StatelessWidget {
-  const GaggleCard({
+class ClubRoundCard extends StatelessWidget {
+  const ClubRoundCard({
     super.key,
-    required this.gaggle,
+    required this.clubRound,
     required this.onRequestToPlay,
     required this.onJoinClub,
   });
 
-  final Gaggle gaggle;
+  final ClubRound clubRound;
   final VoidCallback onRequestToPlay;
   final VoidCallback onJoinClub;
 
@@ -34,10 +34,10 @@ class GaggleCard extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: Text(gaggle.clubName, style: AppTextStyles.heading3(primaryText)),
+                  child: Text(clubRound.clubName, style: AppTextStyles.heading3(primaryText)),
                 ),
                 TagChip(
-                  label: gaggle.format,
+                  label: clubRound.format,
                   background: AppColors.gold.withValues(alpha: 0.16),
                   foreground: AppColors.goldDark,
                 ),
@@ -46,24 +46,24 @@ class GaggleCard extends StatelessWidget {
             const SizedBox(height: 8),
             _InfoRow(
               icon: Icons.calendar_today_outlined,
-              text: '${formatShortDate(gaggle.date)} · ${gaggle.teeTime}',
+              text: '${formatShortDate(clubRound.date)} · ${clubRound.teeTime}',
               color: secondaryText,
             ),
             const SizedBox(height: 4),
-            _InfoRow(icon: Icons.golf_course_outlined, text: gaggle.courseName, color: secondaryText),
+            _InfoRow(icon: Icons.golf_course_outlined, text: clubRound.courseName, color: secondaryText),
             const SizedBox(height: 4),
             Row(
               children: [
                 Expanded(
                   child: _InfoRow(
                     icon: Icons.groups_outlined,
-                    text: '${gaggle.currentPlayers}/${gaggle.maxPlayers} players',
+                    text: '${clubRound.currentPlayers}/${clubRound.maxPlayers} players',
                     color: secondaryText,
                   ),
                 ),
                 _InfoRow(
                   icon: Icons.near_me_outlined,
-                  text: '${gaggle.distanceMiles.toStringAsFixed(1)} mi',
+                  text: '${clubRound.distanceMiles.toStringAsFixed(1)} mi',
                   color: secondaryText,
                 ),
               ],

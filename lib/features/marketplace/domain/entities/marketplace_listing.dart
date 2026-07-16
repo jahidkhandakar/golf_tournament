@@ -13,6 +13,7 @@ class MarketplaceListing extends Equatable {
     required this.postedDate,
     required this.description,
     required this.icon,
+    this.isSponsored = false,
   });
 
   final String id;
@@ -26,6 +27,10 @@ class MarketplaceListing extends Equatable {
   /// Stand-in for a listing photo — no real images in this mock.
   final IconData icon;
 
+  /// Whether this is the listing featured in Home's sponsored banner.
+  final bool isSponsored;
+
   @override
-  List<Object?> get props => [id, title, price, sellerName, location, postedDate, description, icon];
+  List<Object?> get props =>
+      [id, title, price, sellerName, location, postedDate, description, icon, isSponsored];
 }

@@ -40,7 +40,7 @@ class AboutLegalPage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
-              'GGW Connect brings golfers together — find gaggles and outings, challenge other '
+              'GGW Connect brings golfers together — find clubs and outings, challenge other '
               'players, and keep track of your club, all in one place.',
               textAlign: TextAlign.center,
               style: AppTextStyles.body(secondaryText),

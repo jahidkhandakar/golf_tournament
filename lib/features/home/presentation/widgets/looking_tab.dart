@@ -69,7 +69,7 @@ class _LookingTabState extends State<LookingTab> {
                   final post = posts[index];
                   return LookingPostCard(
                     post: post,
-                    onInvite: () => _showMock('Invited ${post.playerName} to your gaggle (mock)'),
+                    onInvite: () => _showMock('Invited ${post.playerName} to your club (mock)'),
                     onMessage: () => _showMock('Opening chat with ${post.playerName} (mock)'),
                   );
                 },

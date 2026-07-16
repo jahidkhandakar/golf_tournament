@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
-/// "Gaggles near [zone] · [radius] mi" context line shown under the banner.
+/// "Clubs near [zone] · [radius] mi" context line shown under the banner.
 class ZoneContextLine extends StatelessWidget {
   const ZoneContextLine({super.key, required this.zone, required this.radiusMiles});
 
@@ -21,7 +21,7 @@ class ZoneContextLine extends StatelessWidget {
         children: [
           Icon(Icons.location_on_outlined, size: 16, color: color),
           const SizedBox(width: 4),
-          Text('Gaggles near $zone · $radiusMiles mi', style: AppTextStyles.caption(color)),
+          Text('Clubs near $zone · $radiusMiles mi', style: AppTextStyles.caption(color)),
         ],
       ),
     );

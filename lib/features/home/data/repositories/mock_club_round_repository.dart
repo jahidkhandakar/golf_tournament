@@ -1,10 +1,10 @@
-import '../../domain/entities/gaggle.dart';
-import '../../domain/repositories/gaggle_repository.dart';
+import '../../domain/entities/club_round.dart';
+import '../../domain/repositories/club_round_repository.dart';
 
 /// Hardcoded stand-in for a real API-backed repository.
-class MockGaggleRepository implements GaggleRepository {
-  static final List<Gaggle> _gaggles = [
-    Gaggle(
+class MockClubRoundRepository implements ClubRoundRepository {
+  static final List<ClubRound> _clubRounds = [
+    ClubRound(
       id: 'g1',
       clubName: 'Riverbend Golf Club',
       format: 'Stroke Play',
@@ -15,7 +15,7 @@ class MockGaggleRepository implements GaggleRepository {
       maxPlayers: 32,
       distanceMiles: 4.2,
     ),
-    Gaggle(
+    ClubRound(
       id: 'g2',
       clubName: 'Oakmont Hills',
       format: 'Scramble',
@@ -26,7 +26,7 @@ class MockGaggleRepository implements GaggleRepository {
       maxPlayers: 24,
       distanceMiles: 11.6,
     ),
-    Gaggle(
+    ClubRound(
       id: 'g3',
       clubName: 'Pine Valley Muni',
       format: 'Best Ball',
@@ -40,8 +40,8 @@ class MockGaggleRepository implements GaggleRepository {
   ];
 
   @override
-  Future<List<Gaggle>> getGaggles() async {
+  Future<List<ClubRound>> getClubRounds() async {
     await Future.delayed(const Duration(milliseconds: 300));
-    return _gaggles;
+    return _clubRounds;
   }
 }

@@ -8,22 +8,22 @@ typedef _Faq = ({String question, String answer});
 
 const _faqs = <_Faq>[
   (
-    question: 'What is a "Gaggle"?',
+    question: 'What is a "Club"?',
     answer:
-        "A Gaggle is a club-run tournament round. You can request to play in one from the Home tab, "
-        "and the club will review and confirm your spot."
+        "A Club is a tournament round hosted by a golf club. You can request to play in one from the "
+        "Home tab, and the club will review and confirm your spot."
   ),
   (
-    question: "What's the difference between a Gaggle and an Outing?",
+    question: "What's the difference between a Club and an Outing?",
     answer:
-        'Gaggles are club-organized tournaments. Outings are casual, player-organized rounds — lighter '
+        'Clubs are tournaments hosted by golf clubs. Outings are casual, player-organized rounds — lighter '
         "weight, capped at 10 players, and never counted toward your handicap."
   ),
   (
     question: 'How does Looking to Play work?',
     answer:
         'Post your location, available dates and preferred formats, and nearby golfers can invite you '
-        'to their gaggle or message you directly to set something up.'
+        'to their club or message you directly to set something up.'
   ),
   (
     question: 'Can I cancel a request to play?',

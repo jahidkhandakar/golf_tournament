@@ -6,7 +6,7 @@ import '../../../../core/utils/date_formatter.dart';
 import '../../../../core/widgets/tag_chip.dart';
 import '../../domain/entities/outing.dart';
 
-/// Visually lighter than [GaggleCard] — flat, no gold accent — since outings
+/// Visually lighter than [ClubRoundCard] — flat, no gold accent — since outings
 /// are casual, player-organized rounds rather than club tournaments.
 class OutingCard extends StatelessWidget {
   const OutingCard({super.key, required this.outing, required this.onJoin});

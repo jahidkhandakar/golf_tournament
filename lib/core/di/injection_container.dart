@@ -3,10 +3,10 @@ import 'package:get_it/get_it.dart';
 
 import '../../features/club/data/repositories/mock_club_repository.dart';
 import '../../features/club/domain/repositories/club_repository.dart';
-import '../../features/home/data/repositories/mock_gaggle_repository.dart';
+import '../../features/home/data/repositories/mock_club_round_repository.dart';
 import '../../features/home/data/repositories/mock_looking_repository.dart';
 import '../../features/home/data/repositories/mock_outing_repository.dart';
-import '../../features/home/domain/repositories/gaggle_repository.dart';
+import '../../features/home/domain/repositories/club_round_repository.dart';
 import '../../features/home/domain/repositories/looking_repository.dart';
 import '../../features/home/domain/repositories/outing_repository.dart';
 import '../../features/marketplace/data/repositories/mock_marketplace_repository.dart';
@@ -47,7 +47,7 @@ Future<void> setupLocator() async {
   // Every repository below is a mock backed by hardcoded data for now;
   // swap for a real API-backed implementation behind the same interface
   // when the backend is ready.
-  sl.registerLazySingleton<GaggleRepository>(() => MockGaggleRepository());
+  sl.registerLazySingleton<ClubRoundRepository>(() => MockClubRoundRepository());
   sl.registerLazySingleton<OutingRepository>(() => MockOutingRepository());
   sl.registerLazySingleton<LookingRepository>(() => MockLookingRepository());
   sl.registerLazySingleton<ClubRepository>(() => MockClubRepository());

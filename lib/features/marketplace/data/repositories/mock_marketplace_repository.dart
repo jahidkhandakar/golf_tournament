@@ -16,6 +16,7 @@ class MockMarketplaceRepository implements MarketplaceRepository {
       postedDate: DateTime.now().subtract(const Duration(hours: 5)),
       description: 'Two dozen, brand new, never hit. Bought too many for a tournament.',
       icon: Icons.sports_golf,
+      isSponsored: true,
     ),
     MarketplaceListing(
       id: 'mkt2',
@@ -73,5 +74,14 @@ class MockMarketplaceRepository implements MarketplaceRepository {
   Future<List<MarketplaceListing>> getListings() async {
     await Future.delayed(const Duration(milliseconds: 300));
     return _listings;
+  }
+
+  @override
+  Future<MarketplaceListing?> getSponsoredListing() async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    for (final listing in _listings) {
+      if (listing.isSponsored) return listing;
+    }
+    return null;
   }
 }
