@@ -3,6 +3,8 @@ import 'package:get_it/get_it.dart';
 
 import '../../features/club/data/repositories/mock_club_repository.dart';
 import '../../features/club/domain/repositories/club_repository.dart';
+import '../../features/golfers/data/repositories/mock_golfers_repository.dart';
+import '../../features/golfers/domain/repositories/golfers_repository.dart';
 import '../../features/home/data/repositories/mock_club_round_repository.dart';
 import '../../features/home/data/repositories/mock_looking_repository.dart';
 import '../../features/home/data/repositories/mock_outing_repository.dart';
@@ -60,4 +62,5 @@ Future<void> setupLocator() async {
   sl.registerLazySingleton<NotificationRepository>(() => MockNotificationRepository());
   sl.registerLazySingleton<MarketplaceRepository>(() => MockMarketplaceRepository());
   sl.registerLazySingleton<ClubMembershipRepository>(() => MockClubMembershipRepository());
+  sl.registerLazySingleton<GolfersRepository>(() => MockGolfersRepository());
 }

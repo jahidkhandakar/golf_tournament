@@ -77,22 +77,25 @@ class _DrawerContent extends StatelessWidget {
 
     return Column(
       children: [
-        DrawerHeader(
-          decoration: BoxDecoration(color: theme.colorScheme.surface),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const CircleAvatar(
-                radius: 32,
-                backgroundColor: AppColors.gold,
-                child: Icon(Icons.person, color: AppColors.white, size: 32),
-              ),
-              const SizedBox(height: 10),
-              Text(user.name, style: AppTextStyles.heading3(textColor)),
-              const SizedBox(height: 6),
-              TagChip(label: user.tier.label, background: user.tier.color, foreground: AppColors.white),
-            ],
+        InkWell(
+          onTap: () => onNavigate(context, AppRoutes.myProfile),
+          child: DrawerHeader(
+            decoration: BoxDecoration(color: theme.colorScheme.surface),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const CircleAvatar(
+                  radius: 32,
+                  backgroundColor: AppColors.gold,
+                  child: Icon(Icons.person, color: AppColors.white, size: 32),
+                ),
+                const SizedBox(height: 10),
+                Text(user.name, style: AppTextStyles.heading3(textColor)),
+                const SizedBox(height: 6),
+                TagChip(label: user.tier.label, background: user.tier.color, foreground: AppColors.white),
+              ],
+            ),
           ),
         ),
         if (user.tier == UserTier.free)

@@ -29,7 +29,9 @@ class AppRoutes {
   static const String createClub = '/create-club';
   static const String marketplace = '/marketplace';
   static const String createLookingPost = '/looking-to-play/create';
+  static const String myProfile = '/my-profile';
 
   static String chatDetail(String conversationId) => '/messages/chat/$conversationId';
   static String marketplaceListingDetail(String id) => '/marketplace/$id';
+  static String golferProfile(String id) => '/golfers/$id';
 }

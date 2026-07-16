@@ -38,4 +38,21 @@ class MockConversationRepository implements ConversationRepository {
     await Future.delayed(const Duration(milliseconds: 300));
     return _conversations;
   }
+
+  @override
+  Future<Conversation> getOrCreateConversationWith(String participantName) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    for (final conversation in _conversations) {
+      if (conversation.participantName == participantName) return conversation;
+    }
+    final conversation = Conversation(
+      id: 'conv${DateTime.now().millisecondsSinceEpoch}',
+      participantName: participantName,
+      lastMessagePreview: 'Say hello!',
+      lastMessageTime: DateTime.now(),
+      unreadCount: 0,
+    );
+    _conversations.insert(0, conversation);
+    return conversation;
+  }
 }

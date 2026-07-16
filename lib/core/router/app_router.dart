@@ -5,6 +5,9 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/sign_up_page.dart';
 import '../../features/auth/presentation/pages/splash_page.dart';
 import '../../features/club/presentation/pages/club_page.dart';
+import '../../features/golfers/domain/entities/nearby_golfer.dart';
+import '../../features/golfers/presentation/pages/golfer_profile_page.dart';
+import '../../features/golfers/presentation/pages/nearby_golfers_page.dart';
 import '../../features/help_support/presentation/pages/help_support_page.dart';
 import '../../features/home/presentation/pages/create_looking_post_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
@@ -113,7 +116,7 @@ class AppRouter {
               GoRoute(
                 path: AppRoutes.profile,
                 name: 'profile',
-                builder: (context, state) => const ProfilePage(),
+                builder: (context, state) => const NearbyGolfersPage(),
               ),
             ],
           ),
@@ -195,6 +198,16 @@ class AppRouter {
         path: AppRoutes.createLookingPost,
         name: 'createLookingPost',
         builder: (context, state) => const CreateLookingPostPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.myProfile,
+        name: 'myProfile',
+        builder: (context, state) => const ProfilePage(),
+      ),
+      GoRoute(
+        path: '/golfers/:id',
+        name: 'golferProfile',
+        builder: (context, state) => GolferProfilePage(golfer: state.extra as NearbyGolfer),
       ),
     ],
   );
