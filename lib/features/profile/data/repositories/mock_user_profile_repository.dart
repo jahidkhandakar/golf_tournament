@@ -3,10 +3,16 @@ import '../../domain/entities/user_profile.dart';
 import '../../domain/repositories/user_profile_repository.dart';
 
 class MockUserProfileRepository implements UserProfileRepository {
+  // The logged-in user. Their club + current tournament/course are mirrored
+  // in PlayController's seed so the Top 50 challenge conditions line up with
+  // this identity out of the box.
   static const UserProfile _currentUser = UserProfile(
-    name: 'John Doe',
+    name: 'Jahid',
     tier: UserTier.free,
-    handicap: 14.2,
+    handicap: 7.4,
+    homeClub: 'Riverbend Golf Club',
+    currentTournament: 'Riverbend Championship',
+    currentCourse: 'Riverbend Championship Course',
   );
 
   @override

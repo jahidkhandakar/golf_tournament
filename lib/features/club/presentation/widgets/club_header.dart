@@ -5,9 +5,12 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/club.dart';
 
 class ClubHeader extends StatelessWidget {
-  const ClubHeader({super.key, required this.club});
+  const ClubHeader({super.key, required this.club, this.onSwitch});
 
   final Club club;
+
+  /// Opens the club switcher (change which of your clubs the tab shows).
+  final VoidCallback? onSwitch;
 
   @override
   Widget build(BuildContext context) {
@@ -35,10 +38,16 @@ class ClubHeader extends StatelessWidget {
               children: [
                 Text(club.name, style: AppTextStyles.heading3(primaryText)),
                 const SizedBox(height: 2),
-                Text('${club.memberCount} members', style: AppTextStyles.caption(secondaryText)),
+                Text('${club.location} · ${club.memberCount} members', style: AppTextStyles.caption(secondaryText)),
               ],
             ),
           ),
+          if (onSwitch != null)
+            TextButton.icon(
+              onPressed: onSwitch,
+              icon: const Icon(Icons.swap_horiz, size: 18),
+              label: const Text('Switch'),
+            ),
         ],
       ),
     );

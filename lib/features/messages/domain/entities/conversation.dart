@@ -7,6 +7,8 @@ class Conversation extends Equatable {
     required this.lastMessagePreview,
     required this.lastMessageTime,
     required this.unreadCount,
+    required this.location,
+    required this.distanceMiles,
   });
 
   final String id;
@@ -14,7 +16,10 @@ class Conversation extends Equatable {
   final String lastMessagePreview;
   final DateTime lastMessageTime;
   final int unreadCount;
+  final String location;
+  final double distanceMiles;
 
   @override
-  List<Object?> get props => [id, participantName, lastMessagePreview, lastMessageTime, unreadCount];
+  List<Object?> get props =>
+      [id, participantName, lastMessagePreview, lastMessageTime, unreadCount, location, distanceMiles];
 }

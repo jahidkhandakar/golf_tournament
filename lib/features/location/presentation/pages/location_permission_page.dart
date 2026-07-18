@@ -26,7 +26,7 @@ class _LocationPermissionPageState extends State<LocationPermissionPage> {
   Future<void> _useMyLocation() async {
     setState(() => _step = _LocationStep.detecting);
     await Future.delayed(const Duration(milliseconds: 900));
-    GetIt.instance<LocationState>().currentZone.value = _mockZone;
+    GetIt.instance<LocationState>().setZone(_mockZone);
     if (mounted) setState(() => _step = _LocationStep.done);
   }
 

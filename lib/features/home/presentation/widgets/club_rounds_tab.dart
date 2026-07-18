@@ -3,10 +3,15 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../../../core/location/location_state.dart';
+import '../../../../core/play/play_controller.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/info_dialog.dart';
 import '../../domain/entities/club_round.dart';
 import '../../domain/repositories/club_round_repository.dart';
 import 'club_round_card.dart';
+import 'sponsored_banner.dart';
 
 enum _RequestStatus { none, pending, accepted, denied }
 
@@ -39,6 +44,13 @@ class _ClubRoundsTabState extends State<ClubRoundsTab> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
+  void _onJoinClub(ClubRound clubRound) {
+    // Joining the hosting club here is the same membership used by My Clubs
+    // and the challenge flow.
+    GetIt.instance<PlayController>().joinClub(clubRound.clubName);
+    _showMock('Joined ${clubRound.clubName}');
+  }
+
   void _onRequestToPlay(ClubRound clubRound) {
     final current = _requestStatus[clubRound.id] ?? _RequestStatus.none;
 
@@ -69,22 +81,40 @@ class _ClubRoundsTabState extends State<ClubRoundsTab> {
 
   @override
   Widget build(BuildContext context) {
+    final radiusMiles = GetIt.instance<LocationState>().radiusMiles;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final secondaryText = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
+
     return FutureBuilder<List<ClubRound>>(
       future: _future,
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
         }
-        final clubRounds = snapshot.data!;
-        return ListView.builder(
-          padding: const EdgeInsets.only(bottom: 16),
-          itemCount: clubRounds.length,
-          itemBuilder: (context, index) {
-            final clubRound = clubRounds[index];
-            return ClubRoundCard(
-              clubRound: clubRound,
-              onRequestToPlay: () => _onRequestToPlay(clubRound),
-              onJoinClub: () => _showMock('Joined ${clubRound.clubName} (mock)'),
+        final allRounds = snapshot.data!;
+        return ValueListenableBuilder<int>(
+          valueListenable: radiusMiles,
+          builder: (context, radius, _) {
+            final clubRounds = allRounds.where((c) => c.distanceMiles <= radius).toList();
+            return ListView(
+              padding: const EdgeInsets.only(bottom: 16),
+              children: [
+                const SponsoredBanner(),
+                if (clubRounds.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Center(
+                      child: Text('No tournaments within $radius mi', style: AppTextStyles.body(secondaryText)),
+                    ),
+                  )
+                else
+                  for (final clubRound in clubRounds)
+                    ClubRoundCard(
+                      clubRound: clubRound,
+                      onRequestToPlay: () => _onRequestToPlay(clubRound),
+                      onJoinClub: () => _onJoinClub(clubRound),
+                    ),
+              ],
             );
           },
         );

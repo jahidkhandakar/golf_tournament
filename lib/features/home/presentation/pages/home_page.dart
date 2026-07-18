@@ -4,17 +4,20 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/location/location_state.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_styles.dart';
 import '../widgets/club_rounds_tab.dart';
 import '../widgets/looking_tab.dart';
 import '../widgets/outings_tab.dart';
-import '../widgets/sponsored_banner.dart';
-import '../widgets/zone_context_line.dart';
 
-enum _HomeTab { clubs, outings, looking }
+// The first tab lists club-run tournament rounds ([ClubRound]); it's labelled
+// "Tournaments" since that's what those cards are.
+enum _HomeTab { tournaments, outings, looking }
 
-/// Rendered as the Home tab's body inside [MainShell] — the shell supplies
-/// the AppBar, Drawer and bottom navigation, so this only owns the
-/// sponsored banner, zone line, segmented control, and the 3 tab bodies.
+/// Rendered as the Home tab's body inside [MainShell]. Kept deliberately lean:
+/// the segmented control leads, followed by a single compact context bar
+/// (zone + a Marketplace shortcut). The sponsored placement lives inside each
+/// tab's list so it scrolls away instead of pinning chrome to the top.
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -23,38 +26,21 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  _HomeTab _selected = _HomeTab.clubs;
+  _HomeTab _selected = _HomeTab.tournaments;
 
   @override
   Widget build(BuildContext context) {
     final locationState = GetIt.instance<LocationState>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final secondaryText = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
 
     return Column(
       children: [
-        const SponsoredBanner(),
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-          child: SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () => context.push(AppRoutes.marketplace),
-              icon: const Icon(Icons.storefront_outlined),
-              label: const Text('Browse Global Marketplace'),
-            ),
-          ),
-        ),
-        ValueListenableBuilder<String>(
-          valueListenable: locationState.currentZone,
-          builder: (context, zone, _) => ZoneContextLine(
-            zone: zone,
-            radiusMiles: locationState.radiusMiles.value,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
           child: SegmentedButton<_HomeTab>(
             segments: const [
-              ButtonSegment(value: _HomeTab.clubs, label: Text('Clubs')),
+              ButtonSegment(value: _HomeTab.tournaments, label: Text('Tournaments')),
               ButtonSegment(value: _HomeTab.outings, label: Text('Outings')),
               ButtonSegment(value: _HomeTab.looking, label: Text('Looking')),
             ],
@@ -62,7 +48,7 @@ class _HomePageState extends State<HomePage> {
             onSelectionChanged: (selection) => setState(() => _selected = selection.first),
           ),
         ),
-        const SizedBox(height: 8),
+        _ContextBar(locationState: locationState, secondaryText: secondaryText),
         Expanded(
           child: IndexedStack(
             index: _HomeTab.values.indexOf(_selected),
@@ -74,6 +60,62 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// One-line bar: tappable zone + radius on the left, a Marketplace shortcut
+/// on the right.
+class _ContextBar extends StatelessWidget {
+  const _ContextBar({required this.locationState, required this.secondaryText});
+
+  final LocationState locationState;
+  final Color secondaryText;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
+      child: Row(
+        children: [
+          Expanded(
+            child: InkWell(
+              onTap: () => context.push(AppRoutes.location),
+              borderRadius: BorderRadius.circular(8),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: ValueListenableBuilder<String>(
+                  valueListenable: locationState.currentZone,
+                  builder: (context, zone, _) => Row(
+                    children: [
+                      Icon(Icons.location_on_outlined, size: 16, color: secondaryText),
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: Text(
+                          '$zone · ${locationState.radiusMiles.value} mi',
+                          style: AppTextStyles.caption(secondaryText),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () => context.push(AppRoutes.marketplace),
+            style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Marketplace', style: AppTextStyles.caption(AppColors.goldDark)),
+                const Icon(Icons.chevron_right, size: 16, color: AppColors.goldDark),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

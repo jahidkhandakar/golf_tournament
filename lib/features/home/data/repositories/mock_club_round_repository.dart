@@ -37,6 +37,28 @@ class MockClubRoundRepository implements ClubRoundRepository {
       maxPlayers: 40,
       distanceMiles: 18.9,
     ),
+    ClubRound(
+      id: 'g4',
+      clubName: 'Hill Country Club',
+      format: 'Stroke Play',
+      date: DateTime.now().add(const Duration(days: 11)),
+      teeTime: '9:00 AM',
+      courseName: 'Hill Country Ridge',
+      currentPlayers: 16,
+      maxPlayers: 28,
+      distanceMiles: 78,
+    ),
+    ClubRound(
+      id: 'g5',
+      clubName: 'Lakeside Links',
+      format: 'Scramble',
+      date: DateTime.now().add(const Duration(days: 14)),
+      teeTime: '7:20 AM',
+      courseName: 'Lakeside South',
+      currentPlayers: 20,
+      maxPlayers: 32,
+      distanceMiles: 104,
+    ),
   ];
 
   @override

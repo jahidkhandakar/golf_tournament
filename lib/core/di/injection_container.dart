@@ -17,8 +17,6 @@ import '../../features/messages/data/repositories/mock_conversation_repository.d
 import '../../features/messages/data/repositories/mock_message_repository.dart';
 import '../../features/messages/domain/repositories/conversation_repository.dart';
 import '../../features/messages/domain/repositories/message_repository.dart';
-import '../../features/my_clubs/data/repositories/mock_club_membership_repository.dart';
-import '../../features/my_clubs/domain/repositories/club_membership_repository.dart';
 import '../../features/notifications/data/repositories/mock_notification_repository.dart';
 import '../../features/notifications/domain/repositories/notification_repository.dart';
 import '../../features/profile/data/repositories/mock_challenge_repository.dart';
@@ -29,9 +27,11 @@ import '../../features/profile/domain/repositories/round_repository.dart';
 import '../../features/profile/domain/repositories/user_profile_repository.dart';
 import '../../features/top50/data/repositories/mock_leaderboard_repository.dart';
 import '../../features/top50/domain/repositories/leaderboard_repository.dart';
+import '../club/active_club_state.dart';
 import '../location/location_state.dart';
 import '../network/network_info.dart';
 import '../permission/permission_service.dart';
+import '../play/play_controller.dart';
 import '../theme/theme_controller.dart';
 
 final GetIt sl = GetIt.instance;
@@ -45,6 +45,8 @@ Future<void> setupLocator() async {
   sl.registerLazySingleton<PermissionService>(() => PermissionService());
   sl.registerLazySingleton<LocationState>(() => LocationState());
   sl.registerLazySingleton<ThemeController>(() => ThemeController());
+  sl.registerLazySingleton<PlayController>(() => PlayController());
+  sl.registerLazySingleton<ActiveClubState>(() => ActiveClubState());
 
   // Every repository below is a mock backed by hardcoded data for now;
   // swap for a real API-backed implementation behind the same interface
@@ -61,6 +63,5 @@ Future<void> setupLocator() async {
   sl.registerLazySingleton<MessageRepository>(() => MockMessageRepository());
   sl.registerLazySingleton<NotificationRepository>(() => MockNotificationRepository());
   sl.registerLazySingleton<MarketplaceRepository>(() => MockMarketplaceRepository());
-  sl.registerLazySingleton<ClubMembershipRepository>(() => MockClubMembershipRepository());
   sl.registerLazySingleton<GolfersRepository>(() => MockGolfersRepository());
 }

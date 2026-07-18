@@ -30,8 +30,10 @@ class AppRoutes {
   static const String marketplace = '/marketplace';
   static const String createLookingPost = '/looking-to-play/create';
   static const String myProfile = '/my-profile';
+  static const String teeSheet = '/tee-sheet';
 
   static String chatDetail(String conversationId) => '/messages/chat/$conversationId';
   static String marketplaceListingDetail(String id) => '/marketplace/$id';
   static String golferProfile(String id) => '/golfers/$id';
+  static String challengePlayer(String playerName) => '/top50/challenge/$playerName';
 }

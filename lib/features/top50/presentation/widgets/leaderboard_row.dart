@@ -1,31 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
+import '../../../../core/play/play_controller.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/leaderboard_entry.dart';
-
-const _gold = Color(0xFFFFD700);
-const _silver = Color(0xFFC0C0C0);
-const _bronze = Color(0xFFCD7F32);
+import 'rank_medal.dart';
 
 class LeaderboardRow extends StatelessWidget {
-  const LeaderboardRow({super.key, required this.entry, required this.onChallenge});
+  const LeaderboardRow({
+    super.key,
+    required this.rank,
+    required this.entry,
+    required this.onTap,
+    required this.onChallenge,
+  });
 
+  /// Display rank within the current (location-filtered) leaderboard.
+  final int rank;
   final LeaderboardEntry entry;
-  final VoidCallback onChallenge;
 
-  Color? _medalColor() {
-    switch (entry.rank) {
-      case 1:
-        return _gold;
-      case 2:
-        return _silver;
-      case 3:
-        return _bronze;
-      default:
-        return null;
-    }
-  }
+  /// Opens the player detail / challenge screen.
+  final VoidCallback onTap;
+
+  /// Fires the challenge — only reachable once both players share a
+  /// tournament (the button is otherwise replaced by a chevron).
+  final VoidCallback onChallenge;
 
   String _initials(String name) {
     final parts = name.trim().split(RegExp(r'\s+'));
@@ -38,44 +38,50 @@ class LeaderboardRow extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryText = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
     final secondaryText = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
-    final medalColor = _medalColor();
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 28,
-              child: medalColor != null
-                  ? Icon(Icons.emoji_events, color: medalColor, size: 24)
-                  : Text(
-                      '${entry.rank}',
-                      textAlign: TextAlign.center,
-                      style: AppTextStyles.heading3(AppColors.grey),
-                    ),
-            ),
-            const SizedBox(width: 10),
-            CircleAvatar(
-              backgroundColor: AppColors.gold.withValues(alpha: 0.2),
-              child: Text(_initials(entry.playerName), style: AppTextStyles.bodyBold(AppColors.goldDark)),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(entry.playerName, style: AppTextStyles.bodyBold(primaryText)),
-                  Text(
-                    'HCP ${entry.handicap.toStringAsFixed(1)} · ${entry.roundsPlayed} rounds',
-                    style: AppTextStyles.caption(secondaryText),
-                  ),
-                ],
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          child: Row(
+            children: [
+              RankMedal(rank: rank),
+              const SizedBox(width: 10),
+              CircleAvatar(
+                backgroundColor: AppColors.gold.withValues(alpha: 0.2),
+                child: Text(_initials(entry.playerName), style: AppTextStyles.bodyBold(AppColors.goldDark)),
               ),
-            ),
-            OutlinedButton(onPressed: onChallenge, child: const Text('Challenge')),
-          ],
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(entry.playerName, style: AppTextStyles.bodyBold(primaryText)),
+                    Text(
+                      'HCP ${entry.handicap.toStringAsFixed(1)} · ${entry.distanceMiles.toStringAsFixed(0)} mi',
+                      style: AppTextStyles.caption(secondaryText),
+                    ),
+                  ],
+                ),
+              ),
+              // Challenge only illuminates once you've joined the player's
+              // tournament; otherwise a chevron hints to tap through.
+              ValueListenableBuilder<Set<String>>(
+                valueListenable: GetIt.instance<PlayController>().joinedTournaments,
+                builder: (context, tournaments, _) {
+                  final canChallenge =
+                      tournaments.contains(PlayController.tournamentKey(entry.tournamentId, entry.courseName));
+                  if (canChallenge) {
+                    return ElevatedButton(onPressed: onChallenge, child: const Text('Challenge'));
+                  }
+                  return Icon(Icons.chevron_right, color: secondaryText);
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

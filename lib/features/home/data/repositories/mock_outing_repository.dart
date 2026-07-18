@@ -34,6 +34,16 @@ class MockOutingRepository implements OutingRepository {
       maxPlayers: 10,
       distanceMiles: 9.8,
     ),
+    Outing(
+      id: 'o4',
+      title: 'Hill Country Day Trip',
+      hostName: 'Devon L.',
+      format: 'Best Ball',
+      dateTime: DateTime.now().add(const Duration(days: 8, hours: 8)),
+      currentPlayers: 5,
+      maxPlayers: 10,
+      distanceMiles: 82,
+    ),
   ];
 
   @override

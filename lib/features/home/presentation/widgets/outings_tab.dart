@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../../../core/location/location_state.dart';
 import '../../../../core/permission/feature.dart';
 import '../../../../core/permission/permission_service.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -9,6 +10,7 @@ import '../../../../core/widgets/upgrade_prompt.dart';
 import '../../domain/entities/outing.dart';
 import '../../domain/repositories/outing_repository.dart';
 import 'outing_card.dart';
+import 'sponsored_banner.dart';
 
 class OutingsTab extends StatefulWidget {
   const OutingsTab({super.key});
@@ -81,15 +83,29 @@ class _OutingsTabState extends State<OutingsTab> {
               if (!snapshot.hasData) {
                 return const Center(child: CircularProgressIndicator());
               }
-              final outings = snapshot.data!;
-              return ListView.builder(
-                padding: const EdgeInsets.only(bottom: 16),
-                itemCount: outings.length,
-                itemBuilder: (context, index) {
-                  final outing = outings[index];
-                  return OutingCard(
-                    outing: outing,
-                    onJoin: () => _showMock('Joined "${outing.title}" (mock)'),
+              final allOutings = snapshot.data!;
+              return ValueListenableBuilder<int>(
+                valueListenable: GetIt.instance<LocationState>().radiusMiles,
+                builder: (context, radius, _) {
+                  final outings = allOutings.where((o) => o.distanceMiles <= radius).toList();
+                  return ListView(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    children: [
+                      const SponsoredBanner(),
+                      if (outings.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Center(
+                            child: Text('No outings within $radius mi', style: AppTextStyles.body(secondaryText)),
+                          ),
+                        )
+                      else
+                        for (final outing in outings)
+                          OutingCard(
+                            outing: outing,
+                            onJoin: () => _showMock('Joined "${outing.title}" (mock)'),
+                          ),
+                    ],
                   );
                 },
               );

@@ -34,11 +34,27 @@ class ConversationTile extends StatelessWidget {
         conversation.participantName,
         style: hasUnread ? AppTextStyles.bodyBold(primaryText) : AppTextStyles.body(primaryText),
       ),
-      subtitle: Text(
-        conversation.lastMessagePreview,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: hasUnread ? AppTextStyles.bodyBold(secondaryText) : AppTextStyles.body(secondaryText),
+      isThreeLine: true,
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            conversation.lastMessagePreview,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: hasUnread ? AppTextStyles.bodyBold(secondaryText) : AppTextStyles.body(secondaryText),
+          ),
+          Row(
+            children: [
+              Icon(Icons.location_on_outlined, size: 12, color: secondaryText),
+              const SizedBox(width: 2),
+              Text(
+                '${conversation.location} · ${conversation.distanceMiles.toStringAsFixed(0)} mi',
+                style: AppTextStyles.caption(secondaryText),
+              ),
+            ],
+          ),
+        ],
       ),
       trailing: Column(
         mainAxisAlignment: MainAxisAlignment.center,

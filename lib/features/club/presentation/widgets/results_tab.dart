@@ -2,41 +2,23 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../domain/entities/club_member.dart';
 
-typedef _ClubResult = ({
-  String eventName,
-  String date,
-  String format,
-  String winnerName,
-  String winningScore,
-});
+typedef _ResultTemplate = ({String eventName, String date, String format, String score});
 
-const _results = <_ClubResult>[
-  (
-    eventName: 'Spring Club Championship',
-    date: 'Jun 21',
-    format: 'Stroke Play',
-    winnerName: 'Erin Walsh',
-    winningScore: '-4',
-  ),
-  (
-    eventName: 'Member-Guest Scramble',
-    date: 'Jun 7',
-    format: 'Scramble',
-    winnerName: 'Marcus Thompson & guest',
-    winningScore: '-9',
-  ),
-  (
-    eventName: 'Monthly Medal',
-    date: 'May 24',
-    format: 'Stroke Play',
-    winnerName: 'Priya Kapoor',
-    winningScore: '+1',
-  ),
+const _templates = <_ResultTemplate>[
+  (eventName: 'Spring Club Championship', date: 'Jun 21', format: 'Stroke Play', score: '-4'),
+  (eventName: 'Member-Guest Scramble', date: 'Jun 7', format: 'Scramble', score: '-9'),
+  (eventName: 'Monthly Medal', date: 'May 24', format: 'Stroke Play', score: '+1'),
+  (eventName: 'Twilight Cup', date: 'May 10', format: 'Best Ball', score: '-2'),
 ];
 
+/// A club's recent results — winners are drawn from the club's own members so
+/// switching clubs shows that club's events and champions.
 class ResultsTab extends StatelessWidget {
-  const ResultsTab({super.key});
+  const ResultsTab({super.key, required this.members});
+
+  final List<ClubMember> members;
 
   @override
   Widget build(BuildContext context) {
@@ -44,11 +26,19 @@ class ResultsTab extends StatelessWidget {
     final primaryText = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
     final secondaryText = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
 
+    if (members.isEmpty) {
+      return Center(child: Text('No results yet', style: AppTextStyles.body(secondaryText)));
+    }
+
+    // One result per template, each won by a different club member.
+    final count = members.length < _templates.length ? members.length : _templates.length;
+
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      itemCount: _results.length,
+      itemCount: count,
       itemBuilder: (context, index) {
-        final result = _results[index];
+        final template = _templates[index];
+        final winner = members[index % members.length];
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           child: ListTile(
@@ -56,13 +46,13 @@ class ResultsTab extends StatelessWidget {
               backgroundColor: AppColors.gold,
               child: Icon(Icons.emoji_events, color: AppColors.white),
             ),
-            title: Text(result.eventName, style: AppTextStyles.bodyBold(primaryText)),
+            title: Text(template.eventName, style: AppTextStyles.bodyBold(primaryText)),
             subtitle: Text(
-              '${result.date} · ${result.format}\nWinner: ${result.winnerName}',
+              '${template.date} · ${template.format}\nWinner: ${winner.name}',
               style: AppTextStyles.caption(secondaryText),
             ),
             isThreeLine: true,
-            trailing: Text(result.winningScore, style: AppTextStyles.heading3(AppColors.goldDark)),
+            trailing: Text(template.score, style: AppTextStyles.heading3(AppColors.goldDark)),
           ),
         );
       },

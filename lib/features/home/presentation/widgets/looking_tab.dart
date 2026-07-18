@@ -9,6 +9,7 @@ import '../../../../core/widgets/upgrade_prompt.dart';
 import '../../domain/entities/looking_post.dart';
 import '../../domain/repositories/looking_repository.dart';
 import 'looking_post_card.dart';
+import 'sponsored_banner.dart';
 
 class LookingTab extends StatefulWidget {
   const LookingTab({super.key});
@@ -62,17 +63,17 @@ class _LookingTabState extends State<LookingTab> {
                 return const Center(child: CircularProgressIndicator());
               }
               final posts = snapshot.data!;
-              return ListView.builder(
+              return ListView(
                 padding: const EdgeInsets.only(bottom: 16),
-                itemCount: posts.length,
-                itemBuilder: (context, index) {
-                  final post = posts[index];
-                  return LookingPostCard(
-                    post: post,
-                    onInvite: () => _showMock('Invited ${post.playerName} to your club (mock)'),
-                    onMessage: () => _showMock('Opening chat with ${post.playerName} (mock)'),
-                  );
-                },
+                children: [
+                  const SponsoredBanner(),
+                  for (final post in posts)
+                    LookingPostCard(
+                      post: post,
+                      onInvite: () => _showMock('Invited ${post.playerName} to your club (mock)'),
+                      onMessage: () => _showMock('Opening chat with ${post.playerName} (mock)'),
+                    ),
+                ],
               );
             },
           ),

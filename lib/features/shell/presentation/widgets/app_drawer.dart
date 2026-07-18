@@ -21,6 +21,7 @@ class _DrawerDestination {
 
 const _destinations = [
   _DrawerDestination('My Clubs', Icons.sports_golf_outlined, AppRoutes.myClubs),
+  _DrawerDestination('Tee Sheet', Icons.event_available_outlined, AppRoutes.teeSheet),
   _DrawerDestination('Marketplace', Icons.storefront_outlined, AppRoutes.marketplace),
   _DrawerDestination('Subscription & Payment', Icons.payment_outlined, AppRoutes.subscriptionPayment),
   _DrawerDestination('Settings', Icons.settings_outlined, AppRoutes.settings),

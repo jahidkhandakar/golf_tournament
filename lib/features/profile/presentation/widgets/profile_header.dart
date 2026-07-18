@@ -7,14 +7,16 @@ import '../../../../core/user/user_tier.dart';
 class ProfileHeader extends StatelessWidget {
   const ProfileHeader({
     super.key,
-    this.name = 'John Doe',
+    this.name = 'Jahid',
     this.tier = UserTier.free,
-    this.handicap = 14.2,
+    this.handicap = 7.4,
+    this.homeClub = 'Riverbend Golf Club',
   });
 
   final String name;
   final UserTier tier;
   final double handicap;
+  final String homeClub;
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +41,13 @@ class ProfileHeader extends StatelessWidget {
                 Text(name, style: AppTextStyles.heading2(primaryText)),
                 const SizedBox(height: 4),
                 Text('Handicap ${handicap.toStringAsFixed(1)}', style: AppTextStyles.body(secondaryText)),
+                Row(
+                  children: [
+                    Icon(Icons.sports_golf_outlined, size: 14, color: secondaryText),
+                    const SizedBox(width: 4),
+                    Text(homeClub, style: AppTextStyles.caption(secondaryText)),
+                  ],
+                ),
                 const SizedBox(height: 6),
                 Chip(
                   label: Text(tier.label, style: AppTextStyles.caption(AppColors.white)),

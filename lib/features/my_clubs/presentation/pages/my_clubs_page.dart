@@ -2,13 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/club/active_club_state.dart';
+import '../../../../core/play/play_controller.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/widgets/tag_chip.dart';
-import '../../domain/entities/club_membership.dart';
-import '../../domain/repositories/club_membership_repository.dart';
+import '../../../club/domain/entities/club.dart';
+import '../../../club/domain/repositories/club_repository.dart';
 
+/// The clubs hub: the clubs you belong to (tap one to view it on the Club
+/// tab) plus a searchable list of more clubs to discover and join.
+/// Membership is shared with the Club tab and the challenge flow via
+/// [PlayController.joinedClubs].
 class MyClubsPage extends StatefulWidget {
   const MyClubsPage({super.key});
 
@@ -17,17 +22,28 @@ class MyClubsPage extends StatefulWidget {
 }
 
 class _MyClubsPageState extends State<MyClubsPage> {
-  late final Future<List<ClubMembership>> _future =
-      GetIt.instance<ClubMembershipRepository>().getMyClubs();
+  late final Future<List<Club>> _future = GetIt.instance<ClubRepository>().getAllClubs();
+  final _searchController = TextEditingController();
 
-  void _onTapClub(ClubMembership membership) {
-    if (membership.isHomeClub) {
-      context.go(AppRoutes.club);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Switching home club to ${membership.clubName} is coming soon (mock)')),
-      );
-    }
+  PlayController get _play => GetIt.instance<PlayController>();
+  ActiveClubState get _activeClub => GetIt.instance<ActiveClubState>();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _openClub(Club club) {
+    _activeClub.select(club.id);
+    context.go(AppRoutes.club);
+  }
+
+  void _joinClub(Club club) {
+    _play.joinClub(club.name);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Joined ${club.name}')),
+    );
   }
 
   @override
@@ -38,62 +54,125 @@ class _MyClubsPageState extends State<MyClubsPage> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('My Clubs')),
-      body: FutureBuilder<List<ClubMembership>>(
+      body: FutureBuilder<List<Club>>(
         future: _future,
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
-          final memberships = snapshot.data!;
-          return ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              for (final membership in memberships)
-                Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: ListTile(
-                    onTap: () => _onTapClub(membership),
-                    leading: Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: AppColors.gold,
-                        borderRadius: BorderRadius.circular(12),
+          final allClubs = snapshot.data!;
+
+          return ValueListenableBuilder<Set<String>>(
+            valueListenable: _play.joinedClubs,
+            builder: (context, joined, _) {
+              final query = _searchController.text.trim().toLowerCase();
+              final myClubs = allClubs.where((c) => joined.contains(c.name)).toList();
+              final discover = allClubs
+                  .where((c) => !joined.contains(c.name))
+                  .where((c) =>
+                      query.isEmpty ||
+                      c.name.toLowerCase().contains(query) ||
+                      c.location.toLowerCase().contains(query))
+                  .toList();
+
+              return ListView(
+                padding: const EdgeInsets.only(bottom: 24),
+                children: [
+                  _SectionTitle('Your Clubs', secondaryText),
+                  for (final club in myClubs)
+                    _ClubCard(
+                      club: club,
+                      primaryText: primaryText,
+                      secondaryText: secondaryText,
+                      trailing: TextButton(onPressed: () => _openClub(club), child: const Text('View')),
+                      onTap: () => _openClub(club),
+                    ),
+                  const SizedBox(height: 8),
+                  _SectionTitle('Discover Clubs', secondaryText),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: TextField(
+                      controller: _searchController,
+                      onChanged: (_) => setState(() {}),
+                      decoration: const InputDecoration(
+                        hintText: 'Search clubs by name or area...',
+                        prefixIcon: Icon(Icons.search),
+                        isDense: true,
                       ),
-                      child: const Icon(Icons.sports_golf, color: AppColors.white),
-                    ),
-                    title: Text(membership.clubName, style: AppTextStyles.bodyBold(primaryText)),
-                    subtitle: Text(
-                      '${membership.location} · ${membership.memberCount} members',
-                      style: AppTextStyles.caption(secondaryText),
-                    ),
-                    trailing: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        TagChip(
-                          label: membership.role == ClubRole.admin ? 'Admin' : 'Member',
-                          background: AppColors.gold.withValues(alpha: 0.16),
-                          foreground: AppColors.goldDark,
-                        ),
-                        if (membership.isHomeClub) ...[
-                          const SizedBox(height: 4),
-                          Text('Home club', style: AppTextStyles.caption(secondaryText)),
-                        ],
-                      ],
                     ),
                   ),
-                ),
-              const SizedBox(height: 8),
-              OutlinedButton.icon(
-                onPressed: () => context.go(AppRoutes.home),
-                icon: const Icon(Icons.explore_outlined),
-                label: const Text('Find more clubs'),
-              ),
-            ],
+                  if (discover.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text('No other clubs found', style: AppTextStyles.body(secondaryText)),
+                    )
+                  else
+                    for (final club in discover)
+                      _ClubCard(
+                        club: club,
+                        primaryText: primaryText,
+                        secondaryText: secondaryText,
+                        trailing: ElevatedButton(onPressed: () => _joinClub(club), child: const Text('Join')),
+                      ),
+                ],
+              );
+            },
           );
         },
       ),
+    );
+  }
+}
+
+class _ClubCard extends StatelessWidget {
+  const _ClubCard({
+    required this.club,
+    required this.primaryText,
+    required this.secondaryText,
+    required this.trailing,
+    this.onTap,
+  });
+
+  final Club club;
+  final Color primaryText;
+  final Color secondaryText;
+  final Widget trailing;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: ListTile(
+        onTap: onTap,
+        leading: Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(color: AppColors.gold, borderRadius: BorderRadius.circular(12)),
+          child: const Icon(Icons.sports_golf, color: AppColors.white),
+        ),
+        title: Text(club.name, style: AppTextStyles.bodyBold(primaryText)),
+        subtitle: Text(
+          '${club.location} · ${club.memberCount} members',
+          style: AppTextStyles.caption(secondaryText),
+        ),
+        trailing: trailing,
+      ),
+    );
+  }
+}
+
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle(this.title, this.color);
+
+  final String title;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+      child: Text(title, style: AppTextStyles.caption(color).copyWith(fontWeight: FontWeight.w700)),
     );
   }
 }

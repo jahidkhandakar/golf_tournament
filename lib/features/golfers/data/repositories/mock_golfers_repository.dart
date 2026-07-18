@@ -1,8 +1,8 @@
 import '../../domain/entities/nearby_golfer.dart';
 import '../../domain/repositories/golfers_repository.dart';
 
-/// Hardcoded stand-in for a real API-backed repository. All distances are
-/// within the 60 mi default search radius (see LocationState).
+/// Hardcoded stand-in for a real API-backed repository. Distances span the
+/// 60 mi urban and 120 mi rural search radii (see LocationState).
 class MockGolfersRepository implements GolfersRepository {
   static const List<NearbyGolfer> _golfers = [
     NearbyGolfer(
@@ -58,6 +58,24 @@ class MockGolfersRepository implements GolfersRepository {
       homeClub: 'Pine Valley Muni',
       roundsPlayed: 30,
       bio: 'Enjoys challenge matches, open to most formats.',
+    ),
+    NearbyGolfer(
+      id: 'gf7',
+      name: 'Jordan Blake',
+      handicap: 8.1,
+      distanceMiles: 74,
+      homeClub: 'Hill Country Club',
+      roundsPlayed: 15,
+      bio: 'Out in the hill country, always keen for a weekend game.',
+    ),
+    NearbyGolfer(
+      id: 'gf8',
+      name: 'Casey Nguyen',
+      handicap: 9.4,
+      distanceMiles: 108,
+      homeClub: 'Lakeside Links',
+      roundsPlayed: 18,
+      bio: 'Lakeside regular, happy to host visitors.',
     ),
   ];
 

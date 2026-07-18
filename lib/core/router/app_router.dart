@@ -26,6 +26,9 @@ import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/shell/presentation/widgets/main_shell.dart';
 import '../../features/subscription/presentation/pages/subscription_page.dart';
+import '../../features/tee_sheet/presentation/pages/tee_sheet_page.dart';
+import '../../features/top50/domain/entities/leaderboard_entry.dart';
+import '../../features/top50/presentation/pages/challenge_player_page.dart';
 import '../../features/top50/presentation/pages/top50_page.dart';
 import '../widgets/legal_text_page.dart';
 import '../widgets/placeholder_scaffold.dart';
@@ -208,6 +211,16 @@ class AppRouter {
         path: '/golfers/:id',
         name: 'golferProfile',
         builder: (context, state) => GolferProfilePage(golfer: state.extra as NearbyGolfer),
+      ),
+      GoRoute(
+        path: '/top50/challenge/:playerName',
+        name: 'challengePlayer',
+        builder: (context, state) => ChallengePlayerPage(entry: state.extra as LeaderboardEntry),
+      ),
+      GoRoute(
+        path: AppRoutes.teeSheet,
+        name: 'teeSheet',
+        builder: (context, state) => const TeeSheetPage(),
       ),
     ],
   );

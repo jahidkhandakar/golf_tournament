@@ -8,8 +8,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/upgrade_prompt.dart';
 
-const _zoneOptions = ['Austin, TX', 'Round Rock, TX', 'Cedar Park, TX', 'Dallas, TX'];
-
 /// Pushed full-screen from the app bar location pin (no bottom nav).
 /// Free tier can view but not change the zone; Paid/Superuser can change
 /// freely — gated through [PermissionService.can].
@@ -23,6 +21,21 @@ class LocationPage extends StatelessWidget {
       return;
     }
     _showZonePicker(context);
+  }
+
+  /// Super Users can have their location auto-detected (mock GPS) instead of
+  /// picking a zone by hand — free users are gated to their onboarding zone.
+  void _onUseCurrentLocation(BuildContext context) {
+    final permissionService = GetIt.instance<PermissionService>();
+    if (!permissionService.can(Feature.changeLocation)) {
+      UpgradePrompt.show(context, message: 'Upgrade to auto-update your location.');
+      return;
+    }
+    // Mock GPS result.
+    GetIt.instance<LocationState>().setZone('Round Rock, TX');
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Location updated to Round Rock, TX (mock GPS)')),
+    );
   }
 
   void _showZonePicker(BuildContext context) {
@@ -39,16 +52,17 @@ class LocationPage extends StatelessWidget {
             children: [
               const SizedBox(height: 12),
               Text('Choose your zone', style: Theme.of(sheetContext).textTheme.headlineSmall),
-              for (final zone in _zoneOptions)
+              for (final zone in LocationState.zoneOptions)
                 ListTile(
                   title: Text(zone),
+                  subtitle: Text('${LocationState.radiusForZone(zone)} mi radius'),
                   trailing: ValueListenableBuilder<String>(
                     valueListenable: locationState.currentZone,
                     builder: (context, currentZone, _) =>
                         currentZone == zone ? const Icon(Icons.check, color: AppColors.gold) : const SizedBox.shrink(),
                   ),
                   onTap: () {
-                    locationState.currentZone.value = zone;
+                    locationState.setZone(zone);
                     Navigator.of(sheetContext).pop();
                   },
                 ),
@@ -86,13 +100,28 @@ class LocationPage extends StatelessWidget {
               const SizedBox(height: 4),
               ValueListenableBuilder<int>(
                 valueListenable: locationState.radiusMiles,
-                builder: (context, radius, _) =>
-                    Text('$radius mi radius', style: AppTextStyles.caption(secondaryText)),
+                builder: (context, radius, _) => Text(
+                  'Showing golfers & clubs within $radius mi',
+                  style: AppTextStyles.caption(secondaryText),
+                  textAlign: TextAlign.center,
+                ),
               ),
               const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () => _onChangeLocation(context),
-                child: const Text('Change Location'),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () => _onUseCurrentLocation(context),
+                  icon: const Icon(Icons.my_location),
+                  label: const Text('Use My Current Location'),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () => _onChangeLocation(context),
+                  child: const Text('Change Location'),
+                ),
               ),
             ],
           ),

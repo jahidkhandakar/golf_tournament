@@ -51,10 +51,30 @@ class _ProfilePageState extends State<ProfilePage> {
           final isDark = Theme.of(context).brightness == Brightness.dark;
           final primaryText = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
 
+          final secondaryText = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
+
           return ListView(
             padding: const EdgeInsets.only(bottom: 24),
             children: [
-              ProfileHeader(name: data.user.name, tier: data.user.tier, handicap: data.user.handicap),
+              ProfileHeader(
+                name: data.user.name,
+                tier: data.user.tier,
+                handicap: data.user.handicap,
+                homeClub: data.user.homeClub,
+              ),
+              Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                child: ListTile(
+                  leading: const Icon(Icons.emoji_events_outlined, color: AppColors.gold),
+                  title: Text('Currently playing', style: AppTextStyles.caption(secondaryText)),
+                  subtitle: Text(
+                    '${data.user.currentTournament}\n${data.user.currentCourse}',
+                    style: AppTextStyles.bodyBold(primaryText),
+                  ),
+                  isThreeLine: true,
+                ),
+              ),
+              const SizedBox(height: 8),
               ProfileStatsSection(rounds: data.rounds),
               const SizedBox(height: 16),
               _SectionTitle(title: 'Round History', color: primaryText),
