@@ -1,3 +1,4 @@
+import '../../domain/entities/chat_product.dart';
 import '../../domain/entities/conversation.dart';
 import '../../domain/repositories/conversation_repository.dart';
 
@@ -59,8 +60,11 @@ class MockConversationRepository implements ConversationRepository {
   @override
   Future<Conversation> getOrCreateConversationWith(String participantName) async {
     await Future.delayed(const Duration(milliseconds: 200));
+    // A golfer DM is a plain (non-product) thread with this person.
     for (final conversation in _conversations) {
-      if (conversation.participantName == participantName) return conversation;
+      if (conversation.participantName == participantName && conversation.product == null) {
+        return conversation;
+      }
     }
     final conversation = Conversation(
       id: 'conv${DateTime.now().millisecondsSinceEpoch}',
@@ -70,6 +74,32 @@ class MockConversationRepository implements ConversationRepository {
       unreadCount: 0,
       location: 'Nearby',
       distanceMiles: 0,
+    );
+    _conversations.insert(0, conversation);
+    return conversation;
+  }
+
+  @override
+  Future<Conversation> getOrCreateProductConversation({
+    required String sellerName,
+    required ChatProduct product,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    // One thread per (seller + item).
+    for (final conversation in _conversations) {
+      if (conversation.participantName == sellerName && conversation.product?.title == product.title) {
+        return conversation;
+      }
+    }
+    final conversation = Conversation(
+      id: 'conv${DateTime.now().millisecondsSinceEpoch}',
+      participantName: sellerName,
+      lastMessagePreview: 'Re: ${product.title}',
+      lastMessageTime: DateTime.now(),
+      unreadCount: 0,
+      location: 'Marketplace',
+      distanceMiles: 0,
+      product: product,
     );
     _conversations.insert(0, conversation);
     return conversation;

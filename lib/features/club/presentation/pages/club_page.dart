@@ -127,7 +127,7 @@ class _ClubHome extends StatelessWidget {
                 LeaderboardTab(members: club.members),
                 ResultsTab(members: club.members),
                 ChatTab(members: club.members),
-                MarketplaceTab(clubName: club.name, members: club.members),
+                MarketplaceTab(clubName: club.name, clubLocation: club.location, members: club.members),
                 GalleryTab(clubName: club.name),
               ],
             ),

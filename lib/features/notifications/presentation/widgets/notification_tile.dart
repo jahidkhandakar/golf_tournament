@@ -21,6 +21,8 @@ class NotificationTile extends StatelessWidget {
         return Icons.emoji_events_outlined;
       case NotificationType.clubInvite:
         return Icons.group_add_outlined;
+      case NotificationType.newMessage:
+        return Icons.chat_bubble_outline;
     }
   }
 

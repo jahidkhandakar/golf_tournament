@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_styles.dart';
+import '../../domain/entities/chat_product.dart';
 import '../../domain/entities/conversation.dart';
 import '../../domain/entities/message.dart';
 import '../../domain/repositories/message_repository.dart';
 import '../widgets/message_bubble.dart';
 
 /// Full-screen 1-on-1 chat, pushed on top of the shell (no bottom nav).
-/// Messaging is always free — no permission gate here.
+/// Messaging is always free — no permission gate here. When the conversation
+/// came from a marketplace listing, the item is pinned at the top.
 class ChatDetailPage extends StatefulWidget {
   const ChatDetailPage({super.key, required this.conversation});
 
@@ -26,6 +30,21 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
   Future<List<Message>> _loadMessages() => _repository.getMessages(widget.conversation.id);
 
+  @override
+  void initState() {
+    super.initState();
+    // On a fresh product chat, prefill the standard opening question so the
+    // buyer isn't staring at a blank box.
+    final product = widget.conversation.product;
+    if (product != null) {
+      _future.then((messages) {
+        if (mounted && messages.isEmpty && _controller.text.isEmpty) {
+          _controller.text = 'Hi, is the ${product.title} still available?';
+        }
+      });
+    }
+  }
+
   Future<void> _send() async {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
@@ -43,10 +62,13 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final product = widget.conversation.product;
+
     return Scaffold(
       appBar: AppBar(title: Text(widget.conversation.participantName)),
       body: Column(
         children: [
+          if (product != null) _PinnedProduct(product: product),
           Expanded(
             child: FutureBuilder<List<Message>>(
               future: _future,
@@ -87,6 +109,56 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// The marketplace item this chat is about, pinned below the app bar.
+class _PinnedProduct extends StatelessWidget {
+  const _PinnedProduct({required this.product});
+
+  final ChatProduct product;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryText = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
+    final secondaryText = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
+
+    return Material(
+      color: AppColors.gold.withValues(alpha: isDark ? 0.16 : 0.09),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: AppColors.gold.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(product.icon, color: AppColors.goldDark),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product.title,
+                    style: AppTextStyles.bodyBold(primaryText),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text('Marketplace item', style: AppTextStyles.caption(secondaryText)),
+                ],
+              ),
+            ),
+            Text(product.price, style: AppTextStyles.heading3(AppColors.goldDark)),
+          ],
+        ),
       ),
     );
   }

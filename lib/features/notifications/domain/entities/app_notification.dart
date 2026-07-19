@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-enum NotificationType { requestAccepted, teeTimePosted, newChallenge, clubInvite }
+enum NotificationType { requestAccepted, teeTimePosted, newChallenge, clubInvite, newMessage }
 
 class AppNotification extends Equatable {
   const AppNotification({

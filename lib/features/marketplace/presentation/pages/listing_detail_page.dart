@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/date_formatter.dart';
+import '../../../messages/presentation/open_seller_chat.dart';
 import '../../domain/entities/marketplace_listing.dart';
 
 class ListingDetailPage extends StatelessWidget {
@@ -47,7 +48,22 @@ class ListingDetailPage extends StatelessWidget {
           Text('Description', style: AppTextStyles.heading3(primaryText)),
           const SizedBox(height: 8),
           Text(listing.description, style: AppTextStyles.body(primaryText)),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () => openSellerChat(
+                context,
+                sellerName: listing.sellerName,
+                title: listing.title,
+                price: '\$${listing.price.toStringAsFixed(0)}',
+                icon: listing.icon,
+              ),
+              icon: const Icon(Icons.chat_bubble_outline),
+              label: Text('Message ${listing.sellerName.split(' ').first}'),
+            ),
+          ),
+          const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -60,7 +76,7 @@ class ListingDetailPage extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    "GGW Connect doesn't process payments or handle checkout — this is a listing preview only.",
+                    "GGW Connect doesn't handle payments — message the seller to arrange the deal in person.",
                     style: AppTextStyles.caption(secondaryText),
                   ),
                 ),

@@ -4,6 +4,13 @@ import '../../domain/repositories/notification_repository.dart';
 class MockNotificationRepository implements NotificationRepository {
   List<AppNotification> _notifications = [
     AppNotification(
+      id: 'n0',
+      type: NotificationType.newMessage,
+      text: 'Dana Reyes messaged you about your Push cart listing.',
+      timestamp: DateTime.now().subtract(const Duration(minutes: 8)),
+      isRead: false,
+    ),
+    AppNotification(
       id: 'n1',
       type: NotificationType.requestAccepted,
       text: 'Riverbend Golf Club accepted your request to play.',
