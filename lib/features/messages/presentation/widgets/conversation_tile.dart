@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/date_formatter.dart';
+import '../../../../core/widgets/photo_avatar.dart';
 import '../../domain/entities/conversation.dart';
 
 class ConversationTile extends StatelessWidget {
@@ -10,12 +11,6 @@ class ConversationTile extends StatelessWidget {
 
   final Conversation conversation;
   final VoidCallback onTap;
-
-  String _initials(String name) {
-    final parts = name.trim().split(RegExp(r'\s+'));
-    if (parts.length < 2) return parts.isEmpty ? '?' : parts.first.substring(0, 1).toUpperCase();
-    return (parts.first.substring(0, 1) + parts.last.substring(0, 1)).toUpperCase();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,10 +21,7 @@ class ConversationTile extends StatelessWidget {
 
     return ListTile(
       onTap: onTap,
-      leading: CircleAvatar(
-        backgroundColor: AppColors.gold,
-        child: Text(_initials(conversation.participantName), style: AppTextStyles.bodyBold(AppColors.white)),
-      ),
+      leading: PhotoAvatar(name: conversation.participantName, radius: 22),
       title: Text(
         conversation.participantName,
         style: hasUnread ? AppTextStyles.bodyBold(primaryText) : AppTextStyles.body(primaryText),

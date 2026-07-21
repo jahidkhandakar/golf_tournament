@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/user/user_tier.dart';
+import '../../../../core/widgets/photo_avatar.dart';
 
 class ProfileHeader extends StatelessWidget {
   const ProfileHeader({
@@ -28,11 +29,7 @@ class ProfileHeader extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          const CircleAvatar(
-            radius: 32,
-            backgroundColor: AppColors.gold,
-            child: Icon(Icons.person, color: AppColors.white, size: 36),
-          ),
+          PhotoAvatar(name: name, radius: 32),
           const SizedBox(width: 16),
           Expanded(
             child: Column(

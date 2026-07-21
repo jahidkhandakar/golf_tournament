@@ -1,24 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/assets/app_images.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../marketplace/domain/entities/equipment_catalog.dart';
 import '../../../marketplace/domain/entities/marketplace_listing.dart';
 import '../../domain/entities/club_member.dart';
-
-/// Pool of items club members list — assigned to members below so each club's
-/// marketplace reflects its own roster.
-const _itemPool = <({String title, double price, IconData icon})>[
-  (title: 'Titleist Pro V1 (dozen)', price: 32, icon: Icons.sports_golf),
-  (title: 'Left-handed driver, 10.5°', price: 110, icon: Icons.golf_course),
-  (title: 'Push cart, barely used', price: 65, icon: Icons.shopping_cart_outlined),
-  (title: 'Golf bag, Sun Mountain', price: 85, icon: Icons.backpack_outlined),
-  (title: 'Rangefinder with slope', price: 140, icon: Icons.center_focus_strong_outlined),
-  (title: 'Golf shoes, size 10.5', price: 40, icon: Icons.hiking_outlined),
-  (title: 'Blade putter', price: 70, icon: Icons.straighten_outlined),
-  (title: 'Glove 3-pack', price: 25, icon: Icons.back_hand_outlined),
-];
 
 /// A club's own marketplace. Listings are built from the club's members so
 /// switching clubs shows a different set of sellers and items. Tapping a tile
@@ -57,11 +46,11 @@ class _MarketplaceTabState extends State<MarketplaceTab> {
   }
 
   List<MarketplaceListing> _listingsForClub() {
-    // Offset the item pool by the club name so two clubs with similar rosters
+    // Offset the catalogue by the club name so two clubs with similar rosters
     // still show different items.
     final offset = widget.clubName.hashCode.abs();
     return List.generate(widget.members.length, (i) {
-      final item = _itemPool[(i + offset) % _itemPool.length];
+      final item = equipmentCatalog[(i + offset) % equipmentCatalog.length];
       final member = widget.members[i];
       return MarketplaceListing(
         id: 'club-${widget.clubName}-$i',
@@ -73,6 +62,7 @@ class _MarketplaceTabState extends State<MarketplaceTab> {
         description: '${item.title} listed by ${member.name} at ${widget.clubName}. '
             'Message to arrange a meetup — GGW Connect deals happen in person.',
         icon: item.icon,
+        imageKey: item.imageKey,
       );
     });
   }
@@ -142,10 +132,19 @@ class _MarketplaceTabState extends State<MarketplaceTab> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Expanded(
-                                child: Center(
-                                  child: Icon(listing.icon, size: 40, color: AppColors.gold),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Image.asset(
+                                    AppImages.equipment(listing.imageKey),
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                    cacheWidth: 400,
+                                    errorBuilder: (context, error, stackTrace) =>
+                                        Center(child: Icon(listing.icon, size: 40, color: AppColors.gold)),
+                                  ),
                                 ),
                               ),
+                              const SizedBox(height: 6),
                               Text(listing.title, style: AppTextStyles.bodyBold(primaryText), maxLines: 2),
                               const SizedBox(height: 4),
                               Text('\$${listing.price.toStringAsFixed(0)}',

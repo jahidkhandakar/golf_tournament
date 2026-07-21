@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../../../core/assets/app_images.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/image_preview.dart';
 import '../../domain/entities/chat_product.dart';
 import '../../domain/entities/conversation.dart';
 import '../../domain/entities/message.dart';
@@ -132,14 +134,24 @@ class _PinnedProduct extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Row(
           children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: AppColors.gold.withValues(alpha: 0.2),
+            GestureDetector(
+              onTap: () => ImagePreview.show(context, AppImages.equipment(product.imageKey)),
+              child: ClipRRect(
                 borderRadius: BorderRadius.circular(10),
+                child: Image.asset(
+                  AppImages.equipment(product.imageKey),
+                  width: 44,
+                  height: 44,
+                  fit: BoxFit.cover,
+                  cacheWidth: 120,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    width: 44,
+                    height: 44,
+                    color: AppColors.gold.withValues(alpha: 0.2),
+                    child: Icon(product.icon, color: AppColors.goldDark),
+                  ),
+                ),
               ),
-              child: Icon(product.icon, color: AppColors.goldDark),
             ),
             const SizedBox(width: 12),
             Expanded(

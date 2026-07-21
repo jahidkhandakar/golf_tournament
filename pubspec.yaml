@@ -39,6 +39,9 @@ flutter:
 
   assets:
     - assets/icons/golf_logo2.png
+    - assets/pics/people/
+    - assets/pics/field/
+    - assets/pics/equipments/
 
   fonts:
     - family: Schuyler

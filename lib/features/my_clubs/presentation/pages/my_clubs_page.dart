@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/assets/app_images.dart';
 import '../../../../core/club/active_club_state.dart';
 import '../../../../core/play/play_controller.dart';
 import '../../../../core/router/app_routes.dart';
@@ -145,11 +146,21 @@ class _ClubCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: ListTile(
         onTap: onTap,
-        leading: Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(color: AppColors.gold, borderRadius: BorderRadius.circular(12)),
-          child: const Icon(Icons.sports_golf, color: AppColors.white),
+        leading: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.asset(
+            AppImages.field(club.name),
+            width: 44,
+            height: 44,
+            fit: BoxFit.cover,
+            cacheWidth: 120,
+            errorBuilder: (context, error, stackTrace) => Container(
+              width: 44,
+              height: 44,
+              color: AppColors.gold,
+              child: const Icon(Icons.sports_golf, color: AppColors.white),
+            ),
+          ),
         ),
         title: Text(club.name, style: AppTextStyles.bodyBold(primaryText)),
         subtitle: Text(

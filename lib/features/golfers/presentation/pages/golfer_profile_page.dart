@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/assets/app_images.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/image_preview.dart';
 import '../../../messages/domain/repositories/conversation_repository.dart';
 import '../../domain/entities/nearby_golfer.dart';
 
@@ -39,21 +41,30 @@ class GolferProfilePage extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Center(
-            child: Column(
-              children: [
-                CircleAvatar(
-                  radius: 44,
-                  backgroundColor: AppColors.gold,
+          GestureDetector(
+            onTap: () => ImagePreview.show(context, AppImages.person(golfer.name)),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Image.asset(
+                AppImages.person(golfer.name),
+                width: double.infinity,
+                height: 200,
+                fit: BoxFit.cover,
+                alignment: const Alignment(0, -0.2),
+                cacheWidth: 800,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  height: 200,
+                  color: AppColors.gold,
+                  alignment: Alignment.center,
                   child: Text(_initials(golfer.name), style: AppTextStyles.heading1(AppColors.white)),
                 ),
-                const SizedBox(height: 12),
-                Text(golfer.name, style: AppTextStyles.heading2(primaryText)),
-                const SizedBox(height: 4),
-                Text('Handicap ${golfer.handicap.toStringAsFixed(1)}', style: AppTextStyles.body(secondaryText)),
-              ],
+              ),
             ),
           ),
+          const SizedBox(height: 12),
+          Text(golfer.name, style: AppTextStyles.heading2(primaryText)),
+          const SizedBox(height: 4),
+          Text('Handicap ${golfer.handicap.toStringAsFixed(1)}', style: AppTextStyles.body(secondaryText)),
           const SizedBox(height: 24),
           _InfoRow(icon: Icons.sports_golf_outlined, label: 'Home club', value: golfer.homeClub, primaryText: primaryText, secondaryText: secondaryText),
           _InfoRow(icon: Icons.golf_course_outlined, label: 'Rounds played', value: '${golfer.roundsPlayed}', primaryText: primaryText, secondaryText: secondaryText),

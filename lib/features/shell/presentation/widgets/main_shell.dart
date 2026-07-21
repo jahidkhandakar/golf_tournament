@@ -24,7 +24,7 @@ const _tabs = [
   _TabConfig('Club', Icons.flag_outlined, Icons.flag),
   _TabConfig('Top 50', Icons.emoji_events_outlined, Icons.emoji_events),
   _TabConfig('Messages', Icons.chat_bubble_outline, Icons.chat_bubble),
-  _TabConfig('Profile', Icons.person_outline, Icons.person),
+  _TabConfig('Users', Icons.people_outline, Icons.people),
 ];
 
 /// Shell wrapping the logged-in experience: a shared AppBar + Drawer, the

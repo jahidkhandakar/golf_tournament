@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/assets/app_images.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/date_formatter.dart';
@@ -29,13 +30,18 @@ class ListingCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: AppColors.gold.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(12),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.asset(
+                    AppImages.equipment(listing.imageKey),
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    cacheWidth: 400,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: AppColors.gold.withValues(alpha: 0.15),
+                      child: Icon(listing.icon, color: AppColors.goldDark, size: 36),
+                    ),
                   ),
-                  child: Icon(listing.icon, color: AppColors.goldDark, size: 36),
                 ),
               ),
               const SizedBox(height: 8),

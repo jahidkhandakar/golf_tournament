@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/assets/app_images.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/image_preview.dart';
 
-/// A club's photo gallery (placeholder thumbnails). The number of photos is
-/// derived from the club so switching clubs shows a different-sized gallery.
+/// A club's photo gallery — the club's course shot plus community/scene
+/// photos. The count is derived from the club so switching clubs shows a
+/// different-sized gallery.
 class GalleryTab extends StatelessWidget {
   const GalleryTab({super.key, required this.clubName});
 
@@ -15,8 +18,12 @@ class GalleryTab extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final secondaryText = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
 
-    // 6–14 placeholder photos, deterministic per club.
-    final photoCount = 6 + (clubName.hashCode.abs() % 9);
+    // 6–12 tiles, deterministic per club. First tile is the club's course.
+    final photoCount = 6 + (clubName.hashCode.abs() % 7);
+    final paths = <String>[
+      AppImages.field(clubName),
+      for (var i = 0; i < photoCount - 1; i++) AppImages.scene(i + clubName.hashCode.abs()),
+    ];
 
     return Column(
       children: [
@@ -26,7 +33,7 @@ class GalleryTab extends StatelessWidget {
             children: [
               Icon(Icons.photo_library_outlined, size: 16, color: secondaryText),
               const SizedBox(width: 4),
-              Text('$photoCount photos', style: AppTextStyles.caption(secondaryText)),
+              Text('${paths.length} photos', style: AppTextStyles.caption(secondaryText)),
             ],
           ),
         ),
@@ -38,18 +45,21 @@ class GalleryTab extends StatelessWidget {
               mainAxisSpacing: 8,
               crossAxisSpacing: 8,
             ),
-            itemCount: photoCount,
+            itemCount: paths.length,
             itemBuilder: (context, index) {
               return GestureDetector(
-                onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Photo viewer coming soon (mock)')),
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.gold.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(10),
+                onTap: () => ImagePreview.show(context, paths[index]),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.asset(
+                    paths[index],
+                    fit: BoxFit.cover,
+                    cacheWidth: 300,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: AppColors.gold.withValues(alpha: 0.15),
+                      child: const Icon(Icons.image_outlined, color: AppColors.gold),
+                    ),
                   ),
-                  child: const Icon(Icons.image_outlined, color: AppColors.gold),
                 ),
               );
             },

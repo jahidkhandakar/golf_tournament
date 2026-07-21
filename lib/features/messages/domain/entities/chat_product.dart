@@ -10,6 +10,7 @@ class ChatProduct extends Equatable {
     required this.price,
     required this.sellerName,
     required this.icon,
+    required this.imageKey,
   });
 
   final String title;
@@ -18,9 +19,12 @@ class ChatProduct extends Equatable {
   final String price;
   final String sellerName;
 
-  /// Stand-in for the listing photo.
+  /// Fallback icon if the photo can't load.
   final IconData icon;
 
+  /// Matches assets/pics/equipments/<imageKey>.jpg.
+  final String imageKey;
+
   @override
-  List<Object?> get props => [title, price, sellerName, icon];
+  List<Object?> get props => [title, price, sellerName, icon, imageKey];
 }

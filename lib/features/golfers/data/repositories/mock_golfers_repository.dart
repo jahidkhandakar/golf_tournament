@@ -1,32 +1,33 @@
 import '../../domain/entities/nearby_golfer.dart';
 import '../../domain/repositories/golfers_repository.dart';
 
-/// Hardcoded stand-in for a real API-backed repository. Distances span the
-/// 60 mi urban and 120 mi rural search radii (see LocationState).
+/// Hardcoded stand-in for a real API-backed repository. One entry per named
+/// golfer (all except the logged-in user), so each shows their own photo.
+/// Distances span the 60 mi urban and 120 mi rural search radii.
 class MockGolfersRepository implements GolfersRepository {
   static const List<NearbyGolfer> _golfers = [
     NearbyGolfer(
       id: 'gf1',
       name: 'Marcus Thompson',
-      handicap: 8.2,
+      handicap: 3.4,
       distanceMiles: 3.4,
       homeClub: 'Riverbend Golf Club',
-      roundsPlayed: 34,
+      roundsPlayed: 41,
       bio: 'Weekend regular at Riverbend, always up for a scramble.',
     ),
     NearbyGolfer(
       id: 'gf2',
       name: 'Dana Reyes',
-      handicap: 14.6,
+      handicap: 7.5,
       distanceMiles: 6.1,
       homeClub: 'Oakmont Hills',
-      roundsPlayed: 21,
-      bio: 'Learning the game, happy to join any beginner-friendly outing.',
+      roundsPlayed: 26,
+      bio: 'Happy to join any beginner-friendly outing.',
     ),
     NearbyGolfer(
       id: 'gf3',
       name: 'Priya Kapoor',
-      handicap: 11.0,
+      handicap: 4.0,
       distanceMiles: 9.8,
       homeClub: 'Riverbend Golf Club',
       roundsPlayed: 28,
@@ -35,11 +36,11 @@ class MockGolfersRepository implements GolfersRepository {
     NearbyGolfer(
       id: 'gf4',
       name: 'Sam Ortiz',
-      handicap: 19.4,
+      handicap: 6.8,
       distanceMiles: 12.3,
       homeClub: 'Pine Valley Muni',
-      roundsPlayed: 15,
-      bio: 'New to the area, looking to meet other golfers.',
+      roundsPlayed: 19,
+      bio: 'Looking to meet other golfers around the area.',
     ),
     NearbyGolfer(
       id: 'gf5',
@@ -47,7 +48,7 @@ class MockGolfersRepository implements GolfersRepository {
       handicap: 2.1,
       distanceMiles: 15.7,
       homeClub: 'Oakmont Hills',
-      roundsPlayed: 41,
+      roundsPlayed: 34,
       bio: 'Competitive player, top of the club leaderboard most months.',
     ),
     NearbyGolfer(
@@ -56,11 +57,38 @@ class MockGolfersRepository implements GolfersRepository {
       handicap: 5.2,
       distanceMiles: 22.4,
       homeClub: 'Pine Valley Muni',
-      roundsPlayed: 30,
+      roundsPlayed: 22,
       bio: 'Enjoys challenge matches, open to most formats.',
     ),
     NearbyGolfer(
       id: 'gf7',
+      name: 'Alex Rivera',
+      handicap: 3.7,
+      distanceMiles: 30,
+      homeClub: 'Hill Country Club',
+      roundsPlayed: 31,
+      bio: 'Plays the West course, keen for a weekend round.',
+    ),
+    NearbyGolfer(
+      id: 'gf8',
+      name: 'Riley Foster',
+      handicap: 10.2,
+      distanceMiles: 45,
+      homeClub: 'Pine Valley Muni',
+      roundsPlayed: 12,
+      bio: 'Newer to the game, friendly and always learning.',
+    ),
+    NearbyGolfer(
+      id: 'gf9',
+      name: 'Taylor Brooks',
+      handicap: 11.6,
+      distanceMiles: 52,
+      homeClub: 'Lakeside Links',
+      roundsPlayed: 20,
+      bio: 'Casual rounds and the odd club medal.',
+    ),
+    NearbyGolfer(
+      id: 'gf10',
       name: 'Jordan Blake',
       handicap: 8.1,
       distanceMiles: 74,
@@ -69,7 +97,7 @@ class MockGolfersRepository implements GolfersRepository {
       bio: 'Out in the hill country, always keen for a weekend game.',
     ),
     NearbyGolfer(
-      id: 'gf8',
+      id: 'gf11',
       name: 'Casey Nguyen',
       handicap: 9.4,
       distanceMiles: 108,

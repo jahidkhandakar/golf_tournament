@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/photo_avatar.dart';
 import '../../domain/entities/club_member.dart';
 
 typedef _FeedPost = ({String author, String timeAgo, String text, int likes});
@@ -45,14 +46,7 @@ class FeedTab extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    CircleAvatar(
-                      radius: 16,
-                      backgroundColor: AppColors.gold,
-                      child: Text(
-                        post.author.substring(0, 1),
-                        style: AppTextStyles.bodyBold(AppColors.white),
-                      ),
-                    ),
+                    PhotoAvatar(name: post.author, radius: 16),
                     const SizedBox(width: 10),
                     Expanded(child: Text(post.author, style: AppTextStyles.bodyBold(primaryText))),
                     Text(post.timeAgo, style: AppTextStyles.caption(secondaryText)),

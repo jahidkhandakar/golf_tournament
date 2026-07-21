@@ -6,6 +6,7 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/user/user_tier.dart';
+import '../../../../core/widgets/photo_avatar.dart';
 import '../../../../core/widgets/tag_chip.dart';
 import '../../../../core/widgets/upgrade_prompt.dart';
 import '../../../profile/domain/entities/user_profile.dart';
@@ -76,60 +77,70 @@ class _DrawerContent extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final textColor = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
 
+    final secondaryText = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
+
     return Column(
       children: [
+        const SizedBox(height: 8),
         InkWell(
           onTap: () => onNavigate(context, AppRoutes.myProfile),
-          child: DrawerHeader(
-            decoration: BoxDecoration(color: theme.colorScheme.surface),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 12, 8),
+            child: Row(
               children: [
-                const CircleAvatar(
-                  radius: 32,
-                  backgroundColor: AppColors.gold,
-                  child: Icon(Icons.person, color: AppColors.white, size: 32),
+                PhotoAvatar(name: user.name, radius: 24),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(user.name, style: AppTextStyles.heading3(textColor)),
+                      const SizedBox(height: 4),
+                      TagChip(label: user.tier.label, background: user.tier.color, foreground: AppColors.white),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 10),
-                Text(user.name, style: AppTextStyles.heading3(textColor)),
-                const SizedBox(height: 6),
-                TagChip(label: user.tier.label, background: user.tier.color, foreground: AppColors.white),
+                Icon(Icons.chevron_right, color: secondaryText),
               ],
             ),
           ),
         ),
+        const Divider(height: 1),
         if (user.tier == UserTier.free)
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
             child: Card(
+              margin: EdgeInsets.zero,
               color: AppColors.gold.withValues(alpha: 0.12),
               child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
+                child: Row(
                   children: [
-                    Text('Go Pro', style: AppTextStyles.heading3(textColor)),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Unlock club management, leaderboards and more.',
-                      style: AppTextStyles.body(
-                        isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                    Expanded(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Go Pro', style: AppTextStyles.bodyBold(textColor)),
+                          Text('Unlock the full app', style: AppTextStyles.caption(secondaryText)),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          UpgradePrompt.show(
-                            context,
-                            message: 'Upgrade to GGW Pro to unlock this feature.',
-                          );
-                        },
-                        child: const Text('Upgrade'),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        UpgradePrompt.show(
+                          context,
+                          message: 'Upgrade to GGW Pro to unlock this feature.',
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       ),
+                      child: const Text('Upgrade'),
                     ),
                   ],
                 ),

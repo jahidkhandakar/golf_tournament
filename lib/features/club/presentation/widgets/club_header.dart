@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/assets/app_images.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/image_preview.dart';
 import '../../domain/entities/club.dart';
 
 class ClubHeader extends StatelessWidget {
@@ -22,14 +24,24 @@ class ClubHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
       child: Row(
         children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: AppColors.gold,
+          GestureDetector(
+            onTap: () => ImagePreview.show(context, AppImages.field(club.name)),
+            child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
+              child: Image.asset(
+                AppImages.field(club.name),
+                width: 56,
+                height: 56,
+                fit: BoxFit.cover,
+                cacheWidth: 160,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  width: 56,
+                  height: 56,
+                  color: AppColors.gold,
+                  child: const Icon(Icons.sports_golf, color: AppColors.white, size: 28),
+                ),
+              ),
             ),
-            child: const Icon(Icons.sports_golf, color: AppColors.white, size: 28),
           ),
           const SizedBox(width: 14),
           Expanded(

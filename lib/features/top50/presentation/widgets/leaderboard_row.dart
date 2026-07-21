@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import '../../../../core/play/play_controller.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/photo_avatar.dart';
 import '../../domain/entities/leaderboard_entry.dart';
 import 'rank_medal.dart';
 
@@ -27,12 +28,6 @@ class LeaderboardRow extends StatelessWidget {
   /// tournament (the button is otherwise replaced by a chevron).
   final VoidCallback onChallenge;
 
-  String _initials(String name) {
-    final parts = name.trim().split(RegExp(r'\s+'));
-    if (parts.length < 2) return parts.isEmpty ? '?' : parts.first.substring(0, 1).toUpperCase();
-    return (parts.first.substring(0, 1) + parts.last.substring(0, 1)).toUpperCase();
-  }
-
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -50,10 +45,7 @@ class LeaderboardRow extends StatelessWidget {
             children: [
               RankMedal(rank: rank),
               const SizedBox(width: 10),
-              CircleAvatar(
-                backgroundColor: AppColors.gold.withValues(alpha: 0.2),
-                child: Text(_initials(entry.playerName), style: AppTextStyles.bodyBold(AppColors.goldDark)),
-              ),
+              PhotoAvatar(name: entry.playerName, radius: 20),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(

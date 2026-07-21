@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/assets/app_images.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/date_formatter.dart';
+import '../../../../core/widgets/image_preview.dart';
 import '../../../messages/presentation/open_seller_chat.dart';
 import '../../domain/entities/marketplace_listing.dart';
 
@@ -22,14 +24,24 @@ class ListingDetailPage extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Container(
-            width: double.infinity,
-            height: 200,
-            decoration: BoxDecoration(
-              color: AppColors.gold.withValues(alpha: 0.15),
+          GestureDetector(
+            onTap: () => ImagePreview.show(context, AppImages.equipment(listing.imageKey)),
+            child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
+              child: Image.asset(
+                AppImages.equipment(listing.imageKey),
+                width: double.infinity,
+                height: 200,
+                fit: BoxFit.cover,
+                cacheWidth: 800,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  width: double.infinity,
+                  height: 200,
+                  color: AppColors.gold.withValues(alpha: 0.15),
+                  child: Icon(listing.icon, color: AppColors.goldDark, size: 72),
+                ),
+              ),
             ),
-            child: Icon(listing.icon, color: AppColors.goldDark, size: 72),
           ),
           const SizedBox(height: 16),
           Text(listing.title, style: AppTextStyles.heading2(primaryText)),
@@ -58,6 +70,7 @@ class ListingDetailPage extends StatelessWidget {
                 title: listing.title,
                 price: '\$${listing.price.toStringAsFixed(0)}',
                 icon: listing.icon,
+                imageKey: listing.imageKey,
               ),
               icon: const Icon(Icons.chat_bubble_outline),
               label: Text('Message ${listing.sellerName.split(' ').first}'),

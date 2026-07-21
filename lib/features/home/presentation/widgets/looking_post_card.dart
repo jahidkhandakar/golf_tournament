@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/photo_avatar.dart';
 import '../../../../core/widgets/tag_chip.dart';
 import '../../domain/entities/looking_post.dart';
 
@@ -32,13 +33,7 @@ class LookingPostCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                CircleAvatar(
-                  backgroundColor: AppColors.gold,
-                  child: Text(
-                    _initials(post.playerName),
-                    style: AppTextStyles.bodyBold(AppColors.white),
-                  ),
-                ),
+                PhotoAvatar(name: post.playerName, radius: 20),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -83,12 +78,5 @@ class LookingPostCard extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _initials(String name) {
-    final parts = name.trim().split(RegExp(r'\s+'));
-    if (parts.isEmpty) return '?';
-    if (parts.length == 1) return parts.first.substring(0, 1).toUpperCase();
-    return (parts.first.substring(0, 1) + parts.last.substring(0, 1)).toUpperCase();
   }
 }

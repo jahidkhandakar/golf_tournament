@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import '../../../../core/play/play_controller.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/photo_avatar.dart';
 import '../../domain/entities/leaderboard_entry.dart';
 import '../challenge_action.dart';
 
@@ -15,12 +16,6 @@ class ChallengePlayerPage extends StatelessWidget {
   const ChallengePlayerPage({super.key, required this.entry});
 
   final LeaderboardEntry entry;
-
-  String _initials(String name) {
-    final parts = name.trim().split(RegExp(r'\s+'));
-    if (parts.length < 2) return parts.isEmpty ? '?' : parts.first.substring(0, 1).toUpperCase();
-    return (parts.first.substring(0, 1) + parts.last.substring(0, 1)).toUpperCase();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,11 +33,7 @@ class ChallengePlayerPage extends StatelessWidget {
           Center(
             child: Column(
               children: [
-                CircleAvatar(
-                  radius: 40,
-                  backgroundColor: AppColors.gold,
-                  child: Text(_initials(entry.playerName), style: AppTextStyles.heading1(AppColors.white)),
-                ),
+                PhotoAvatar(name: entry.playerName, radius: 44),
                 const SizedBox(height: 12),
                 Text(entry.playerName, style: AppTextStyles.heading2(primaryText)),
                 const SizedBox(height: 4),

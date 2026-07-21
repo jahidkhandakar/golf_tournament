@@ -15,8 +15,10 @@ Future<void> openSellerChat(
   required String title,
   required String price,
   required IconData icon,
+  required String imageKey,
 }) async {
-  final product = ChatProduct(title: title, price: price, sellerName: sellerName, icon: icon);
+  final product =
+      ChatProduct(title: title, price: price, sellerName: sellerName, icon: icon, imageKey: imageKey);
   final conversation = await GetIt.instance<ConversationRepository>()
       .getOrCreateProductConversation(sellerName: sellerName, product: product);
   if (context.mounted) {
