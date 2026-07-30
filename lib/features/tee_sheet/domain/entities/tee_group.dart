@@ -27,9 +27,9 @@ class TeeGroup extends Equatable {
   bool get isFull => slots.every((s) => !s.isOpen);
   int get openCount => slots.where((s) => s.isOpen).length;
 
-  TeeGroup copyWith({List<PlayerSlot>? slots}) => TeeGroup(
+  TeeGroup copyWith({String? teeTime, List<PlayerSlot>? slots}) => TeeGroup(
         groupNumber: groupNumber,
-        teeTime: teeTime,
+        teeTime: teeTime ?? this.teeTime,
         slots: slots ?? this.slots,
       );
 

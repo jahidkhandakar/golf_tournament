@@ -98,6 +98,19 @@ class MockTeeSheetRepository implements TeeSheetRepository {
   }
 
   @override
+  Future<TeeSheet> changeGroupTeeTime({
+    required String tournamentId,
+    required int groupNumber,
+    required String teeTime,
+  }) async {
+    final sheet = await _sheetFor(tournamentId);
+    final groups = sheet.groups
+        .map((g) => g.groupNumber == groupNumber ? g.copyWith(teeTime: teeTime) : g)
+        .toList();
+    return _store(sheet.copyWith(groups: groups));
+  }
+
+  @override
   Future<TeeSheet> addGuest({
     required String tournamentId,
     required int groupNumber,
@@ -226,7 +239,7 @@ class MockTeeSheetRepository implements TeeSheetRepository {
     // The logged-in user and their confirmed challenge opponent share pair id
     // 'cp1', so both slots render the gold Challenge badge.
     const jahid = RosterPlayer(
-        id: 'u_jahid', name: 'Jahid Hasan', clubHandicap: 12.0, challengePairId: 'cp1');
+        id: 'u_jahid', name: 'Jahid', clubHandicap: 12.0, challengePairId: 'cp1');
     const marcus = RosterPlayer(
         id: 'm1', name: 'Marcus Thompson', clubHandicap: 8.2, challengePairId: 'cp1');
     const erin = RosterPlayer(id: 'm5', name: 'Erin Walsh', clubHandicap: 6.7);

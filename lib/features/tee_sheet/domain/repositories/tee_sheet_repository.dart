@@ -28,6 +28,14 @@ abstract class TeeSheetRepository {
     required SlotPosition position,
   });
 
+  /// Change a group's tee time. Returns the updated sheet; the caller notifies
+  /// the players in that group whose time moved (§ item 1/2).
+  Future<TeeSheet> changeGroupTeeTime({
+    required String tournamentId,
+    required int groupNumber,
+    required String teeTime,
+  });
+
   /// Course backfill: mark a slot as a named Guest with no profile link (§5.3).
   Future<TeeSheet> addGuest({
     required String tournamentId,

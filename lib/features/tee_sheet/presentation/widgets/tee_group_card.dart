@@ -15,12 +15,14 @@ class TeeGroupCard extends StatelessWidget {
     required this.onAssign,
     required this.onUnassign,
     required this.onAddGuest,
+    required this.onEditTime,
   });
 
   final TeeGroup group;
   final void Function(int groupNumber, SlotPosition position, String playerId) onAssign;
   final void Function(int groupNumber, SlotPosition position) onUnassign;
   final void Function(int groupNumber, SlotPosition position) onAddGuest;
+  final void Function(int groupNumber) onEditTime;
 
   @override
   Widget build(BuildContext context) {
@@ -37,13 +39,24 @@ class TeeGroupCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.gold.withValues(alpha: 0.16),
-                    borderRadius: BorderRadius.circular(8),
+                InkWell(
+                  onTap: () => onEditTime(group.groupNumber),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.gold.withValues(alpha: 0.16),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(group.teeTime, style: AppTextStyles.bodyBold(AppColors.goldDark)),
+                        const SizedBox(width: 4),
+                        const Icon(Icons.edit, size: 12, color: AppColors.goldDark),
+                      ],
+                    ),
                   ),
-                  child: Text(group.teeTime, style: AppTextStyles.bodyBold(AppColors.goldDark)),
                 ),
                 const SizedBox(width: 8),
                 Text('Group ${group.groupNumber}', style: AppTextStyles.bodyBold(primaryText)),

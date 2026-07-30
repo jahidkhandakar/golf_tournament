@@ -47,6 +47,11 @@ class MockNotificationRepository implements NotificationRepository {
   }
 
   @override
+  Future<void> push(AppNotification notification) async {
+    _notifications = [notification, ..._notifications];
+  }
+
+  @override
   Future<void> markRead(String id) async {
     _notifications = [
       for (final n in _notifications)

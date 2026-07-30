@@ -17,6 +17,8 @@ class NotificationTile extends StatelessWidget {
         return Icons.check_circle_outline;
       case NotificationType.teeTimePosted:
         return Icons.calendar_today_outlined;
+      case NotificationType.teeTimeChanged:
+        return Icons.update;
       case NotificationType.newChallenge:
         return Icons.emoji_events_outlined;
       case NotificationType.clubInvite:

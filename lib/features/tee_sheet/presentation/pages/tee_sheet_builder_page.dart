@@ -5,6 +5,9 @@ import '../../../../core/permission/club_role.dart';
 import '../../../../core/permission/permission_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../notifications/domain/entities/app_notification.dart';
+import '../../../notifications/domain/repositories/notification_repository.dart';
+import '../../../profile/domain/repositories/user_profile_repository.dart';
 import '../../../tournament/domain/entities/tournament.dart';
 import '../../domain/entities/player_slot.dart';
 import '../../domain/entities/tee_sheet.dart';
@@ -33,6 +36,7 @@ class _TeeSheetBuilderPageState extends State<TeeSheetBuilderPage> {
   final TeeSheetRepository _repo = GetIt.instance<TeeSheetRepository>();
   final PermissionService _permission = GetIt.instance<PermissionService>();
   TeeSheet? _sheet;
+  String _me = '';
   bool _busy = false;
 
   String get _tid => widget.tournament?.id ?? 't_riverbend';
@@ -41,11 +45,48 @@ class _TeeSheetBuilderPageState extends State<TeeSheetBuilderPage> {
   void initState() {
     super.initState();
     _load();
+    GetIt.instance<UserProfileRepository>().getCurrentUser().then((u) {
+      if (mounted) setState(() => _me = u.name);
+    });
   }
 
   Future<void> _load() async {
     final sheet = await _repo.getTeeSheet(_tid);
     if (mounted) setState(() => _sheet = sheet);
+  }
+
+  /// Change a group's tee time, then notify the players in that group whose time
+  /// moved (§ item 1/2). The mock inbox is the current user's, so a notification
+  /// surfaces when the logged-in player is one of the affected.
+  Future<void> _changeTeeTime(int groupNumber) async {
+    final picked = await showTimePicker(context: context, initialTime: TimeOfDay.now());
+    if (picked == null || !mounted) return;
+    final teeTime = picked.format(context);
+
+    setState(() => _busy = true);
+    final sheet = await _repo.changeGroupTeeTime(tournamentId: _tid, groupNumber: groupNumber, teeTime: teeTime);
+    if (!mounted) return;
+    setState(() {
+      _sheet = sheet;
+      _busy = false;
+    });
+
+    final group = sheet.groups.firstWhere((g) => g.groupNumber == groupNumber);
+    final affected = [for (final s in group.slots) if (s.player != null) s.player!.name];
+    if (affected.contains(_me)) {
+      await GetIt.instance<NotificationRepository>().push(AppNotification(
+        id: 'ntt${DateTime.now().millisecondsSinceEpoch}',
+        type: NotificationType.teeTimeChanged,
+        text: 'Your tee time for ${sheet.tournamentName} moved to $teeTime.',
+        timestamp: DateTime.now(),
+        isRead: false,
+      ));
+    }
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text('Group $groupNumber moved to $teeTime · '
+          '${affected.length} player${affected.length == 1 ? '' : 's'} notified'),
+    ));
   }
 
   Future<void> _run(Future<TeeSheet> Function() action, {String? doneMessage}) async {
@@ -135,6 +176,7 @@ class _TeeSheetBuilderPageState extends State<TeeSheetBuilderPage> {
                               onAssign: _assign,
                               onUnassign: _unassign,
                               onAddGuest: _addGuest,
+                              onEditTime: _changeTeeTime,
                             ),
                         ],
                       ),
