@@ -42,6 +42,7 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
 
   String get _tid => widget.tournament.id;
   bool get _isFull => _count >= widget.tournament.capacity;
+  bool get _locked => widget.tournament.isRosterLocked;
 
   @override
   void initState() {
@@ -86,6 +87,8 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
               padding: const EdgeInsets.all(16),
               children: [
                 _InfoCard(tournament: t, registered: _count, isFull: _isFull),
+                const SizedBox(height: 12),
+                _LockBanner(tournament: t),
                 const SizedBox(height: 16),
                 _roleSection(),
               ],
@@ -217,7 +220,9 @@ class _AdminPanel extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     ElevatedButton(
-                      onPressed: state._busy ? null : () => state._run(() => state._reg.approve(request.id)),
+                      onPressed: (state._busy || state._locked)
+                          ? null
+                          : () => state._run(() => state._reg.approve(request.id)),
                       child: const Text('Accept'),
                     ),
                   ],
@@ -242,6 +247,14 @@ class _MemberActions extends StatelessWidget {
         color: AppColors.success,
         title: "You're registered",
         subtitle: "You're in this tournament. See the tee sheet once it's published.",
+      );
+    }
+    if (state._locked) {
+      return const _StatusTile(
+        icon: Icons.lock_outline,
+        color: AppColors.error,
+        title: 'Registration closed',
+        subtitle: 'The roster locked 48 hours before tee off.',
       );
     }
     return Column(
@@ -296,6 +309,14 @@ class _NonMemberActions extends StatelessWidget {
           );
       }
     }
+    if (state._locked) {
+      return const _StatusTile(
+        icon: Icons.lock_outline,
+        color: AppColors.error,
+        title: 'Requests closed',
+        subtitle: 'Requests to play closed 48 hours before tee off.',
+      );
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -314,6 +335,65 @@ class _NonMemberActions extends StatelessWidget {
       ],
     );
   }
+}
+
+/// Countdown / status for the 48h roster lock and 24h pairing deadline (§2).
+class _LockBanner extends StatelessWidget {
+  const _LockBanner({required this.tournament});
+
+  final Tournament tournament;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = tournament;
+    final locked = t.isRosterLocked;
+    final color = locked ? AppColors.error : AppColors.success;
+
+    final String title;
+    final String subtitle;
+    if (!locked) {
+      title = 'Registration open';
+      subtitle = 'Roster locks in ${_humanizeDuration(t.timeUntilRosterLock)} — 48h before tee off.';
+    } else if (!t.isPairingClosed) {
+      title = 'Roster locked';
+      subtitle =
+          'Registrations and challenges are closed. Pairing preferences close in ${_humanizeDuration(t.timeUntilPairingDeadline)}.';
+    } else {
+      title = 'Roster & pairing locked';
+      subtitle = 'Registrations, challenges, and pairing preferences are all closed.';
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          Icon(locked ? Icons.lock_clock : Icons.lock_open, size: 18, color: color),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: AppTextStyles.bodyBold(color)),
+                Text(subtitle, style: AppTextStyles.caption(color)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Compact "1d 6h" / "6h 12m" / "45m" formatting for a positive duration.
+String _humanizeDuration(Duration d) {
+  if (d.isNegative) return 'moments';
+  if (d.inDays >= 1) return '${d.inDays}d ${d.inHours % 24}h';
+  if (d.inHours >= 1) return '${d.inHours}h ${d.inMinutes % 60}m';
+  return '${d.inMinutes}m';
 }
 
 class _StatusTile extends StatelessWidget {

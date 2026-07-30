@@ -70,6 +70,14 @@ class _TournamentCard extends StatelessWidget {
               Row(
                 children: [
                   Expanded(child: Text(t.name, style: AppTextStyles.heading3(primaryText))),
+                  if (t.isRosterLocked) ...[
+                    TagChip(
+                      label: 'Locked',
+                      background: AppColors.error.withValues(alpha: 0.14),
+                      foreground: AppColors.error,
+                    ),
+                    const SizedBox(width: 6),
+                  ],
                   TagChip(
                     label: t.format,
                     background: AppColors.gold.withValues(alpha: 0.16),

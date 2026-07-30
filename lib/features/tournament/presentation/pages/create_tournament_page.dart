@@ -99,6 +99,7 @@ class _CreateTournamentPageState extends State<CreateTournamentPage> {
       courseName: _courseController.text.trim(),
       date: _date!,
       firstTeeTime: _teeTime!.format(context),
+      teeOff: DateTime(_date!.year, _date!.month, _date!.day, _teeTime!.hour, _teeTime!.minute),
       intervalMinutes: _intervalMinutes,
       teeBoxes: _teeBoxes,
       teamsPerTeeBox: _teamsPerTeeBox,

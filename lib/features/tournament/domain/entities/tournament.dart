@@ -19,6 +19,7 @@ class Tournament extends Equatable {
     required this.courseName,
     required this.date,
     required this.firstTeeTime,
+    required this.teeOff,
     required this.intervalMinutes,
     required this.teeBoxes,
     required this.teamsPerTeeBox,
@@ -34,8 +35,11 @@ class Tournament extends Equatable {
   final String courseName;
   final DateTime date;
 
-  /// First tee time, e.g. `7:10 AM`.
+  /// First tee time for display, e.g. `7:10 AM`.
   final String firstTeeTime;
+
+  /// The exact first-tee moment — the anchor for the 48h / 24h cutoffs (§2).
+  final DateTime teeOff;
 
   /// Minutes between consecutive tee times.
   final int intervalMinutes;
@@ -63,6 +67,28 @@ class Tournament extends Equatable {
 
   bool get isFull => registeredPlayers >= capacity;
 
+  // --- Timing cutoffs (§2) -------------------------------------------------
+  // 48h before tee off the roster locks (no new registrations, withdrawals, or
+  // challenge/pairing requests); 24h before is the pairing-preference deadline.
+  static const Duration rosterLockLead = Duration(hours: 48);
+  static const Duration pairingDeadlineLead = Duration(hours: 24);
+
+  DateTime get rosterLockAt => teeOff.subtract(rosterLockLead);
+  DateTime get pairingDeadlineAt => teeOff.subtract(pairingDeadlineLead);
+
+  /// Roster is locked once we're within 48h of tee off — no new registrations,
+  /// withdrawals, or challenge/pairing requests.
+  bool get isRosterLocked => !DateTime.now().isBefore(rosterLockAt);
+
+  /// Pairing-preference submission closes 24h before tee off.
+  bool get isPairingClosed => !DateTime.now().isBefore(pairingDeadlineAt);
+
+  /// Time remaining until the roster locks (negative once locked).
+  Duration get timeUntilRosterLock => rosterLockAt.difference(DateTime.now());
+
+  /// Time remaining until the pairing-preference deadline.
+  Duration get timeUntilPairingDeadline => pairingDeadlineAt.difference(DateTime.now());
+
   /// A layout is valid as a tournament when it seats between [minPlayers] and
   /// [maxPlayers] within the tee-box / team limits.
   static bool isValidLayout(int teeBoxes, int teamsPerTeeBox) {
@@ -81,6 +107,7 @@ class Tournament extends Equatable {
         courseName,
         date,
         firstTeeTime,
+        teeOff,
         intervalMinutes,
         teeBoxes,
         teamsPerTeeBox,

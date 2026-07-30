@@ -5,6 +5,13 @@ import '../../domain/repositories/tournament_repository.dart';
 /// Championship (matching the tee sheet + Top 50 mocks) and keeps any newly
 /// created tournaments for the session so the create flow feels real.
 class MockTournamentRepository implements TournamentRepository {
+  /// Tee-off at [hour]:[minute] on the day [daysFromNow] from now — used so the
+  /// 48h/24h cutoffs land at predictable, demoable times.
+  static DateTime _teeOff(int daysFromNow, int hour, int minute) {
+    final day = DateTime.now().add(Duration(days: daysFromNow));
+    return DateTime(day.year, day.month, day.day, hour, minute);
+  }
+
   final List<Tournament> _tournaments = [
     Tournament(
       id: 't_riverbend',
@@ -12,8 +19,9 @@ class MockTournamentRepository implements TournamentRepository {
       clubName: 'Riverbend Golf Club',
       format: 'Stroke Play',
       courseName: 'Riverbend Championship Course',
-      date: DateTime.now().add(const Duration(days: 5)),
+      date: _teeOff(5, 7, 10),
       firstTeeTime: '7:10 AM',
+      teeOff: _teeOff(5, 7, 10),
       intervalMinutes: 10,
       teeBoxes: 18,
       teamsPerTeeBox: 3,
@@ -27,8 +35,9 @@ class MockTournamentRepository implements TournamentRepository {
       clubName: 'Oakmont Hills',
       format: 'Best Ball',
       courseName: 'Oakmont North',
-      date: DateTime.now().add(const Duration(days: 7)),
+      date: _teeOff(7, 8, 0),
       firstTeeTime: '8:00 AM',
+      teeOff: _teeOff(7, 8, 0),
       intervalMinutes: 10,
       teeBoxes: 9,
       teamsPerTeeBox: 2,
@@ -42,12 +51,45 @@ class MockTournamentRepository implements TournamentRepository {
       clubName: 'Pine Valley Muni',
       format: 'Scramble',
       courseName: 'Pine Valley East',
-      date: DateTime.now().add(const Duration(days: 10)),
+      date: _teeOff(10, 13, 0),
       firstTeeTime: '1:00 PM',
+      teeOff: _teeOff(10, 13, 0),
       intervalMinutes: 12,
       teeBoxes: 18,
       teamsPerTeeBox: 2,
       registeredPlayers: 30,
+    ),
+    // Tees off in ~30h — inside the 48h window, so its roster is LOCKED. Demos
+    // the closed state (pairing preferences still open until the 24h mark).
+    Tournament(
+      id: 't_riverbend_twilight',
+      name: 'Riverbend Twilight Cup',
+      clubName: 'Riverbend Golf Club',
+      format: 'Skins',
+      courseName: 'Riverbend Championship Course',
+      date: DateTime.now().add(const Duration(hours: 30)),
+      firstTeeTime: '5:30 PM',
+      teeOff: DateTime.now().add(const Duration(hours: 30)),
+      intervalMinutes: 10,
+      teeBoxes: 9,
+      teamsPerTeeBox: 2,
+      registeredPlayers: 16,
+    ),
+    // A member-club tournament that's already locked — demos the member-side
+    // "Registration closed" state.
+    Tournament(
+      id: 't_oakmont_medal',
+      name: 'Oakmont Monthly Medal',
+      clubName: 'Oakmont Hills',
+      format: 'Stroke Play',
+      courseName: 'Oakmont North',
+      date: DateTime.now().add(const Duration(hours: 20)),
+      firstTeeTime: '7:30 AM',
+      teeOff: DateTime.now().add(const Duration(hours: 20)),
+      intervalMinutes: 10,
+      teeBoxes: 9,
+      teamsPerTeeBox: 2,
+      registeredPlayers: 44,
     ),
   ];
 
