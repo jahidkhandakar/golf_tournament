@@ -28,7 +28,9 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  late final Future<_ProfileData> _future = _load();
+  late Future<_ProfileData> _future = _load();
+
+  void _refresh() => setState(() => _future = _load());
 
   Future<_ProfileData> _load() async {
     final user = await GetIt.instance<UserProfileRepository>().getCurrentUser();
@@ -76,6 +78,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               const SizedBox(height: 8),
+              _GlobalHandicapCard(user: data.user, onChanged: _refresh),
+              const SizedBox(height: 8),
               ProfileStatsSection(rounds: data.rounds),
               const SizedBox(height: 16),
               _SectionTitle(title: 'Round History', color: primaryText),
@@ -86,6 +90,71 @@ class _ProfilePageState extends State<ProfilePage> {
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+/// Publish or clear the optional global handicap shown to golfers worldwide
+/// (§ item 6).
+class _GlobalHandicapCard extends StatelessWidget {
+  const _GlobalHandicapCard({required this.user, required this.onChanged});
+
+  final UserProfile user;
+  final VoidCallback onChanged;
+
+  Future<void> _edit(BuildContext context) async {
+    final controller = TextEditingController(text: user.globalHandicap?.toString() ?? '');
+    final result = await showDialog<({bool save, double? value})>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Global handicap'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: const InputDecoration(hintText: 'e.g. 6.9 — visible worldwide'),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+          if (user.globalHandicap != null)
+            TextButton(
+              onPressed: () => Navigator.of(context).pop((save: true, value: null)),
+              child: Text('Remove', style: AppTextStyles.bodyBold(AppColors.error)),
+            ),
+          TextButton(
+            onPressed: () =>
+                Navigator.of(context).pop((save: true, value: double.tryParse(controller.text.trim()))),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    if (result == null || !result.save) return;
+    await GetIt.instance<UserProfileRepository>().updateGlobalHandicap(result.value);
+    onChanged();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryText = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
+    final secondaryText = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
+    final hcp = user.globalHandicap;
+
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      child: ListTile(
+        leading: const Icon(Icons.public, color: AppColors.goldDark),
+        title: Text(
+          hcp != null ? 'Global handicap ${hcp.toStringAsFixed(1)}' : 'Global handicap not published',
+          style: AppTextStyles.bodyBold(primaryText),
+        ),
+        subtitle: Text(
+          hcp != null ? 'Visible to golfers worldwide' : 'Optional — publish it for play elsewhere',
+          style: AppTextStyles.caption(secondaryText),
+        ),
+        trailing: TextButton(onPressed: () => _edit(context), child: Text(hcp != null ? 'Edit' : 'Add')),
       ),
     );
   }

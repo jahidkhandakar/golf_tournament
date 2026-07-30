@@ -24,6 +24,12 @@ class MockScorecardRepository implements ScorecardRepository {
   }
 
   @override
+  Future<Scorecard?> getIfSubmitted(String tournamentId) {
+    final card = _cards[tournamentId];
+    return _delayed(card != null && card.submitted ? card : null);
+  }
+
+  @override
   Future<Scorecard> submit(String tournamentId, List<PlayerScore> scores) {
     final card = Scorecard(tournamentId: tournamentId, scores: scores, submitted: true);
     _cards[tournamentId] = card;
