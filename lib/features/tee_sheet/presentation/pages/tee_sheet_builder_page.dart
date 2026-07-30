@@ -63,6 +63,13 @@ class _TeeSheetBuilderPageState extends State<TeeSheetBuilderPage> {
     if (picked == null || !mounted) return;
     final teeTime = picked.format(context);
 
+    // Make sure we know who the current user is before deciding who to notify.
+    if (_me.isEmpty) {
+      final user = await GetIt.instance<UserProfileRepository>().getCurrentUser();
+      if (!mounted) return;
+      _me = user.name;
+    }
+
     setState(() => _busy = true);
     final sheet = await _repo.changeGroupTeeTime(tournamentId: _tid, groupNumber: groupNumber, teeTime: teeTime);
     if (!mounted) return;

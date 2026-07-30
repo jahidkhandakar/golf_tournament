@@ -12,6 +12,7 @@ import '../../../profile/domain/entities/user_profile.dart';
 import '../../../profile/domain/repositories/user_profile_repository.dart';
 import '../../domain/entities/invite.dart';
 import '../../domain/entities/play_request.dart';
+import '../../domain/entities/player_score.dart';
 import '../../domain/entities/scorecard.dart';
 import '../../domain/entities/tournament.dart';
 import '../../domain/repositories/challenge_approval_repository.dart';
@@ -263,7 +264,10 @@ class _ResultsView extends StatelessWidget {
       for (final s in scorecard.scores)
         if (s.gross != null) s,
     ]..sort((a, b) => a.gross!.compareTo(b.gross!));
-    final winner = ranked.isEmpty ? null : ranked.first;
+    // Co-winners on a tie for lowest gross.
+    final int? lowGross = ranked.isEmpty ? null : ranked.first.gross;
+    final List<PlayerScore> winners =
+        lowGross == null ? const [] : ranked.where((s) => s.gross == lowGross).toList();
 
     final isSkins = tournament.format.toLowerCase() == 'skins';
     String? skinsSummary;
@@ -292,13 +296,15 @@ class _ResultsView extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 10),
-        if (winner != null)
+        if (winners.isNotEmpty)
           Card(
             color: AppColors.gold.withValues(alpha: 0.12),
             child: ListTile(
               leading: const Icon(Icons.emoji_events, color: AppColors.gold),
-              title: Text('${winner.playerName} · ${winner.gross}', style: AppTextStyles.bodyBold(primaryText)),
-              subtitle: Text('Game winner', style: AppTextStyles.caption(secondaryText)),
+              title: Text('${winners.map((w) => w.playerName).join(', ')} · $lowGross',
+                  style: AppTextStyles.bodyBold(primaryText)),
+              subtitle: Text(winners.length == 1 ? 'Game winner' : 'Game winners (tie)',
+                  style: AppTextStyles.caption(secondaryText)),
             ),
           ),
         if (skinsSummary != null)

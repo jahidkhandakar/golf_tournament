@@ -105,7 +105,7 @@ class _GlobalHandicapCard extends StatelessWidget {
 
   Future<void> _edit(BuildContext context) async {
     final controller = TextEditingController(text: user.globalHandicap?.toString() ?? '');
-    final result = await showDialog<({bool save, double? value})>(
+    final result = await showDialog<({bool save, String? text})>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Global handicap'),
@@ -119,19 +119,36 @@ class _GlobalHandicapCard extends StatelessWidget {
           TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
           if (user.globalHandicap != null)
             TextButton(
-              onPressed: () => Navigator.of(context).pop((save: true, value: null)),
+              onPressed: () => Navigator.of(context).pop((save: true, text: null)),
               child: Text('Remove', style: AppTextStyles.bodyBold(AppColors.error)),
             ),
           TextButton(
-            onPressed: () =>
-                Navigator.of(context).pop((save: true, value: double.tryParse(controller.text.trim()))),
+            onPressed: () => Navigator.of(context).pop((save: true, text: controller.text.trim())),
             child: const Text('Save'),
           ),
         ],
       ),
     );
     if (result == null || !result.save) return;
-    await GetIt.instance<UserProfileRepository>().updateGlobalHandicap(result.value);
+
+    final text = result.text;
+    // Null (Remove) or an empty field clears the handicap.
+    if (text == null || text.isEmpty) {
+      await GetIt.instance<UserProfileRepository>().updateGlobalHandicap(null);
+      onChanged();
+      return;
+    }
+    // Reject invalid input instead of silently clearing it.
+    final value = double.tryParse(text);
+    if (value == null) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Enter a valid handicap number.')),
+        );
+      }
+      return;
+    }
+    await GetIt.instance<UserProfileRepository>().updateGlobalHandicap(value);
     onChanged();
   }
 
