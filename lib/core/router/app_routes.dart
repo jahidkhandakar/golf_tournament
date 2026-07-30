@@ -41,4 +41,5 @@ class AppRoutes {
   static String challengePlayer(String playerName) => '/top50/challenge/$playerName';
   static String tournamentDetail(String id) => '/tournaments/$id';
   static String challengeApprovals(String id) => '/tournaments/$id/challenges';
+  static String invitePlayers(String id) => '/tournaments/$id/invite';
 }

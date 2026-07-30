@@ -10,9 +10,11 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/date_formatter.dart';
 import '../../../profile/domain/entities/user_profile.dart';
 import '../../../profile/domain/repositories/user_profile_repository.dart';
+import '../../domain/entities/invite.dart';
 import '../../domain/entities/play_request.dart';
 import '../../domain/entities/tournament.dart';
 import '../../domain/repositories/challenge_approval_repository.dart';
+import '../../domain/repositories/invite_repository.dart';
 import '../../domain/repositories/registration_repository.dart';
 
 /// Tournament detail + registration (§1). The call-to-action is role-aware:
@@ -30,6 +32,7 @@ class TournamentDetailPage extends StatefulWidget {
 class _TournamentDetailPageState extends State<TournamentDetailPage> {
   final RegistrationRepository _reg = GetIt.instance<RegistrationRepository>();
   final ChallengeApprovalRepository _challenges = GetIt.instance<ChallengeApprovalRepository>();
+  final InviteRepository _invites = GetIt.instance<InviteRepository>();
   final PermissionService _permission = GetIt.instance<PermissionService>();
 
   late final ClubRole _role = _permission.roleInClub(widget.tournament.clubName);
@@ -38,6 +41,7 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
   int _count = 0;
   bool _registered = false;
   PlayRequest? _myRequest;
+  Invite? _myInvite;
   List<PlayRequest> _pending = [];
   int _pendingChallenges = 0;
   bool _loading = true;
@@ -61,6 +65,7 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
     final registered = _role.isStaff ? false : await _reg.isRegistered(_tid, user.name);
     final myRequest =
         _role == ClubRole.nonMember ? await _reg.myRequest(_tid, user.name) : null;
+    final myInvite = _role.isStaff ? null : await _invites.inviteFor(_tid, user.name);
     if (!mounted) return;
     setState(() {
       _user = user;
@@ -69,6 +74,7 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
       _pendingChallenges = pendingChallenges;
       _registered = registered;
       _myRequest = myRequest;
+      _myInvite = myInvite;
       _loading = false;
     });
   }
@@ -103,8 +109,65 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
 
   Widget _roleSection() {
     if (_role.isStaff) return _AdminPanel(state: this);
+    // Registered wins over everything (covers direct join, approved request, and
+    // accepted invite — regardless of member vs non-member).
+    if (_registered) {
+      return const _StatusTile(
+        icon: Icons.check_circle_outline,
+        color: AppColors.success,
+        title: "You're registered",
+        subtitle: "You're in this tournament. See the tee sheet once it's published.",
+      );
+    }
+    // A pending invite takes precedence over the normal register / request CTA.
+    if (_myInvite?.status == InviteStatus.pending) return _InviteActions(state: this);
     if (_role == ClubRole.member) return _MemberActions(state: this);
     return _NonMemberActions(state: this);
+  }
+}
+
+class _InviteActions extends StatelessWidget {
+  const _InviteActions({required this.state});
+
+  final _TournamentDetailPageState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final invite = state._myInvite!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _StatusTile(
+          icon: Icons.mail_outline,
+          color: AppColors.goldDark,
+          title: "You're invited",
+          subtitle: '${invite.clubName} invited you to this tournament. Accept to join directly.',
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: state._busy ? null : () => state._run(() => state._invites.decline(invite.id)),
+                child: const Text('Decline'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: ElevatedButton(
+                onPressed: (state._busy || state._locked)
+                    ? null
+                    : () => state._run(() async {
+                          await state._invites.accept(invite.id);
+                          await state._reg.registerMember(state._tid, state._user!.name);
+                        }),
+                child: Text(state._locked ? 'Locked' : 'Accept'),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 }
 
@@ -207,6 +270,15 @@ class _AdminPanel extends StatelessWidget {
               ? 'Challenge approvals (${state._pendingChallenges})'
               : 'Challenge approvals'),
         ),
+        const SizedBox(height: 8),
+        OutlinedButton.icon(
+          onPressed: () async {
+            await context.push(AppRoutes.invitePlayers(state._tid), extra: state.widget.tournament);
+            await state._load();
+          },
+          icon: const Icon(Icons.person_add_alt_outlined, size: 18),
+          label: const Text('Invite players'),
+        ),
         const SizedBox(height: 20),
         Text('Pending requests · ${state._pending.length}', style: AppTextStyles.bodyBold(primaryText)),
         const SizedBox(height: 8),
@@ -257,14 +329,6 @@ class _MemberActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (state._registered) {
-      return const _StatusTile(
-        icon: Icons.check_circle_outline,
-        color: AppColors.success,
-        title: "You're registered",
-        subtitle: "You're in this tournament. See the tee sheet once it's published.",
-      );
-    }
     if (state._locked) {
       return const _StatusTile(
         icon: Icons.lock_outline,
