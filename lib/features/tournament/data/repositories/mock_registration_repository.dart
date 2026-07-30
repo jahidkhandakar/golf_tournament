@@ -12,7 +12,15 @@ class MockRegistrationRepository implements RegistrationRepository {
     't_pinevalley': 30,
   };
 
-  final Set<String> _registered = {}; // "tournamentId|playerName"
+  // "tournamentId|playerName". Seeded with a representative set of registered
+  // players per tournament so the tee sheet has a real roster to place.
+  final Set<String> _registered = {
+    't_oakmont|Erin Walsh', 't_oakmont|Dana Reyes', 't_oakmont|Jordan Blake', 't_oakmont|Casey Nguyen',
+    't_pinevalley|Devon Lee', 't_pinevalley|Sam Ortiz', 't_pinevalley|Riley Foster',
+    't_riverbend_twilight|Marcus Thompson', 't_riverbend_twilight|Priya Kapoor',
+    't_riverbend_twilight|Sam Ortiz', 't_riverbend_twilight|Erin Walsh',
+    't_oakmont_medal|Erin Walsh', 't_oakmont_medal|Dana Reyes', 't_oakmont_medal|Jordan Blake',
+  };
 
   final List<PlayRequest> _requests = [
     PlayRequest(
@@ -42,6 +50,15 @@ class MockRegistrationRepository implements RegistrationRepository {
 
   @override
   Future<int> registeredCount(String tournamentId) => _delayed(_counts[tournamentId] ?? 0);
+
+  @override
+  Future<List<String>> registeredPlayers(String tournamentId) {
+    final prefix = '$tournamentId|';
+    return _delayed(_registered
+        .where((k) => k.startsWith(prefix))
+        .map((k) => k.substring(prefix.length))
+        .toList());
+  }
 
   @override
   Future<bool> isRegistered(String tournamentId, String playerName) =>

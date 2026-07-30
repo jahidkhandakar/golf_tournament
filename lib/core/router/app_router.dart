@@ -220,6 +220,11 @@ class AppRouter {
         builder: (context, state) => InvitePlayersPage(tournament: state.extra as Tournament),
       ),
       GoRoute(
+        path: '/tournaments/:id/tee-sheet',
+        name: 'teeSheetBuilderFor',
+        builder: (context, state) => TeeSheetBuilderPage(tournament: state.extra as Tournament),
+      ),
+      GoRoute(
         path: AppRoutes.marketplace,
         name: 'marketplace',
         builder: (context, state) => const MarketplacePage(),

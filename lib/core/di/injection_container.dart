@@ -76,9 +76,9 @@ Future<void> setupLocator() async {
   sl.registerLazySingleton<NotificationRepository>(() => MockNotificationRepository());
   sl.registerLazySingleton<MarketplaceRepository>(() => MockMarketplaceRepository());
   sl.registerLazySingleton<GolfersRepository>(() => MockGolfersRepository());
-  sl.registerLazySingleton<TeeSheetRepository>(() => MockTeeSheetRepository());
   sl.registerLazySingleton<TournamentRepository>(() => MockTournamentRepository());
   sl.registerLazySingleton<RegistrationRepository>(() => MockRegistrationRepository());
   sl.registerLazySingleton<ChallengeApprovalRepository>(() => MockChallengeApprovalRepository());
   sl.registerLazySingleton<InviteRepository>(() => MockInviteRepository());
+  sl.registerLazySingleton<TeeSheetRepository>(() => MockTeeSheetRepository(sl(), sl()));
 }

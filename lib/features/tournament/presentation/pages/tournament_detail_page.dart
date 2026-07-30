@@ -255,7 +255,8 @@ class _AdminPanel extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         OutlinedButton.icon(
-          onPressed: () => context.push(AppRoutes.teeSheetBuilder),
+          onPressed: () =>
+              context.push(AppRoutes.teeSheetBuilderFor(state._tid), extra: state.widget.tournament),
           icon: const Icon(Icons.edit_calendar_outlined, size: 18),
           label: const Text('Build tee sheet'),
         ),

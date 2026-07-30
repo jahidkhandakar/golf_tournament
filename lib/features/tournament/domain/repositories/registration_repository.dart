@@ -5,6 +5,10 @@ import '../entities/play_request.dart';
 abstract class RegistrationRepository {
   Future<int> registeredCount(String tournamentId);
 
+  /// Names of players registered for this tournament — the source for the tee
+  /// sheet's roster panel.
+  Future<List<String>> registeredPlayers(String tournamentId);
+
   Future<bool> isRegistered(String tournamentId, String playerName);
 
   /// Direct registration for a club member.

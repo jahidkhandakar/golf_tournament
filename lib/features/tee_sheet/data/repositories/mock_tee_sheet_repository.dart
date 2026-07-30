@@ -1,29 +1,45 @@
+import '../../../../core/utils/date_formatter.dart';
+import '../../../tournament/domain/entities/tournament.dart';
+import '../../../tournament/domain/repositories/registration_repository.dart';
+import '../../../tournament/domain/repositories/tournament_repository.dart';
 import '../../domain/entities/player_slot.dart';
 import '../../domain/entities/roster_player.dart';
 import '../../domain/entities/tee_group.dart';
 import '../../domain/entities/tee_sheet.dart';
 import '../../domain/repositories/tee_sheet_repository.dart';
 
-/// In-memory stand-in for a real API-backed tee sheet builder. Seeded to match
-/// the app's other mocks — the Riverbend Championship on the Championship Course
-/// (see PlayController / MockClubRepository) — so the builder demonstrates every
-/// slot state: a confirmed challenge pair (gold badge), a course guest, open
-/// slots, and an unassigned roster.
+/// In-memory tee sheet builder. Each tournament gets its own sheet, cached after
+/// first build:
+///   - the Riverbend Championship is a rich hand-seeded sheet (challenge pair,
+///     guest, open slots) that shows off every builder feature;
+///   - any other tournament is built from its [Tournament] event info plus a
+///     roster pulled from that tournament's registered players.
 ///
 /// Swap for an API implementation behind [TeeSheetRepository] when the backend
 /// is ready; the widget layer never changes.
 class MockTeeSheetRepository implements TeeSheetRepository {
-  TeeSheet? _sheet;
+  MockTeeSheetRepository(this._tournaments, this._registration);
 
-  TeeSheet get _current => _sheet ??= _seed();
+  final TournamentRepository _tournaments;
+  final RegistrationRepository _registration;
+
+  final Map<String, TeeSheet> _sheets = {};
 
   Future<TeeSheet> _return(TeeSheet sheet) async {
     await Future.delayed(const Duration(milliseconds: 250));
     return sheet;
   }
 
+  Future<TeeSheet> _sheetFor(String tournamentId) async {
+    final existing = _sheets[tournamentId];
+    if (existing != null) return existing;
+    final built = tournamentId == 't_riverbend' ? _riverbendSeed() : await _buildFrom(tournamentId);
+    _sheets[tournamentId] = built;
+    return built;
+  }
+
   @override
-  Future<TeeSheet> getTeeSheet(String tournamentId) => _return(_current);
+  Future<TeeSheet> getTeeSheet(String tournamentId) async => _return(await _sheetFor(tournamentId));
 
   @override
   Future<TeeSheet> assignPlayer({
@@ -32,7 +48,7 @@ class MockTeeSheetRepository implements TeeSheetRepository {
     required int groupNumber,
     required SlotPosition position,
   }) async {
-    final sheet = _current;
+    final sheet = await _sheetFor(tournamentId);
     final player = _findInRoster(sheet.roster, playerId);
     if (player == null) return _return(sheet); // not assignable
 
@@ -52,8 +68,7 @@ class MockTeeSheetRepository implements TeeSheetRepository {
       if (displaced != null) displaced!,
     ];
 
-    _sheet = sheet.copyWith(groups: groups, roster: roster);
-    return _return(_sheet!);
+    return _store(sheet.copyWith(groups: groups, roster: roster));
   }
 
   @override
@@ -62,7 +77,7 @@ class MockTeeSheetRepository implements TeeSheetRepository {
     required int groupNumber,
     required SlotPosition position,
   }) async {
-    final sheet = _current;
+    final sheet = await _sheetFor(tournamentId);
     RosterPlayer? removed;
     final groups = sheet.groups.map((group) {
       if (group.groupNumber != groupNumber) return group;
@@ -79,8 +94,7 @@ class MockTeeSheetRepository implements TeeSheetRepository {
       if (removed != null) removed!,
     ];
 
-    _sheet = sheet.copyWith(groups: groups, roster: roster);
-    return _return(_sheet!);
+    return _store(sheet.copyWith(groups: groups, roster: roster));
   }
 
   @override
@@ -90,7 +104,7 @@ class MockTeeSheetRepository implements TeeSheetRepository {
     required SlotPosition position,
     required String guestName,
   }) async {
-    final sheet = _current;
+    final sheet = await _sheetFor(tournamentId);
     RosterPlayer? displaced;
     final groups = sheet.groups.map((group) {
       if (group.groupNumber != groupNumber) return group;
@@ -107,20 +121,16 @@ class MockTeeSheetRepository implements TeeSheetRepository {
       if (displaced != null) displaced!,
     ];
 
-    _sheet = sheet.copyWith(groups: groups, roster: roster);
-    return _return(_sheet!);
+    return _store(sheet.copyWith(groups: groups, roster: roster));
   }
 
   @override
-  Future<TeeSheet> saveDraft(TeeSheet sheet) async {
-    _sheet = sheet.copyWith(status: TeeSheetStatus.draft);
-    return _return(_sheet!);
-  }
+  Future<TeeSheet> saveDraft(TeeSheet sheet) => _store(sheet.copyWith(status: TeeSheetStatus.draft));
 
   @override
   Future<TeeSheet> publish(String tournamentId) async {
-    _sheet = _current.copyWith(status: TeeSheetStatus.published);
-    return _return(_sheet!);
+    final sheet = await _sheetFor(tournamentId);
+    return _store(sheet.copyWith(status: TeeSheetStatus.published));
   }
 
   @override
@@ -130,6 +140,11 @@ class MockTeeSheetRepository implements TeeSheetRepository {
     await Future.delayed(const Duration(milliseconds: 250));
   }
 
+  Future<TeeSheet> _store(TeeSheet sheet) {
+    _sheets[sheet.tournamentId] = sheet;
+    return _return(sheet);
+  }
+
   RosterPlayer? _findInRoster(List<RosterPlayer> roster, String id) {
     for (final p in roster) {
       if (p.id == id) return p;
@@ -137,9 +152,77 @@ class MockTeeSheetRepository implements TeeSheetRepository {
     return null;
   }
 
-  // --- Seed data -----------------------------------------------------------
+  // --- Building a sheet from a tournament ----------------------------------
 
-  static TeeSheet _seed() {
+  Future<TeeSheet> _buildFrom(String tournamentId) async {
+    final t = await _tournaments.getTournament(tournamentId);
+    if (t == null) return _riverbendSeed();
+
+    final names = await _registration.registeredPlayers(tournamentId);
+    final roster = [
+      for (var i = 0; i < names.length; i++)
+        RosterPlayer(id: 'p$i', name: names[i], clubHandicap: _handicapFor(names[i])),
+    ];
+
+    // Start with a handful of empty tee-time groups spaced by the interval; the
+    // admin drags the roster in and can add more as needed.
+    final groups = [
+      for (var g = 1; g <= 4; g++)
+        TeeGroup(
+          groupNumber: g,
+          teeTime: _formatTime(t.teeOff.add(Duration(minutes: t.intervalMinutes * (g - 1)))),
+          slots: _emptySlots,
+        ),
+    ];
+
+    return TeeSheet(
+      tournamentId: t.id,
+      tournamentName: t.name,
+      clubName: t.clubName,
+      courseName: t.courseName,
+      date: formatShortDate(t.date),
+      firstTeeTime: t.firstTeeTime,
+      intervalMinutes: t.intervalMinutes,
+      status: TeeSheetStatus.draft,
+      groups: groups,
+      roster: roster,
+      golfCourseEmail: t.golfCourseEmail,
+    );
+  }
+
+  static const List<PlayerSlot> _emptySlots = [
+    PlayerSlot.open(SlotPosition.a),
+    PlayerSlot.open(SlotPosition.b),
+    PlayerSlot.open(SlotPosition.c),
+    PlayerSlot.open(SlotPosition.d),
+  ];
+
+  // Club handicaps for the seeded player pool; unknown names fall back to 12.0.
+  static const Map<String, double> _handicaps = {
+    'Marcus Thompson': 8.2,
+    'Priya Kapoor': 11.0,
+    'Sam Ortiz': 19.4,
+    'Erin Walsh': 6.7,
+    'Dana Reyes': 14.6,
+    'Jordan Blake': 8.1,
+    'Casey Nguyen': 9.4,
+    'Devon Lee': 5.2,
+    'Riley Foster': 10.2,
+    'Alex Rivera': 3.7,
+    'Taylor Brooks': 22.3,
+    'Jahid': 7.4,
+  };
+
+  static double _handicapFor(String name) => _handicaps[name] ?? 12.0;
+
+  static String _formatTime(DateTime dt) {
+    final period = dt.hour >= 12 ? 'PM' : 'AM';
+    var hour = dt.hour % 12;
+    if (hour == 0) hour = 12;
+    return '$hour:${dt.minute.toString().padLeft(2, '0')} $period';
+  }
+
+  static TeeSheet _riverbendSeed() {
     // The logged-in user and their confirmed challenge opponent share pair id
     // 'cp1', so both slots render the gold Challenge badge.
     const jahid = RosterPlayer(
@@ -182,7 +265,6 @@ class MockTeeSheetRepository implements TeeSheetRepository {
       ],
     );
 
-    // Registered but not yet placed — the roster panel.
     const roster = <RosterPlayer>[
       RosterPlayer(id: 'm2', name: 'Dana Reyes', clubHandicap: 14.6),
       RosterPlayer(id: 'm4', name: 'Sam Ortiz', clubHandicap: 19.4),

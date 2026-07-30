@@ -5,6 +5,7 @@ import '../../../../core/permission/club_role.dart';
 import '../../../../core/permission/permission_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../tournament/domain/entities/tournament.dart';
 import '../../domain/entities/player_slot.dart';
 import '../../domain/entities/tee_sheet.dart';
 import '../../domain/repositories/tee_sheet_repository.dart';
@@ -18,9 +19,11 @@ import '../widgets/tee_group_card.dart';
 /// Admin-only: gated on the user's [ClubRole] in the tournament's club via
 /// [PermissionService]. Members and non-members see a read-only notice instead.
 class TeeSheetBuilderPage extends StatefulWidget {
-  const TeeSheetBuilderPage({super.key, this.tournamentId = 't_riverbend'});
+  const TeeSheetBuilderPage({super.key, this.tournament});
 
-  final String tournamentId;
+  /// The tournament whose sheet is being built. Null only for the standalone
+  /// drawer shortcut, which defaults to the Riverbend Championship.
+  final Tournament? tournament;
 
   @override
   State<TeeSheetBuilderPage> createState() => _TeeSheetBuilderPageState();
@@ -32,6 +35,8 @@ class _TeeSheetBuilderPageState extends State<TeeSheetBuilderPage> {
   TeeSheet? _sheet;
   bool _busy = false;
 
+  String get _tid => widget.tournament?.id ?? 't_riverbend';
+
   @override
   void initState() {
     super.initState();
@@ -39,7 +44,7 @@ class _TeeSheetBuilderPageState extends State<TeeSheetBuilderPage> {
   }
 
   Future<void> _load() async {
-    final sheet = await _repo.getTeeSheet(widget.tournamentId);
+    final sheet = await _repo.getTeeSheet(_tid);
     if (mounted) setState(() => _sheet = sheet);
   }
 
@@ -58,11 +63,11 @@ class _TeeSheetBuilderPageState extends State<TeeSheetBuilderPage> {
 
   void _assign(int group, SlotPosition position, String playerId) => _run(
         () => _repo.assignPlayer(
-            tournamentId: widget.tournamentId, playerId: playerId, groupNumber: group, position: position),
+            tournamentId: _tid, playerId: playerId, groupNumber: group, position: position),
       );
 
   void _unassign(int group, SlotPosition position) => _run(
-        () => _repo.unassignSlot(tournamentId: widget.tournamentId, groupNumber: group, position: position),
+        () => _repo.unassignSlot(tournamentId: _tid, groupNumber: group, position: position),
       );
 
   Future<void> _addGuest(int group, SlotPosition position) async {
@@ -70,7 +75,7 @@ class _TeeSheetBuilderPageState extends State<TeeSheetBuilderPage> {
     if (name == null || name.trim().isEmpty) return;
     _run(
       () => _repo.addGuest(
-          tournamentId: widget.tournamentId, groupNumber: group, position: position, guestName: name.trim()),
+          tournamentId: _tid, groupNumber: group, position: position, guestName: name.trim()),
     );
   }
 
@@ -142,10 +147,10 @@ class _TeeSheetBuilderPageState extends State<TeeSheetBuilderPage> {
               busy: _busy,
               isPublished: sheet.isPublished,
               onSaveDraft: () => _run(() => _repo.saveDraft(sheet), doneMessage: 'Draft saved'),
-              onPublish: () => _run(() => _repo.publish(widget.tournamentId), doneMessage: 'Tee sheet published to players'),
+              onPublish: () => _run(() => _repo.publish(_tid), doneMessage: 'Tee sheet published to players'),
               onEmail: () => _run(
                 () async {
-                  await _repo.emailToCourse(widget.tournamentId);
+                  await _repo.emailToCourse(_tid);
                   return sheet;
                 },
                 doneMessage: sheet.golfCourseEmail == null

@@ -42,4 +42,5 @@ class AppRoutes {
   static String tournamentDetail(String id) => '/tournaments/$id';
   static String challengeApprovals(String id) => '/tournaments/$id/challenges';
   static String invitePlayers(String id) => '/tournaments/$id/invite';
+  static String teeSheetBuilderFor(String id) => '/tournaments/$id/tee-sheet';
 }
