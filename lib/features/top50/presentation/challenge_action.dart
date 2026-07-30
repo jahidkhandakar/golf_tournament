@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/play/play_controller.dart';
 import '../../../core/router/app_routes.dart';
 import '../domain/entities/leaderboard_entry.dart';
+import 'top50_ladder_controller.dart';
 
 /// Sends a challenge to [entry]'s player and (mock) auto-accepts it, locking
 /// both players into the same tee time and adding it to the tee sheet.
@@ -23,6 +24,12 @@ Future<void> sendChallenge(BuildContext context, LeaderboardEntry entry) async {
       date: 'This weekend',
     ),
   );
+
+  // Prototype: resolve the challenge as a win so the position-based ladder
+  // movement is demoable. In production this happens on score submission (§6),
+  // not at challenge creation — and only moves the user up if the opponent
+  // ranked above them.
+  GetIt.instance<Top50LadderController>().recordUserWin(entry.playerName);
 
   final viewTeeSheet = await showDialog<bool>(
     context: context,

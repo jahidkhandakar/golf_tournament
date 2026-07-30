@@ -6,8 +6,9 @@ import '../../../../core/widgets/tag_chip.dart';
 import '../../../top50/presentation/widgets/rank_medal.dart';
 import '../../domain/entities/club_member.dart';
 
-/// Club-scoped leaderboard: ranks this club's members by handicap
-/// (lower is better). Separate from the app-wide Top 50 tab.
+/// Club-scoped leaderboard: ranks this club's members by their club handicap
+/// (lower is better) — not the global handicap. Separate from the app-wide
+/// Top 50 tab.
 class LeaderboardTab extends StatelessWidget {
   const LeaderboardTab({super.key, required this.members});
 
@@ -25,7 +26,7 @@ class LeaderboardTab extends StatelessWidget {
     final primaryText = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
     final secondaryText = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
 
-    final ranked = [...members]..sort((a, b) => a.handicap.compareTo(b.handicap));
+    final ranked = [...members]..sort((a, b) => a.clubHandicap.compareTo(b.clubHandicap));
 
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -50,7 +51,7 @@ class LeaderboardTab extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(member.name, style: AppTextStyles.bodyBold(primaryText)),
-                      Text('HCP ${member.handicap.toStringAsFixed(1)}', style: AppTextStyles.caption(secondaryText)),
+                      Text('Club HCP ${member.clubHandicap.toStringAsFixed(1)}', style: AppTextStyles.caption(secondaryText)),
                     ],
                   ),
                 ),

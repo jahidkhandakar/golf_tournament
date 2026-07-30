@@ -59,7 +59,8 @@ class _ProfilePageState extends State<ProfilePage> {
               ProfileHeader(
                 name: data.user.name,
                 tier: data.user.tier,
-                handicap: data.user.handicap,
+                clubHandicap: data.user.clubHandicap,
+                globalHandicap: data.user.globalHandicap,
                 homeClub: data.user.homeClub,
               ),
               Card(

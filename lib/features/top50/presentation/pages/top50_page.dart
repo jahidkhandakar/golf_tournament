@@ -6,15 +6,18 @@ import '../../../../core/location/location_state.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/photo_avatar.dart';
 import '../../domain/entities/leaderboard_entry.dart';
-import '../../domain/repositories/leaderboard_repository.dart';
 import '../challenge_action.dart';
+import '../top50_ladder_controller.dart';
 import '../widgets/leaderboard_row.dart';
+import '../widgets/rank_medal.dart';
 
-/// Rendered as the Top 50 tab's body inside [MainShell]. Players are ranked
-/// among those within the user's current search radius (60 mi, or 120 mi for
-/// rural villages). Tap a tile to view a player and join their tournament;
-/// the Challenge button only illuminates once you're both in it.
+/// Rendered as the Top 50 tab's body inside [MainShell]. A position-based
+/// challenge ladder: beat a player ranked above you and you take their spot.
+/// Players are shown within the user's current search radius (60 mi, or 120 mi
+/// for rural villages). The Challenge button only illuminates once you're both
+/// in the same tournament + course.
 class Top50Page extends StatefulWidget {
   const Top50Page({super.key});
 
@@ -23,8 +26,13 @@ class Top50Page extends StatefulWidget {
 }
 
 class _Top50PageState extends State<Top50Page> {
-  late final Future<List<LeaderboardEntry>> _future =
-      GetIt.instance<LeaderboardRepository>().getLeaderboard();
+  final Top50LadderController _ladder = GetIt.instance<Top50LadderController>();
+
+  @override
+  void initState() {
+    super.initState();
+    _ladder.ensureLoaded();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,18 +40,18 @@ class _Top50PageState extends State<Top50Page> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final secondaryText = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
 
-    return FutureBuilder<List<LeaderboardEntry>>(
-      future: _future,
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+    return ValueListenableBuilder<List<LeaderboardEntry>>(
+      valueListenable: _ladder.ladder,
+      builder: (context, allEntries, _) {
+        if (allEntries.isEmpty) {
           return const Center(child: CircularProgressIndicator());
         }
-        final allEntries = snapshot.data!;
 
         return ValueListenableBuilder<int>(
           valueListenable: locationState.radiusMiles,
           builder: (context, radius, _) {
-            final entries = allEntries.where((e) => e.distanceMiles <= radius).toList();
+            final entries = allEntries.where((e) => e.distanceMiles <= radius).toList()
+              ..sort((a, b) => a.position.compareTo(b.position));
 
             return Column(
               children: [
@@ -53,7 +61,7 @@ class _Top50PageState extends State<Top50Page> {
                     children: [
                       Icon(Icons.emoji_events_outlined, size: 16, color: secondaryText),
                       const SizedBox(width: 4),
-                      Text('Top players within $radius mi', style: AppTextStyles.caption(secondaryText)),
+                      Text('Challenge ladder · within $radius mi', style: AppTextStyles.caption(secondaryText)),
                     ],
                   ),
                 ),
@@ -67,8 +75,11 @@ class _Top50PageState extends State<Top50Page> {
                           itemCount: entries.length,
                           itemBuilder: (context, index) {
                             final entry = entries[index];
+                            if (entry.isCurrentUser) {
+                              return _CurrentUserRow(entry: entry);
+                            }
                             return LeaderboardRow(
-                              rank: index + 1,
+                              rank: entry.position,
                               entry: entry,
                               onTap: () => context.push(AppRoutes.challengePlayer(entry.playerName), extra: entry),
                               onChallenge: () => sendChallenge(context, entry),
@@ -81,6 +92,48 @@ class _Top50PageState extends State<Top50Page> {
           },
         );
       },
+    );
+  }
+}
+
+/// The logged-in user's own row on the ladder — highlighted, no challenge button.
+class _CurrentUserRow extends StatelessWidget {
+  const _CurrentUserRow({required this.entry});
+
+  final LeaderboardEntry entry;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryText = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
+    final secondaryText = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
+
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      color: AppColors.gold.withValues(alpha: 0.12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        child: Row(
+          children: [
+            RankMedal(rank: entry.position),
+            const SizedBox(width: 10),
+            PhotoAvatar(name: entry.playerName, radius: 20),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('${entry.playerName} (You)', style: AppTextStyles.bodyBold(primaryText)),
+                  Text(
+                    'Your ladder position · #${entry.position}',
+                    style: AppTextStyles.caption(secondaryText),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

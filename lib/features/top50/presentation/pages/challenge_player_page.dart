@@ -38,7 +38,7 @@ class ChallengePlayerPage extends StatelessWidget {
                 Text(entry.playerName, style: AppTextStyles.heading2(primaryText)),
                 const SizedBox(height: 4),
                 Text(
-                  'HCP ${entry.handicap.toStringAsFixed(1)} · ${entry.clubName}',
+                  '${entry.globalHandicap != null ? 'HCP ${entry.globalHandicap!.toStringAsFixed(1)}' : 'No global HCP'} · ${entry.clubName}',
                   style: AppTextStyles.body(secondaryText),
                 ),
               ],

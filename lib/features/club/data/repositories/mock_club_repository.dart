@@ -13,11 +13,11 @@ class MockClubRepository implements ClubRepository {
       name: 'Riverbend Golf Club',
       location: 'Austin, TX',
       members: [
-        ClubMember(id: 'm1', name: 'Marcus Thompson', handicap: 8.2, isAdmin: true),
-        ClubMember(id: 'm2', name: 'Dana Reyes', handicap: 14.6),
-        ClubMember(id: 'm3', name: 'Priya Kapoor', handicap: 11.0),
-        ClubMember(id: 'm4', name: 'Sam Ortiz', handicap: 19.4),
-        ClubMember(id: 'm5', name: 'Erin Walsh', handicap: 6.7),
+        ClubMember(id: 'm1', name: 'Marcus Thompson', clubHandicap: 8.2, isAdmin: true),
+        ClubMember(id: 'm2', name: 'Dana Reyes', clubHandicap: 14.6),
+        ClubMember(id: 'm3', name: 'Priya Kapoor', clubHandicap: 11.0),
+        ClubMember(id: 'm4', name: 'Sam Ortiz', clubHandicap: 19.4),
+        ClubMember(id: 'm5', name: 'Erin Walsh', clubHandicap: 6.7),
       ],
     ),
     Club(
@@ -25,10 +25,10 @@ class MockClubRepository implements ClubRepository {
       name: 'Oakmont Hills',
       location: 'Round Rock, TX',
       members: [
-        ClubMember(id: 'm6', name: 'Erin Walsh', handicap: 2.1, isAdmin: true),
-        ClubMember(id: 'm7', name: 'Dana Reyes', handicap: 7.5),
-        ClubMember(id: 'm8', name: 'Jordan Blake', handicap: 8.1),
-        ClubMember(id: 'm9', name: 'Casey Nguyen', handicap: 9.4),
+        ClubMember(id: 'm6', name: 'Erin Walsh', clubHandicap: 2.1, isAdmin: true),
+        ClubMember(id: 'm7', name: 'Dana Reyes', clubHandicap: 7.5),
+        ClubMember(id: 'm8', name: 'Jordan Blake', clubHandicap: 8.1),
+        ClubMember(id: 'm9', name: 'Casey Nguyen', clubHandicap: 9.4),
       ],
     ),
     Club(
@@ -36,9 +36,9 @@ class MockClubRepository implements ClubRepository {
       name: 'Pine Valley Muni',
       location: 'Cedar Park, TX',
       members: [
-        ClubMember(id: 'm10', name: 'Devon Lee', handicap: 5.2, isAdmin: true),
-        ClubMember(id: 'm11', name: 'Sam Ortiz', handicap: 6.8),
-        ClubMember(id: 'm12', name: 'Riley Foster', handicap: 10.2),
+        ClubMember(id: 'm10', name: 'Devon Lee', clubHandicap: 5.2, isAdmin: true),
+        ClubMember(id: 'm11', name: 'Sam Ortiz', clubHandicap: 6.8),
+        ClubMember(id: 'm12', name: 'Riley Foster', clubHandicap: 10.2),
       ],
     ),
     Club(
@@ -46,8 +46,8 @@ class MockClubRepository implements ClubRepository {
       name: 'Hill Country Club',
       location: 'Fredericksburg, TX',
       members: [
-        ClubMember(id: 'm13', name: 'Jordan Blake', handicap: 8.1, isAdmin: true),
-        ClubMember(id: 'm14', name: 'Alex Rivera', handicap: 3.7),
+        ClubMember(id: 'm13', name: 'Jordan Blake', clubHandicap: 8.1, isAdmin: true),
+        ClubMember(id: 'm14', name: 'Alex Rivera', clubHandicap: 3.7),
       ],
     ),
     Club(
@@ -55,8 +55,8 @@ class MockClubRepository implements ClubRepository {
       name: 'Lakeside Links',
       location: 'Lakeside, TX',
       members: [
-        ClubMember(id: 'm15', name: 'Casey Nguyen', handicap: 9.4, isAdmin: true),
-        ClubMember(id: 'm16', name: 'Taylor Brooks', handicap: 11.6),
+        ClubMember(id: 'm15', name: 'Casey Nguyen', clubHandicap: 9.4, isAdmin: true),
+        ClubMember(id: 'm16', name: 'Taylor Brooks', clubHandicap: 11.6),
       ],
     ),
   ];

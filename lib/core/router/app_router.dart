@@ -26,6 +26,8 @@ import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/shell/presentation/widgets/main_shell.dart';
 import '../../features/subscription/presentation/pages/subscription_page.dart';
+import '../../features/tee_sheet/presentation/pages/tee_sheet_builder_page.dart';
+import '../../features/tournament/presentation/pages/create_tournament_page.dart';
 import '../../features/tee_sheet/presentation/pages/tee_sheet_page.dart';
 import '../../features/top50/domain/entities/leaderboard_entry.dart';
 import '../../features/top50/presentation/pages/challenge_player_page.dart';
@@ -188,6 +190,11 @@ class AppRouter {
         builder: (context, state) => const PlaceholderScaffold(title: 'Start a Club'),
       ),
       GoRoute(
+        path: AppRoutes.createTournament,
+        name: 'createTournament',
+        builder: (context, state) => const CreateTournamentPage(),
+      ),
+      GoRoute(
         path: AppRoutes.marketplace,
         name: 'marketplace',
         builder: (context, state) => const MarketplacePage(),
@@ -221,6 +228,11 @@ class AppRouter {
         path: AppRoutes.teeSheet,
         name: 'teeSheet',
         builder: (context, state) => const TeeSheetPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.teeSheetBuilder,
+        name: 'teeSheetBuilder',
+        builder: (context, state) => const TeeSheetBuilderPage(),
       ),
     ],
   );

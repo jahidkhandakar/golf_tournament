@@ -2,18 +2,21 @@ import '../../domain/entities/leaderboard_entry.dart';
 import '../../domain/repositories/leaderboard_repository.dart';
 
 /// Hardcoded stand-in for the real ranking engine (backend/Phase 2).
-/// Entries are ordered best-to-worst by handicap; the page filters them by
-/// the current search radius and assigns display ranks after filtering.
+/// The ladder is ordered by [LeaderboardEntry.position] (1 = top); challenge
+/// results move players by position (see ladder_movement.dart). The logged-in
+/// user (Jahid) sits at position 6 so beating someone above them demonstrates
+/// the take-their-spot mechanic.
 ///
-/// Clubs/tournaments are assigned so both challenge paths are demoable
-/// against the user's clubs ({Riverbend, Oakmont}): players in those clubs
-/// let you join their tournament directly, while Pine Valley / Hill Country
-/// / Lakeside players require joining the club first.
+/// Clubs/tournaments are assigned so both challenge paths are demoable against
+/// the user's clubs ({Riverbend, Oakmont}): players in those clubs let you join
+/// their tournament directly, while Pine Valley / Hill Country / Lakeside
+/// players require joining the club first.
 class MockLeaderboardRepository implements LeaderboardRepository {
   static const List<LeaderboardEntry> _entries = [
     LeaderboardEntry(
+      position: 1,
       playerName: 'Erin Walsh',
-      handicap: 2.1,
+      globalHandicap: 2.1,
       roundsPlayed: 34,
       distanceMiles: 12,
       clubName: 'Oakmont Hills',
@@ -23,8 +26,9 @@ class MockLeaderboardRepository implements LeaderboardRepository {
       teeTime: '8:00 PM',
     ),
     LeaderboardEntry(
+      position: 2,
       playerName: 'Marcus Thompson',
-      handicap: 3.4,
+      globalHandicap: 3.4,
       roundsPlayed: 41,
       distanceMiles: 25,
       clubName: 'Riverbend Golf Club',
@@ -37,8 +41,9 @@ class MockLeaderboardRepository implements LeaderboardRepository {
     // used to prove the "same tournament AND same golf course" rule: joining
     // the Championship Course won't unlock a challenge against this player.
     LeaderboardEntry(
+      position: 3,
       playerName: 'Alex Rivera',
-      handicap: 3.7,
+      globalHandicap: 3.7,
       roundsPlayed: 31,
       distanceMiles: 30,
       clubName: 'Riverbend Golf Club',
@@ -48,8 +53,9 @@ class MockLeaderboardRepository implements LeaderboardRepository {
       teeTime: '8:20 AM',
     ),
     LeaderboardEntry(
+      position: 4,
       playerName: 'Priya Kapoor',
-      handicap: 4.0,
+      globalHandicap: 4.0,
       roundsPlayed: 28,
       distanceMiles: 40,
       clubName: 'Riverbend Golf Club',
@@ -59,8 +65,9 @@ class MockLeaderboardRepository implements LeaderboardRepository {
       teeTime: '7:40 AM',
     ),
     LeaderboardEntry(
+      position: 5,
       playerName: 'Devon Lee',
-      handicap: 5.2,
+      globalHandicap: 5.2,
       roundsPlayed: 22,
       distanceMiles: 55,
       clubName: 'Pine Valley Muni',
@@ -69,9 +76,25 @@ class MockLeaderboardRepository implements LeaderboardRepository {
       courseName: 'Pine Valley East',
       teeTime: '1:00 PM',
     ),
+    // The logged-in user — starts mid-ladder so Marcus (2) and Priya (4), who
+    // share their tournament + course, are directly challengeable from above.
     LeaderboardEntry(
+      position: 6,
+      playerName: 'Jahid',
+      isCurrentUser: true,
+      globalHandicap: 6.9,
+      roundsPlayed: 24,
+      distanceMiles: 0,
+      clubName: 'Riverbend Golf Club',
+      tournamentId: 't_riverbend',
+      tournamentName: 'Riverbend Championship',
+      courseName: 'Riverbend Championship Course',
+      teeTime: '7:10 AM',
+    ),
+    LeaderboardEntry(
+      position: 7,
       playerName: 'Sam Ortiz',
-      handicap: 6.8,
+      globalHandicap: 6.8,
       roundsPlayed: 19,
       distanceMiles: 58,
       clubName: 'Pine Valley Muni',
@@ -81,8 +104,9 @@ class MockLeaderboardRepository implements LeaderboardRepository {
       teeTime: '1:00 PM',
     ),
     LeaderboardEntry(
+      position: 8,
       playerName: 'Dana Reyes',
-      handicap: 7.5,
+      globalHandicap: 7.5,
       roundsPlayed: 26,
       distanceMiles: 62,
       clubName: 'Oakmont Hills',
@@ -92,8 +116,9 @@ class MockLeaderboardRepository implements LeaderboardRepository {
       teeTime: '8:00 PM',
     ),
     LeaderboardEntry(
+      position: 9,
       playerName: 'Jordan Blake',
-      handicap: 8.1,
+      globalHandicap: 8.1,
       roundsPlayed: 15,
       distanceMiles: 70,
       clubName: 'Hill Country Club',
@@ -103,8 +128,9 @@ class MockLeaderboardRepository implements LeaderboardRepository {
       teeTime: '9:00 AM',
     ),
     LeaderboardEntry(
+      position: 10,
       playerName: 'Casey Nguyen',
-      handicap: 9.4,
+      globalHandicap: 9.4,
       roundsPlayed: 18,
       distanceMiles: 95,
       clubName: 'Lakeside Links',
@@ -114,8 +140,9 @@ class MockLeaderboardRepository implements LeaderboardRepository {
       teeTime: '10:30 AM',
     ),
     LeaderboardEntry(
+      position: 11,
       playerName: 'Riley Foster',
-      handicap: 10.2,
+      globalHandicap: 10.2,
       roundsPlayed: 12,
       distanceMiles: 110,
       clubName: 'Pine Valley Muni',
@@ -125,8 +152,9 @@ class MockLeaderboardRepository implements LeaderboardRepository {
       teeTime: '1:00 PM',
     ),
     LeaderboardEntry(
+      position: 12,
       playerName: 'Taylor Brooks',
-      handicap: 11.6,
+      globalHandicap: 11.6,
       roundsPlayed: 20,
       distanceMiles: 130,
       clubName: 'Lakeside Links',

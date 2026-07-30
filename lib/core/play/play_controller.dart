@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import '../permission/club_role.dart';
+
 /// One paired tee time, created when a challenge is accepted — both players
 /// are locked into the same slot.
 class TeeSheetEntry {
@@ -35,6 +37,14 @@ class PlayController {
   final ValueNotifier<Set<String>> joinedClubs =
       ValueNotifier<Set<String>>({'Riverbend Golf Club', 'Oakmont Hills'});
 
+  /// Clubs the user created (they are the Club Creator). Seeded so the logged-in
+  /// user runs Riverbend — the club behind the seeded tournament / tee sheet.
+  final ValueNotifier<Set<String>> createdClubs =
+      ValueNotifier<Set<String>>({'Riverbend Golf Club'});
+
+  /// Clubs where the user has been appointed a sub-admin.
+  final ValueNotifier<Set<String>> subAdminClubs = ValueNotifier<Set<String>>({});
+
   /// Holds `tournamentId@courseName` keys — a challenge requires both players
   /// to share the same tournament AND the same golf course, so the course is
   /// part of the key (a tournament could span multiple courses).
@@ -46,6 +56,15 @@ class PlayController {
   static String tournamentKey(String tournamentId, String courseName) => '$tournamentId@$courseName';
 
   bool isInClub(String clubName) => joinedClubs.value.contains(clubName);
+
+  /// The user's role in [clubName], most-privileged first: a creator is also a
+  /// member, but Creator wins.
+  ClubRole roleIn(String clubName) {
+    if (createdClubs.value.contains(clubName)) return ClubRole.creator;
+    if (subAdminClubs.value.contains(clubName)) return ClubRole.subAdmin;
+    if (joinedClubs.value.contains(clubName)) return ClubRole.member;
+    return ClubRole.nonMember;
+  }
 
   bool isInTournament(String tournamentId, String courseName) =>
       joinedTournaments.value.contains(tournamentKey(tournamentId, courseName));

@@ -64,7 +64,12 @@ class GolferProfilePage extends StatelessWidget {
           const SizedBox(height: 12),
           Text(golfer.name, style: AppTextStyles.heading2(primaryText)),
           const SizedBox(height: 4),
-          Text('Handicap ${golfer.handicap.toStringAsFixed(1)}', style: AppTextStyles.body(secondaryText)),
+          Text(
+            golfer.globalHandicap != null
+                ? 'Global handicap ${golfer.globalHandicap!.toStringAsFixed(1)}'
+                : 'No global handicap set',
+            style: AppTextStyles.body(secondaryText),
+          ),
           const SizedBox(height: 24),
           _InfoRow(icon: Icons.sports_golf_outlined, label: 'Home club', value: golfer.homeClub, primaryText: primaryText, secondaryText: secondaryText),
           _InfoRow(icon: Icons.golf_course_outlined, label: 'Rounds played', value: '${golfer.roundsPlayed}', primaryText: primaryText, secondaryText: secondaryText),

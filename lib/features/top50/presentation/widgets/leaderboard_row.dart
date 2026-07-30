@@ -53,7 +53,7 @@ class LeaderboardRow extends StatelessWidget {
                   children: [
                     Text(entry.playerName, style: AppTextStyles.bodyBold(primaryText)),
                     Text(
-                      'HCP ${entry.handicap.toStringAsFixed(1)} · ${entry.distanceMiles.toStringAsFixed(0)} mi',
+                      '${entry.globalHandicap != null ? 'HCP ${entry.globalHandicap!.toStringAsFixed(1)}' : 'No global HCP'} · ${entry.distanceMiles.toStringAsFixed(0)} mi',
                       style: AppTextStyles.caption(secondaryText),
                     ),
                   ],

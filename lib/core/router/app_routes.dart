@@ -27,10 +27,12 @@ class AppRoutes {
   static const String termsOfService = '/about-legal/terms';
   static const String privacyPolicy = '/about-legal/privacy';
   static const String createClub = '/create-club';
+  static const String createTournament = '/create-tournament';
   static const String marketplace = '/marketplace';
   static const String createLookingPost = '/looking-to-play/create';
   static const String myProfile = '/my-profile';
   static const String teeSheet = '/tee-sheet';
+  static const String teeSheetBuilder = '/tee-sheet/builder';
 
   static String chatDetail(String conversationId) => '/messages/chat/$conversationId';
   static String marketplaceListingDetail(String id) => '/marketplace/$id';

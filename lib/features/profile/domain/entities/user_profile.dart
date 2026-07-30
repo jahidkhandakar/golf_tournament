@@ -9,7 +9,8 @@ class UserProfile extends Equatable {
   const UserProfile({
     required this.name,
     required this.tier,
-    required this.handicap,
+    required this.clubHandicap,
+    this.globalHandicap,
     required this.homeClub,
     required this.currentTournament,
     required this.currentCourse,
@@ -17,7 +18,14 @@ class UserProfile extends Equatable {
 
   final String name;
   final UserTier tier;
-  final double handicap;
+
+  /// Handicap at the user's home club — used wherever their club standing
+  /// matters (Club Leaderboard, tee box color).
+  final double clubHandicap;
+
+  /// Optional global (worldwide) handicap. Not mandatory — when set, it's shown
+  /// on the profile so players elsewhere can size the user up for a round.
+  final double? globalHandicap;
 
   /// The club the user is a member of.
   final String homeClub;
@@ -28,5 +36,6 @@ class UserProfile extends Equatable {
   final String currentCourse;
 
   @override
-  List<Object?> get props => [name, tier, handicap, homeClub, currentTournament, currentCourse];
+  List<Object?> get props =>
+      [name, tier, clubHandicap, globalHandicap, homeClub, currentTournament, currentCourse];
 }

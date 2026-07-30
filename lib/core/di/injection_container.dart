@@ -25,8 +25,13 @@ import '../../features/profile/data/repositories/mock_user_profile_repository.da
 import '../../features/profile/domain/repositories/challenge_repository.dart';
 import '../../features/profile/domain/repositories/round_repository.dart';
 import '../../features/profile/domain/repositories/user_profile_repository.dart';
+import '../../features/tee_sheet/data/repositories/mock_tee_sheet_repository.dart';
+import '../../features/tee_sheet/domain/repositories/tee_sheet_repository.dart';
 import '../../features/top50/data/repositories/mock_leaderboard_repository.dart';
 import '../../features/top50/domain/repositories/leaderboard_repository.dart';
+import '../../features/top50/presentation/top50_ladder_controller.dart';
+import '../../features/tournament/data/repositories/mock_tournament_repository.dart';
+import '../../features/tournament/domain/repositories/tournament_repository.dart';
 import '../club/active_club_state.dart';
 import '../location/location_state.dart';
 import '../network/network_info.dart';
@@ -56,6 +61,7 @@ Future<void> setupLocator() async {
   sl.registerLazySingleton<LookingRepository>(() => MockLookingRepository());
   sl.registerLazySingleton<ClubRepository>(() => MockClubRepository());
   sl.registerLazySingleton<LeaderboardRepository>(() => MockLeaderboardRepository());
+  sl.registerLazySingleton<Top50LadderController>(() => Top50LadderController(sl()));
   sl.registerLazySingleton<RoundRepository>(() => MockRoundRepository());
   sl.registerLazySingleton<ChallengeRepository>(() => MockChallengeRepository());
   sl.registerLazySingleton<UserProfileRepository>(() => MockUserProfileRepository());
@@ -64,4 +70,6 @@ Future<void> setupLocator() async {
   sl.registerLazySingleton<NotificationRepository>(() => MockNotificationRepository());
   sl.registerLazySingleton<MarketplaceRepository>(() => MockMarketplaceRepository());
   sl.registerLazySingleton<GolfersRepository>(() => MockGolfersRepository());
+  sl.registerLazySingleton<TeeSheetRepository>(() => MockTeeSheetRepository());
+  sl.registerLazySingleton<TournamentRepository>(() => MockTournamentRepository());
 }

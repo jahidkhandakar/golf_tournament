@@ -10,13 +10,17 @@ class ProfileHeader extends StatelessWidget {
     super.key,
     this.name = 'Jahid',
     this.tier = UserTier.free,
-    this.handicap = 7.4,
+    this.clubHandicap = 7.4,
+    this.globalHandicap,
     this.homeClub = 'Riverbend Golf Club',
   });
 
   final String name;
   final UserTier tier;
-  final double handicap;
+  final double clubHandicap;
+
+  /// Optional — only shown when the user has chosen to publish a global handicap.
+  final double? globalHandicap;
   final String homeClub;
 
   @override
@@ -37,7 +41,9 @@ class ProfileHeader extends StatelessWidget {
               children: [
                 Text(name, style: AppTextStyles.heading2(primaryText)),
                 const SizedBox(height: 4),
-                Text('Handicap ${handicap.toStringAsFixed(1)}', style: AppTextStyles.body(secondaryText)),
+                Text('Club HCP ${clubHandicap.toStringAsFixed(1)}', style: AppTextStyles.body(secondaryText)),
+                if (globalHandicap != null)
+                  Text('Global HCP ${globalHandicap!.toStringAsFixed(1)}', style: AppTextStyles.caption(secondaryText)),
                 Row(
                   children: [
                     Icon(Icons.sports_golf_outlined, size: 14, color: secondaryText),

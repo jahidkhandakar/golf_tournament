@@ -9,7 +9,8 @@ class MockUserProfileRepository implements UserProfileRepository {
   static const UserProfile _currentUser = UserProfile(
     name: 'Jahid',
     tier: UserTier.free,
-    handicap: 7.4,
+    clubHandicap: 7.4,
+    globalHandicap: 6.9,
     homeClub: 'Riverbend Golf Club',
     currentTournament: 'Riverbend Championship',
     currentCourse: 'Riverbend Championship Course',

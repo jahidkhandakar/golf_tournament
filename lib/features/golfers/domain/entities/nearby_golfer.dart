@@ -6,7 +6,7 @@ class NearbyGolfer extends Equatable {
   const NearbyGolfer({
     required this.id,
     required this.name,
-    required this.handicap,
+    required this.globalHandicap,
     required this.distanceMiles,
     required this.homeClub,
     required this.roundsPlayed,
@@ -15,12 +15,15 @@ class NearbyGolfer extends Equatable {
 
   final String id;
   final String name;
-  final double handicap;
+
+  /// The golfer's global (worldwide) handicap, shown so other players can size
+  /// them up for a round anywhere. Optional — not every golfer keeps one.
+  final double? globalHandicap;
   final double distanceMiles;
   final String homeClub;
   final int roundsPlayed;
   final String bio;
 
   @override
-  List<Object?> get props => [id, name, handicap, distanceMiles, homeClub, roundsPlayed, bio];
+  List<Object?> get props => [id, name, globalHandicap, distanceMiles, homeClub, roundsPlayed, bio];
 }
