@@ -5,6 +5,9 @@ abstract class TournamentRepository {
   /// Creator / sub-admin of [Tournament.clubName] (gate via PermissionService).
   Future<Tournament> createTournament(Tournament tournament);
 
+  /// Every tournament visible to the user — for the browse/list view.
+  Future<List<Tournament>> getAllTournaments();
+
   /// Tournaments the current user runs, newest first — for the manage/list view.
   Future<List<Tournament>> getMyTournaments();
 

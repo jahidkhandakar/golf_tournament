@@ -27,7 +27,10 @@ import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/shell/presentation/widgets/main_shell.dart';
 import '../../features/subscription/presentation/pages/subscription_page.dart';
 import '../../features/tee_sheet/presentation/pages/tee_sheet_builder_page.dart';
+import '../../features/tournament/domain/entities/tournament.dart';
 import '../../features/tournament/presentation/pages/create_tournament_page.dart';
+import '../../features/tournament/presentation/pages/tournament_detail_page.dart';
+import '../../features/tournament/presentation/pages/tournaments_list_page.dart';
 import '../../features/tee_sheet/presentation/pages/tee_sheet_page.dart';
 import '../../features/top50/domain/entities/leaderboard_entry.dart';
 import '../../features/top50/presentation/pages/challenge_player_page.dart';
@@ -193,6 +196,16 @@ class AppRouter {
         path: AppRoutes.createTournament,
         name: 'createTournament',
         builder: (context, state) => const CreateTournamentPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.tournaments,
+        name: 'tournaments',
+        builder: (context, state) => const TournamentsListPage(),
+      ),
+      GoRoute(
+        path: '/tournaments/:id',
+        name: 'tournamentDetail',
+        builder: (context, state) => TournamentDetailPage(tournament: state.extra as Tournament),
       ),
       GoRoute(
         path: AppRoutes.marketplace,

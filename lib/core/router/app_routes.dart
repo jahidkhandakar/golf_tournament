@@ -28,6 +28,7 @@ class AppRoutes {
   static const String privacyPolicy = '/about-legal/privacy';
   static const String createClub = '/create-club';
   static const String createTournament = '/create-tournament';
+  static const String tournaments = '/tournaments';
   static const String marketplace = '/marketplace';
   static const String createLookingPost = '/looking-to-play/create';
   static const String myProfile = '/my-profile';
@@ -38,4 +39,5 @@ class AppRoutes {
   static String marketplaceListingDetail(String id) => '/marketplace/$id';
   static String golferProfile(String id) => '/golfers/$id';
   static String challengePlayer(String playerName) => '/top50/challenge/$playerName';
+  static String tournamentDetail(String id) => '/tournaments/$id';
 }

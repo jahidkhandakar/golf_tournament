@@ -23,6 +23,7 @@ class _DrawerDestination {
 
 const _destinations = [
   _DrawerDestination('My Clubs', Icons.sports_golf_outlined, AppRoutes.myClubs),
+  _DrawerDestination('Tournaments', Icons.emoji_events_outlined, AppRoutes.tournaments),
   _DrawerDestination('Tee Sheet', Icons.event_available_outlined, AppRoutes.teeSheet),
   // Admin-only (Club Creator / sub-admin). Shown to everyone for now; gate on
   // the club role once PermissionService knows about it.

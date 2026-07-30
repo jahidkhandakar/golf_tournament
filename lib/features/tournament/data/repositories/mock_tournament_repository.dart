@@ -20,6 +20,35 @@ class MockTournamentRepository implements TournamentRepository {
       golfCourseEmail: 'proshop@riverbendgolf.example',
       registeredPlayers: 40,
     ),
+    // A club the user is a *member* of — demonstrates direct registration.
+    Tournament(
+      id: 't_oakmont',
+      name: 'Oakmont Summer Open',
+      clubName: 'Oakmont Hills',
+      format: 'Best Ball',
+      courseName: 'Oakmont North',
+      date: DateTime.now().add(const Duration(days: 7)),
+      firstTeeTime: '8:00 AM',
+      intervalMinutes: 10,
+      teeBoxes: 9,
+      teamsPerTeeBox: 2,
+      golfCourseEmail: 'events@oakmonthills.example',
+      registeredPlayers: 12,
+    ),
+    // A club the user is *not* in — demonstrates Request to Play.
+    Tournament(
+      id: 't_pinevalley',
+      name: 'Pine Valley Classic',
+      clubName: 'Pine Valley Muni',
+      format: 'Scramble',
+      courseName: 'Pine Valley East',
+      date: DateTime.now().add(const Duration(days: 10)),
+      firstTeeTime: '1:00 PM',
+      intervalMinutes: 12,
+      teeBoxes: 18,
+      teamsPerTeeBox: 2,
+      registeredPlayers: 30,
+    ),
   ];
 
   @override
@@ -27,6 +56,12 @@ class MockTournamentRepository implements TournamentRepository {
     await Future.delayed(const Duration(milliseconds: 300));
     _tournaments.insert(0, tournament);
     return tournament;
+  }
+
+  @override
+  Future<List<Tournament>> getAllTournaments() async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return List.unmodifiable(_tournaments);
   }
 
   @override
