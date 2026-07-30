@@ -40,4 +40,5 @@ class AppRoutes {
   static String golferProfile(String id) => '/golfers/$id';
   static String challengePlayer(String playerName) => '/top50/challenge/$playerName';
   static String tournamentDetail(String id) => '/tournaments/$id';
+  static String challengeApprovals(String id) => '/tournaments/$id/challenges';
 }

@@ -28,6 +28,7 @@ import '../../features/shell/presentation/widgets/main_shell.dart';
 import '../../features/subscription/presentation/pages/subscription_page.dart';
 import '../../features/tee_sheet/presentation/pages/tee_sheet_builder_page.dart';
 import '../../features/tournament/domain/entities/tournament.dart';
+import '../../features/tournament/presentation/pages/challenge_approvals_page.dart';
 import '../../features/tournament/presentation/pages/create_tournament_page.dart';
 import '../../features/tournament/presentation/pages/tournament_detail_page.dart';
 import '../../features/tournament/presentation/pages/tournaments_list_page.dart';
@@ -206,6 +207,11 @@ class AppRouter {
         path: '/tournaments/:id',
         name: 'tournamentDetail',
         builder: (context, state) => TournamentDetailPage(tournament: state.extra as Tournament),
+      ),
+      GoRoute(
+        path: '/tournaments/:id/challenges',
+        name: 'challengeApprovals',
+        builder: (context, state) => ChallengeApprovalsPage(tournament: state.extra as Tournament),
       ),
       GoRoute(
         path: AppRoutes.marketplace,

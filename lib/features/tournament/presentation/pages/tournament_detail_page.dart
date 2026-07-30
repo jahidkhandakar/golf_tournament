@@ -12,6 +12,7 @@ import '../../../profile/domain/entities/user_profile.dart';
 import '../../../profile/domain/repositories/user_profile_repository.dart';
 import '../../domain/entities/play_request.dart';
 import '../../domain/entities/tournament.dart';
+import '../../domain/repositories/challenge_approval_repository.dart';
 import '../../domain/repositories/registration_repository.dart';
 
 /// Tournament detail + registration (§1). The call-to-action is role-aware:
@@ -28,6 +29,7 @@ class TournamentDetailPage extends StatefulWidget {
 
 class _TournamentDetailPageState extends State<TournamentDetailPage> {
   final RegistrationRepository _reg = GetIt.instance<RegistrationRepository>();
+  final ChallengeApprovalRepository _challenges = GetIt.instance<ChallengeApprovalRepository>();
   final PermissionService _permission = GetIt.instance<PermissionService>();
 
   late final ClubRole _role = _permission.roleInClub(widget.tournament.clubName);
@@ -37,6 +39,7 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
   bool _registered = false;
   PlayRequest? _myRequest;
   List<PlayRequest> _pending = [];
+  int _pendingChallenges = 0;
   bool _loading = true;
   bool _busy = false;
 
@@ -54,6 +57,7 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
     final user = _user ?? await GetIt.instance<UserProfileRepository>().getCurrentUser();
     final count = await _reg.registeredCount(_tid);
     final pending = _role.isStaff ? await _reg.pendingRequests(_tid) : <PlayRequest>[];
+    final pendingChallenges = _role.isStaff ? await _challenges.pendingCount(_tid) : 0;
     final registered = _role.isStaff ? false : await _reg.isRegistered(_tid, user.name);
     final myRequest =
         _role == ClubRole.nonMember ? await _reg.myRequest(_tid, user.name) : null;
@@ -62,6 +66,7 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
       _user = user;
       _count = count;
       _pending = pending;
+      _pendingChallenges = pendingChallenges;
       _registered = registered;
       _myRequest = myRequest;
       _loading = false;
@@ -190,6 +195,17 @@ class _AdminPanel extends StatelessWidget {
           onPressed: () => context.push(AppRoutes.teeSheetBuilder),
           icon: const Icon(Icons.edit_calendar_outlined, size: 18),
           label: const Text('Build tee sheet'),
+        ),
+        const SizedBox(height: 8),
+        OutlinedButton.icon(
+          onPressed: () async {
+            await context.push(AppRoutes.challengeApprovals(state._tid), extra: state.widget.tournament);
+            await state._load();
+          },
+          icon: const Icon(Icons.verified_outlined, size: 18),
+          label: Text(state._pendingChallenges > 0
+              ? 'Challenge approvals (${state._pendingChallenges})'
+              : 'Challenge approvals'),
         ),
         const SizedBox(height: 20),
         Text('Pending requests · ${state._pending.length}', style: AppTextStyles.bodyBold(primaryText)),
