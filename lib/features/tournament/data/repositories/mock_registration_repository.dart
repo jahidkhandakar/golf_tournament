@@ -15,6 +15,9 @@ class MockRegistrationRepository implements RegistrationRepository {
   // "tournamentId|playerName". Seeded with a representative set of registered
   // players per tournament so the tee sheet has a real roster to place.
   final Set<String> _registered = {
+    't_riverbend|Jahid', 't_riverbend|Marcus Thompson', 't_riverbend|Priya Kapoor',
+    't_riverbend|Erin Walsh', 't_riverbend|Dana Reyes', 't_riverbend|Sam Ortiz',
+    't_riverbend|Jordan Blake', 't_riverbend|Casey Nguyen',
     't_oakmont|Erin Walsh', 't_oakmont|Dana Reyes', 't_oakmont|Jordan Blake', 't_oakmont|Casey Nguyen',
     't_pinevalley|Devon Lee', 't_pinevalley|Sam Ortiz', 't_pinevalley|Riley Foster',
     't_riverbend_twilight|Marcus Thompson', 't_riverbend_twilight|Priya Kapoor',

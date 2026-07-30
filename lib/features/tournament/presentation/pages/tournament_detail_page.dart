@@ -280,6 +280,13 @@ class _AdminPanel extends StatelessWidget {
           icon: const Icon(Icons.person_add_alt_outlined, size: 18),
           label: const Text('Invite players'),
         ),
+        const SizedBox(height: 8),
+        OutlinedButton.icon(
+          onPressed: () =>
+              context.push(AppRoutes.scorecardEntry(state._tid), extra: state.widget.tournament),
+          icon: const Icon(Icons.scoreboard_outlined, size: 18),
+          label: const Text('Enter scorecard'),
+        ),
         const SizedBox(height: 20),
         Text('Pending requests · ${state._pending.length}', style: AppTextStyles.bodyBold(primaryText)),
         const SizedBox(height: 8),

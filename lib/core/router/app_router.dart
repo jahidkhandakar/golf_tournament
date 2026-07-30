@@ -31,6 +31,7 @@ import '../../features/tournament/domain/entities/tournament.dart';
 import '../../features/tournament/presentation/pages/challenge_approvals_page.dart';
 import '../../features/tournament/presentation/pages/create_tournament_page.dart';
 import '../../features/tournament/presentation/pages/invite_players_page.dart';
+import '../../features/tournament/presentation/pages/scorecard_entry_page.dart';
 import '../../features/tournament/presentation/pages/tournament_detail_page.dart';
 import '../../features/tournament/presentation/pages/tournaments_list_page.dart';
 import '../../features/tee_sheet/presentation/pages/tee_sheet_page.dart';
@@ -223,6 +224,11 @@ class AppRouter {
         path: '/tournaments/:id/tee-sheet',
         name: 'teeSheetBuilderFor',
         builder: (context, state) => TeeSheetBuilderPage(tournament: state.extra as Tournament),
+      ),
+      GoRoute(
+        path: '/tournaments/:id/scorecard',
+        name: 'scorecardEntry',
+        builder: (context, state) => ScorecardEntryPage(tournament: state.extra as Tournament),
       ),
       GoRoute(
         path: AppRoutes.marketplace,
