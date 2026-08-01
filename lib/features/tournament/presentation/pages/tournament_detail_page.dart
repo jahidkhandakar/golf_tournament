@@ -3,11 +3,15 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/permission/club_role.dart';
+import '../../../../core/location/location_state.dart';
+import '../../../../core/play/trial_controller.dart';
 import '../../../../core/permission/permission_service.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/user/user_tier.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/date_formatter.dart';
+import '../../../../core/widgets/upgrade_prompt.dart';
 import '../../../profile/domain/entities/user_profile.dart';
 import '../../../profile/domain/repositories/user_profile_repository.dart';
 import '../../domain/entities/invite.dart';
@@ -85,6 +89,32 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
       _results = results;
       _loading = false;
     });
+  }
+
+  /// Direct member registration with the free tier travel gate: joining a
+  /// tournament outside the user's current home zone consumes a travel trial
+  /// (2 per free account, independent of the home Small Outing counter). Paid
+  /// users and Superusers skip the gate entirely.
+  Future<void> _registerWithTravelGate(BuildContext context) async {
+    final t = widget.tournament;
+    final user = _user;
+    if (user == null) return;
+    final isFree = user.tier == UserTier.free;
+    final homeZone = GetIt.instance<LocationState>().currentZone.value;
+    final outsideZone = t.zone != null && t.zone != homeZone;
+    if (isFree && outsideZone) {
+      final trials = GetIt.instance<TrialController>();
+      if (!trials.canUseTravelTrial) {
+        await UpgradePrompt.show(
+          context,
+          message:
+              "You've used your ${TrialController.limitPerCounter} free travel trials. Upgrade to join events anywhere.",
+        );
+        return;
+      }
+      trials.useTravelTrial();
+    }
+    await _run(() => _reg.registerMember(_tid, user.name));
   }
 
   Future<void> _run(Future<void> Function() action) async {
@@ -465,7 +495,7 @@ class _MemberActions extends StatelessWidget {
         ElevatedButton(
           onPressed: (state._busy || state._isFull)
               ? null
-              : () => state._run(() => state._reg.registerMember(state._tid, state._user!.name)),
+              : () => state._registerWithTravelGate(context),
           child: Text(state._isFull ? 'Tournament full' : 'Register'),
         ),
       ],

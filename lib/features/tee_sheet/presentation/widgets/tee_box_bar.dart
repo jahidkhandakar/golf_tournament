@@ -3,13 +3,15 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/tee_box_color.dart';
 
-/// The colored bar drawn on a player slot to show their tee box (§5.3). These
-/// are the literal golf tee colors, not the app palette — White gets a border
-/// so it reads on a light surface.
+/// The colored bar drawn on a player slot to show their tee box. These are the
+/// literal golf tee colors. Per the build, every color bar carries a gold
+/// border; the Gold bar itself uses a thin dark border so its edge stays
+/// visible. A null [color] means the player self selects at the course (fewer
+/// than 3 scored rounds) and renders as a gray outline bar.
 class TeeBoxBar extends StatelessWidget {
   const TeeBoxBar({super.key, required this.color, this.width = 4, this.height = 36});
 
-  final TeeBoxColor color;
+  final TeeBoxColor? color;
   final double width;
   final double height;
 
@@ -28,14 +30,29 @@ class TeeBoxBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fill = swatch(color);
+    final c = color;
+    if (c == null) {
+      // Self select: no established handicap yet.
+      return Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(width),
+          border: Border.all(color: AppColors.greyLight),
+        ),
+      );
+    }
     return Container(
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: fill,
+        color: swatch(c),
         borderRadius: BorderRadius.circular(width),
-        border: color == TeeBoxColor.white ? Border.all(color: AppColors.greyLight) : null,
+        border: Border.all(
+          color: c == TeeBoxColor.gold ? const Color(0xFF6B5A17) : AppColors.gold,
+          width: 1,
+        ),
       ),
     );
   }

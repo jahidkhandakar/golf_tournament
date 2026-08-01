@@ -21,10 +21,10 @@ class _TabConfig {
 
 const _tabs = [
   _TabConfig('Home', Icons.home_outlined, Icons.home),
-  _TabConfig('Club', Icons.flag_outlined, Icons.flag),
+  _TabConfig('My Club', Icons.flag_outlined, Icons.flag),
   _TabConfig('Top 50', Icons.emoji_events_outlined, Icons.emoji_events),
-  _TabConfig('Messages', Icons.chat_bubble_outline, Icons.chat_bubble),
-  _TabConfig('Users', Icons.people_outline, Icons.people),
+  _TabConfig('Profile', Icons.person_outline, Icons.person),
+  _TabConfig('Notifications', Icons.notifications_none, Icons.notifications),
 ];
 
 /// Shell wrapping the logged-in experience: a shared AppBar + Drawer, the
@@ -63,11 +63,6 @@ class _MainShellState extends State<MainShell> {
     return notifications.where((n) => !n.isRead).length;
   }
 
-  Future<void> _openNotifications(BuildContext context) async {
-    await context.push(AppRoutes.notifications);
-    // Refresh the bell badge in case items were marked read.
-    if (mounted) setState(() => _unreadNotificationsFuture = _countUnreadNotifications());
-  }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     final isHome = widget.navigationShell.currentIndex == 0;
@@ -107,8 +102,9 @@ class _MainShellState extends State<MainShell> {
                 GetIt.instance<ThemeController>().toggle(MediaQuery.platformBrightnessOf(context)),
           ),
           IconButton(
+            tooltip: 'Messages',
             icon: FutureBuilder<int>(
-              future: _unreadNotificationsFuture,
+              future: _unreadMessagesFuture,
               builder: (context, snapshot) {
                 final count = snapshot.data ?? 0;
                 return Badge(
@@ -118,11 +114,11 @@ class _MainShellState extends State<MainShell> {
                   textColor: AppColors.error,
                   largeSize: 20,
                   textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                  child: const Icon(Icons.notifications_none),
+                  child: const Icon(Icons.chat_bubble_outline),
                 );
               },
             ),
-            onPressed: () => _openNotifications(context),
+            onPressed: () => context.push(AppRoutes.messages),
           ),
         ],
       );
@@ -148,16 +144,21 @@ class _MainShellState extends State<MainShell> {
       body: widget.navigationShell,
       bottomNavigationBar: NavigationBar(
         selectedIndex: widget.navigationShell.currentIndex,
-        onDestinationSelected: (index) => widget.navigationShell.goBranch(
-          index,
-          initialLocation: index == widget.navigationShell.currentIndex,
-        ),
+        onDestinationSelected: (index) {
+          widget.navigationShell.goBranch(
+            index,
+            initialLocation: index == widget.navigationShell.currentIndex,
+          );
+          if (index == 4) {
+            setState(() => _unreadNotificationsFuture = _countUnreadNotifications());
+          }
+        },
         destinations: [
           for (var i = 0; i < _tabs.length; i++)
             NavigationDestination(
-              icon: i == 3
+              icon: i == 4
                   ? FutureBuilder<int>(
-                      future: _unreadMessagesFuture,
+                      future: _unreadNotificationsFuture,
                       builder: (context, snapshot) {
                         final count = snapshot.data ?? 0;
                         return Badge(

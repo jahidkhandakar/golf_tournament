@@ -116,18 +116,18 @@ class AppRouter {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: AppRoutes.messages,
-                name: 'messages',
-                builder: (context, state) => const MessagesPage(),
+                path: AppRoutes.profile,
+                name: 'profile',
+                builder: (context, state) => const ProfilePage(),
               ),
             ],
           ),
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: AppRoutes.profile,
-                name: 'profile',
-                builder: (context, state) => const NearbyGolfersPage(),
+                path: AppRoutes.notifications,
+                name: 'notifications',
+                builder: (context, state) => const NotificationsPage(),
               ),
             ],
           ),
@@ -136,9 +136,14 @@ class AppRouter {
 
       // Pushed full-screen on top of the shell (no bottom nav).
       GoRoute(
-        path: AppRoutes.notifications,
-        name: 'notifications',
-        builder: (context, state) => const NotificationsPage(),
+        path: AppRoutes.messages,
+        name: 'messages',
+        builder: (context, state) => const MessagesPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.nearbyGolfers,
+        name: 'nearbyGolfers',
+        builder: (context, state) => const NearbyGolfersPage(),
       ),
       GoRoute(
         path: AppRoutes.location,

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/play/play_controller.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -22,6 +21,12 @@ class _DrawerDestination {
 }
 
 const _destinations = [
+  _DrawerDestination('Settings', Icons.settings_outlined, AppRoutes.settings),
+  _DrawerDestination('Subscription & Payment', Icons.payment_outlined, AppRoutes.subscriptionPayment),
+];
+
+// ignore: unused_element
+const _removedDestinations = [
   _DrawerDestination('My Clubs', Icons.sports_golf_outlined, AppRoutes.myClubs),
   _DrawerDestination('Tournaments', Icons.emoji_events_outlined, AppRoutes.tournaments),
   _DrawerDestination('Tee Sheet', Icons.event_available_outlined, AppRoutes.teeSheet),
@@ -29,11 +34,12 @@ const _destinations = [
   // the club role once PermissionService knows about it.
   _DrawerDestination('Tee Sheet Builder', Icons.edit_calendar_outlined, AppRoutes.teeSheetBuilder),
   _DrawerDestination('Marketplace', Icons.storefront_outlined, AppRoutes.marketplace),
-  _DrawerDestination('Subscription & Payment', Icons.payment_outlined, AppRoutes.subscriptionPayment),
-  _DrawerDestination('Settings', Icons.settings_outlined, AppRoutes.settings),
   _DrawerDestination('Help & Support', Icons.help_outline, AppRoutes.helpSupport),
   _DrawerDestination('About & Legal', Icons.info_outline, AppRoutes.aboutLegal),
 ];
+// _removedDestinations is kept for reference while these entry points are
+// relocated into their features (My Club page, tournament screens, Home
+// marketplace, Settings). Remove once relocation lands.
 
 /// Left navigation drawer for the logged-in shell. Deliberately excludes
 /// Home/Club/Top 50/Messages/Profile — those already live in the bottom nav.
@@ -156,13 +162,6 @@ class _DrawerContent extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.symmetric(vertical: 8),
             children: [
-              // Club Creators get a shortcut to spin up a new tournament.
-              if (GetIt.instance<PlayController>().createdClubs.value.isNotEmpty)
-                ListTile(
-                  leading: const Icon(Icons.add_circle_outline),
-                  title: const Text('Create Tournament'),
-                  onTap: () => onNavigate(context, AppRoutes.createTournament),
-                ),
               for (final destination in _destinations)
                 ListTile(
                   leading: Icon(destination.icon),

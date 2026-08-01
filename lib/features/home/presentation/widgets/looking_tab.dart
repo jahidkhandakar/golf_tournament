@@ -67,6 +67,12 @@ class _LookingTabState extends State<LookingTab> {
                 padding: const EdgeInsets.only(bottom: 16),
                 children: [
                   const SponsoredBanner(),
+                  ListTile(
+                    leading: const Icon(Icons.people_outline),
+                    title: const Text('Browse golfers near you'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => context.push(AppRoutes.nearbyGolfers),
+                  ),
                   for (final post in posts)
                     LookingPostCard(
                       post: post,

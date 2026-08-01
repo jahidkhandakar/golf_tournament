@@ -34,6 +34,7 @@ class AppRoutes {
   static const String myProfile = '/my-profile';
   static const String teeSheet = '/tee-sheet';
   static const String teeSheetBuilder = '/tee-sheet/builder';
+  static const String nearbyGolfers = '/golfers';
 
   static String chatDetail(String conversationId) => '/messages/chat/$conversationId';
   static String marketplaceListingDetail(String id) => '/marketplace/$id';

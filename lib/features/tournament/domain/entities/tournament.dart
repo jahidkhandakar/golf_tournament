@@ -4,6 +4,12 @@ import 'package:equatable/equatable.dart';
 /// completed once scores are submitted (§6).
 enum TournamentStatus { open, rosterLocked, completed }
 
+/// How the field starts the round. Regular Start (the default, most
+/// tournaments): every group starts at hole 1 at a set interval, capacity is
+/// groups x 4. Shotgun Start: everyone starts at the same moment on different
+/// holes, capacity is tee boxes x teams per tee box x 4 with a ceiling of 216.
+enum StartType { regular, shotgun }
+
 /// A club-run tournament created by a Club Creator / sub-admin.
 ///
 /// Capacity is tee-box based, not a flat number (§1): each tee box (hole) holds
@@ -17,12 +23,15 @@ class Tournament extends Equatable {
     required this.clubName,
     required this.format,
     required this.courseName,
+    this.zone,
     required this.date,
     required this.firstTeeTime,
     required this.teeOff,
     required this.intervalMinutes,
-    required this.teeBoxes,
-    required this.teamsPerTeeBox,
+    this.startType = StartType.regular,
+    this.groupsCount = 10,
+    this.teeBoxes = maxTeeBoxes,
+    this.teamsPerTeeBox = maxTeamsPerTeeBox,
     this.golfCourseEmail,
     this.registeredPlayers = 0,
     this.status = TournamentStatus.open,
@@ -33,6 +42,12 @@ class Tournament extends Equatable {
   final String clubName;
   final String format;
   final String courseName;
+
+  /// The city zone this tournament sits in (matches LocationState zone labels).
+  /// Free users joining an event outside their home zone consume a travel
+  /// trial. Null is treated as the user's home zone.
+  final String? zone;
+
   final DateTime date;
 
   /// First tee time for display, e.g. `7:10 AM`.
@@ -41,8 +56,15 @@ class Tournament extends Equatable {
   /// The exact first-tee moment — the anchor for the 48h / 24h cutoffs (§2).
   final DateTime teeOff;
 
-  /// Minutes between consecutive tee times.
+  /// Minutes between consecutive tee times (Regular Start only).
   final int intervalMinutes;
+
+  /// How the field starts: Regular (groups off hole 1 at intervals) or
+  /// Shotgun (simultaneous start across tee boxes).
+  final StartType startType;
+
+  /// Number of 4 player groups (Regular Start only). Capacity is groups x 4.
+  final int groupsCount;
 
   /// Tee boxes in play (1–18) and teams per tee box (1–3) — together these set
   /// the capacity.
@@ -59,11 +81,16 @@ class Tournament extends Equatable {
   static const int minPlayers = 8; // fewer than this is a Small Outing
   static const int maxPlayers = maxTeeBoxes * maxTeamsPerTeeBox * playersPerTeam; // 216
 
-  /// Player capacity for the current tee-box / team layout.
+  /// Shotgun capacity for a tee-box / team layout.
   static int capacityFor(int teeBoxes, int teamsPerTeeBox) =>
       teeBoxes * teamsPerTeeBox * playersPerTeam;
 
-  int get capacity => capacityFor(teeBoxes, teamsPerTeeBox);
+  /// Regular Start capacity for a group count.
+  static int capacityForGroups(int groups) => groups * playersPerTeam;
+
+  int get capacity => startType == StartType.shotgun
+      ? capacityFor(teeBoxes, teamsPerTeeBox)
+      : capacityForGroups(groupsCount);
 
   bool get isFull => registeredPlayers >= capacity;
 
@@ -89,12 +116,19 @@ class Tournament extends Equatable {
   /// Time remaining until the pairing-preference deadline.
   Duration get timeUntilPairingDeadline => pairingDeadlineAt.difference(DateTime.now());
 
-  /// A layout is valid as a tournament when it seats between [minPlayers] and
+  /// A shotgun layout is valid when it seats between [minPlayers] and
   /// [maxPlayers] within the tee-box / team limits.
   static bool isValidLayout(int teeBoxes, int teamsPerTeeBox) {
     if (teeBoxes < 1 || teeBoxes > maxTeeBoxes) return false;
     if (teamsPerTeeBox < 1 || teamsPerTeeBox > maxTeamsPerTeeBox) return false;
     final capacity = capacityFor(teeBoxes, teamsPerTeeBox);
+    return capacity >= minPlayers && capacity <= maxPlayers;
+  }
+
+  /// A Regular Start group count is valid when it seats between [minPlayers]
+  /// and [maxPlayers].
+  static bool isValidGroups(int groups) {
+    final capacity = capacityForGroups(groups);
     return capacity >= minPlayers && capacity <= maxPlayers;
   }
 
@@ -105,10 +139,13 @@ class Tournament extends Equatable {
         clubName,
         format,
         courseName,
+        zone,
         date,
         firstTeeTime,
         teeOff,
         intervalMinutes,
+        startType,
+        groupsCount,
         teeBoxes,
         teamsPerTeeBox,
         golfCourseEmail,

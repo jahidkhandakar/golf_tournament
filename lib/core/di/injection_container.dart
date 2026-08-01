@@ -45,6 +45,7 @@ import '../location/location_state.dart';
 import '../network/network_info.dart';
 import '../permission/permission_service.dart';
 import '../play/play_controller.dart';
+import '../play/trial_controller.dart';
 import '../theme/theme_controller.dart';
 
 final GetIt sl = GetIt.instance;
@@ -59,6 +60,7 @@ Future<void> setupLocator() async {
   sl.registerLazySingleton<LocationState>(() => LocationState());
   sl.registerLazySingleton<ThemeController>(() => ThemeController());
   sl.registerLazySingleton<PlayController>(() => PlayController());
+  sl.registerLazySingleton<TrialController>(() => TrialController());
   sl.registerLazySingleton<ActiveClubState>(() => ActiveClubState());
 
   // Every repository below is a mock backed by hardcoded data for now;

@@ -34,6 +34,8 @@ class _CreateTournamentPageState extends State<CreateTournamentPage> {
   DateTime? _date;
   TimeOfDay? _teeTime;
   int _intervalMinutes = 10;
+  StartType _startType = StartType.regular;
+  int _groupsCount = 10;
   int _teeBoxes = Tournament.maxTeeBoxes;
   int _teamsPerTeeBox = Tournament.maxTeamsPerTeeBox;
   bool _busy = false;
@@ -52,7 +54,9 @@ class _CreateTournamentPageState extends State<CreateTournamentPage> {
     super.dispose();
   }
 
-  int get _capacity => Tournament.capacityFor(_teeBoxes, _teamsPerTeeBox);
+  int get _capacity => _startType == StartType.shotgun
+      ? Tournament.capacityFor(_teeBoxes, _teamsPerTeeBox)
+      : Tournament.capacityForGroups(_groupsCount);
 
   Future<void> _pickDate() async {
     final now = DateTime.now();
@@ -101,6 +105,8 @@ class _CreateTournamentPageState extends State<CreateTournamentPage> {
       firstTeeTime: _teeTime!.format(context),
       teeOff: DateTime(_date!.year, _date!.month, _date!.day, _teeTime!.hour, _teeTime!.minute),
       intervalMinutes: _intervalMinutes,
+      startType: _startType,
+      groupsCount: _groupsCount,
       teeBoxes: _teeBoxes,
       teamsPerTeeBox: _teamsPerTeeBox,
       golfCourseEmail:
@@ -163,7 +169,9 @@ class _CreateTournamentPageState extends State<CreateTournamentPage> {
       );
     }
 
-    final capacityValid = Tournament.isValidLayout(_teeBoxes, _teamsPerTeeBox);
+    final capacityValid = _startType == StartType.shotgun
+        ? Tournament.isValidLayout(_teeBoxes, _teamsPerTeeBox)
+        : Tournament.isValidGroups(_groupsCount);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Create Tournament')),
@@ -230,37 +238,68 @@ class _CreateTournamentPageState extends State<CreateTournamentPage> {
           ),
           const SizedBox(height: 20),
 
-          _label('Tee interval', primaryText),
+          _label('Start type', primaryText),
           const SizedBox(height: 8),
-          _Stepper(
-            value: _intervalMinutes,
-            min: 5,
-            max: 20,
-            step: 5,
-            suffix: 'min between groups',
-            onChanged: (v) => setState(() => _intervalMinutes = v),
+          SegmentedButton<StartType>(
+            segments: const [
+              ButtonSegment(value: StartType.regular, label: Text('Regular Start')),
+              ButtonSegment(value: StartType.shotgun, label: Text('Shotgun Start')),
+            ],
+            selected: {_startType},
+            onSelectionChanged: (s) => setState(() => _startType = s.first),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _startType == StartType.regular
+                ? 'Every group starts at hole 1 at the tee interval below.'
+                : 'Everyone starts at the same time on different tee boxes. The course is taken over for the round.',
+            style: AppTextStyles.caption(primaryText),
           ),
           const SizedBox(height: 20),
 
-          _label('Capacity', primaryText),
-          const SizedBox(height: 8),
-          _Stepper(
-            value: _teeBoxes,
-            min: 1,
-            max: Tournament.maxTeeBoxes,
-            step: 1,
-            suffix: 'tee boxes (holes)',
-            onChanged: (v) => setState(() => _teeBoxes = v),
-          ),
-          const SizedBox(height: 8),
-          _Stepper(
-            value: _teamsPerTeeBox,
-            min: 1,
-            max: Tournament.maxTeamsPerTeeBox,
-            step: 1,
-            suffix: 'teams per tee box (×4 players)',
-            onChanged: (v) => setState(() => _teamsPerTeeBox = v),
-          ),
+          if (_startType == StartType.regular) ...[
+            _label('Tee interval', primaryText),
+            const SizedBox(height: 8),
+            _Stepper(
+              value: _intervalMinutes,
+              min: 5,
+              max: 20,
+              step: 5,
+              suffix: 'min between groups',
+              onChanged: (v) => setState(() => _intervalMinutes = v),
+            ),
+            const SizedBox(height: 20),
+            _label('Capacity', primaryText),
+            const SizedBox(height: 8),
+            _Stepper(
+              value: _groupsCount,
+              min: 2,
+              max: 54,
+              step: 1,
+              suffix: 'groups (×4 players)',
+              onChanged: (v) => setState(() => _groupsCount = v),
+            ),
+          ] else ...[
+            _label('Capacity', primaryText),
+            const SizedBox(height: 8),
+            _Stepper(
+              value: _teeBoxes,
+              min: 1,
+              max: Tournament.maxTeeBoxes,
+              step: 1,
+              suffix: 'tee boxes (holes)',
+              onChanged: (v) => setState(() => _teeBoxes = v),
+            ),
+            const SizedBox(height: 8),
+            _Stepper(
+              value: _teamsPerTeeBox,
+              min: 1,
+              max: Tournament.maxTeamsPerTeeBox,
+              step: 1,
+              suffix: 'teams per tee box (×4 players)',
+              onChanged: (v) => setState(() => _teamsPerTeeBox = v),
+            ),
+          ],
           const SizedBox(height: 10),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),

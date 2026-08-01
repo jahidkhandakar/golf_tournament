@@ -1,91 +1,61 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../../../core/assets/app_images.dart';
-import '../../../../core/router/app_routes.dart';
+import '../../../../core/location/location_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../marketplace/domain/entities/marketplace_listing.dart';
-import '../../../marketplace/domain/repositories/marketplace_repository.dart';
 
-/// Slim, single-line sponsored strip designed to sit as the first item in a
-/// scrolling list, so it's visible on landing but scrolls away as you browse.
-/// Tapping it opens the sponsored product in the global Marketplace.
-class SponsoredBanner extends StatefulWidget {
+/// Zone targeted sponsored banner. Sits as the first item in the home feed.
+///
+/// Per the build: advertisers pay a listing fee through the Admin panel
+/// (Stripe), the App Admin approves the banner, and it targets a city zone.
+/// In a large city each quadrant (for example Chicago North) is its own
+/// targetable zone, so users only see banners bought for the zone they are in.
+///
+/// Mock note: until the backend is wired this renders a placeholder campaign
+/// for the user's current zone from LocationState. The real implementation
+/// fetches the active approved banner for the caller's zone_id and renders the
+/// advertiser's image with a tap through to their link.
+class SponsoredBanner extends StatelessWidget {
   const SponsoredBanner({super.key});
 
   @override
-  State<SponsoredBanner> createState() => _SponsoredBannerState();
-}
-
-class _SponsoredBannerState extends State<SponsoredBanner> {
-  late final Future<MarketplaceListing?> _future =
-      GetIt.instance<MarketplaceRepository>().getSponsoredListing();
-
-  @override
   Widget build(BuildContext context) {
-    return FutureBuilder<MarketplaceListing?>(
-      future: _future,
-      builder: (context, snapshot) {
-        final listing = snapshot.data;
-        if (listing == null) return const SizedBox.shrink();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final secondaryText = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
+    final zone = GetIt.instance<LocationState>().currentZone.value;
 
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        final primaryText = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
-        final secondaryText = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
-
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-          child: Material(
-            color: AppColors.gold.withValues(alpha: isDark ? 0.16 : 0.09),
-            borderRadius: BorderRadius.circular(12),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(12),
-              onTap: () => context.push(AppRoutes.marketplaceListingDetail(listing.id), extra: listing),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                child: Row(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(6),
-                      child: Image.asset(
-                        AppImages.equipment(listing.imageKey),
-                        width: 34,
-                        height: 34,
-                        fit: BoxFit.cover,
-                        cacheWidth: 100,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Icon(Icons.campaign_outlined, size: 18, color: AppColors.gold),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'SPONSORED  ',
-                              style: AppTextStyles.caption(AppColors.goldDark)
-                                  .copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.5),
-                            ),
-                            TextSpan(text: listing.title, style: AppTextStyles.bodyBold(primaryText)),
-                          ],
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text('\$${listing.price.toStringAsFixed(0)}', style: AppTextStyles.bodyBold(AppColors.goldDark)),
-                    Icon(Icons.chevron_right, size: 18, color: secondaryText),
-                  ],
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.gold.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.gold.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.campaign_outlined, size: 20, color: AppColors.goldDark),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Sponsored', style: AppTextStyles.caption(secondaryText)),
+                Text(
+                  'Your ad here for golfers in $zone',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.bodyBold(
+                    isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 }

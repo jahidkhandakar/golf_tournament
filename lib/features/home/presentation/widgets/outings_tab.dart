@@ -6,6 +6,7 @@ import '../../../../core/permission/feature.dart';
 import '../../../../core/permission/permission_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/play/trial_controller.dart';
 import '../../../../core/widgets/upgrade_prompt.dart';
 import '../../domain/entities/outing.dart';
 import '../../domain/repositories/outing_repository.dart';
@@ -22,12 +23,11 @@ class OutingsTab extends StatefulWidget {
 class _OutingsTabState extends State<OutingsTab> {
   late final Future<List<Outing>> _future = GetIt.instance<OutingRepository>().getOutings();
 
-  // Local demo counter for the free-tier trial allowance. Once
-  // PermissionService is wired to the backend, `can(Feature.createOuting)`
-  // itself will reflect whether trials are exhausted — this stays as the
-  // visible "X of 2 free left" state until then.
-  static const int _freeTrialLimit = 2;
-  int _trialsUsed = 0;
+  // The two-counter free trial allowance lives in TrialController (shared
+  // state), not in this widget, so the counts survive navigation. This tab
+  // consumes the home counter; joining an outside-zone event consumes the
+  // travel counter. Server side once the backend is wired.
+  final TrialController _trials = GetIt.instance<TrialController>();
 
   void _showMock(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
@@ -39,14 +39,14 @@ class _OutingsTabState extends State<OutingsTab> {
       UpgradePrompt.show(context, message: 'Upgrade to create unlimited outings.');
       return;
     }
-    if (_trialsUsed >= _freeTrialLimit) {
+    if (!_trials.canUseHomeTrial) {
       UpgradePrompt.show(
         context,
-        message: "You've used your $_freeTrialLimit free outings. Upgrade for unlimited outings.",
+        message: "You've used your ${TrialController.limitPerCounter} free home outings. Upgrade for unlimited outings.",
       );
       return;
     }
-    setState(() => _trialsUsed++);
+    setState(() => _trials.useHomeTrial());
     _showMock('Outing created (mock)');
   }
 
@@ -54,7 +54,7 @@ class _OutingsTabState extends State<OutingsTab> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final secondaryText = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
-    final trialsRemaining = (_freeTrialLimit - _trialsUsed).clamp(0, _freeTrialLimit);
+    final trialsRemaining = _trials.homeRemaining;
 
     return Column(
       children: [
@@ -64,7 +64,9 @@ class _OutingsTabState extends State<OutingsTab> {
             children: [
               Expanded(
                 child: Text(
-                  trialsRemaining > 0 ? '$trialsRemaining of $_freeTrialLimit free left' : 'Free trials used',
+                  trialsRemaining > 0
+                      ? '$trialsRemaining of ${TrialController.limitPerCounter} home trials left'
+                      : 'Home trials used',
                   style: AppTextStyles.caption(secondaryText),
                 ),
               ),
