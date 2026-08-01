@@ -41,6 +41,7 @@ import '../../features/tournament/domain/repositories/registration_repository.da
 import '../../features/tournament/domain/repositories/scorecard_repository.dart';
 import '../../features/tournament/domain/repositories/tournament_repository.dart';
 import '../club/active_club_state.dart';
+import '../club/club_leaderboard_state.dart';
 import '../location/location_state.dart';
 import '../network/network_info.dart';
 import '../permission/permission_service.dart';
@@ -62,6 +63,7 @@ Future<void> setupLocator() async {
   sl.registerLazySingleton<PlayController>(() => PlayController());
   sl.registerLazySingleton<TrialController>(() => TrialController());
   sl.registerLazySingleton<ActiveClubState>(() => ActiveClubState());
+  sl.registerLazySingleton<ClubLeaderboardState>(() => ClubLeaderboardState());
 
   // Every repository below is a mock backed by hardcoded data for now;
   // swap for a real API-backed implementation behind the same interface

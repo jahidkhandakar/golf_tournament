@@ -21,6 +21,9 @@ class Club extends Equatable {
 
   int get memberCount => members.length;
 
+  Club withMembers(List<ClubMember> members) =>
+      Club(id: id, name: name, location: location, members: members);
+
   @override
   List<Object?> get props => [id, name, location, members];
 }

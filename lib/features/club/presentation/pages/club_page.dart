@@ -153,7 +153,7 @@ class _ClubHome extends StatelessWidget {
             child: TabBarView(
               children: [
                 FeedTab(members: club.members),
-                LeaderboardTab(members: club.members),
+                LeaderboardTab(members: club.members, clubName: club.name),
                 ResultsTab(members: club.members),
                 ChatTab(members: club.members),
                 MarketplaceTab(clubName: club.name, clubLocation: club.location, members: club.members),
