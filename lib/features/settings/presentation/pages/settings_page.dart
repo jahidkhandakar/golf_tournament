@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_controller.dart';
@@ -72,6 +74,17 @@ class _SettingsPageState extends State<SettingsPage> {
             subtitle: const Text('Lets others find you on Looking to Play'),
             value: _showProfileNearby,
             onChanged: (value) => setState(() => _showProfileNearby = value),
+          ),
+          _SectionHeader(title: 'Support', color: secondaryText),
+          ListTile(
+            leading: const Icon(Icons.help_outline),
+            title: const Text('Help & Support'),
+            onTap: () => context.push(AppRoutes.helpSupport),
+          ),
+          ListTile(
+            leading: const Icon(Icons.info_outline),
+            title: const Text('About & Legal'),
+            onTap: () => context.push(AppRoutes.aboutLegal),
           ),
           const SizedBox(height: 16),
         ],

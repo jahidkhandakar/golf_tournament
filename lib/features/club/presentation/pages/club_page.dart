@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/club/active_club_state.dart';
+import '../../../../core/permission/club_role.dart';
 import '../../../../core/play/play_controller.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -110,11 +111,39 @@ class _ClubHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final role = GetIt.instance<PlayController>().roleIn(club.name);
+
     return DefaultTabController(
       length: _tabLabels.length,
       child: Column(
         children: [
           ClubHeader(club: club, onSwitch: onSwitch),
+          // Entry points relocated from the drawer (Stan's spec): everyone can
+          // browse tournaments; the Club Creator can create one for this club.
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => context.push(AppRoutes.tournaments),
+                    icon: const Icon(Icons.emoji_events_outlined, size: 18),
+                    label: const Text('Tournaments'),
+                  ),
+                ),
+                if (role == ClubRole.creator) ...[
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => context.push(AppRoutes.createTournament),
+                      icon: const Icon(Icons.add, size: 18),
+                      label: const Text('Create'),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
           TabBar(
             isScrollable: true,
             tabAlignment: TabAlignment.start,
