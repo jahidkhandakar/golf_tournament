@@ -6,16 +6,13 @@ import '../../../../core/permission/permission_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/date_formatter.dart';
-import '../../../profile/domain/repositories/user_profile_repository.dart';
-import '../../../top50/presentation/top50_ladder_controller.dart';
 import '../../domain/entities/challenge_approval.dart';
 import '../../domain/entities/tournament.dart';
 import '../../domain/repositories/challenge_approval_repository.dart';
 
 /// Club Creator / sub-admin queue for approving same-club, in-tournament
-/// challenges (§3). Approving one lets it count toward the Club Leaderboard and
-/// Top 50 — and, when the current user is the challenger, applies their ladder
-/// movement (the mock stand-in for "the challenge now counts").
+/// challenges (§3). Approving confirms the challenge so it counts; the ladder
+/// result is applied later, when the round's scorecard is submitted (§6).
 class ChallengeApprovalsPage extends StatefulWidget {
   const ChallengeApprovalsPage({super.key, required this.tournament});
 
@@ -30,7 +27,6 @@ class _ChallengeApprovalsPageState extends State<ChallengeApprovalsPage> {
   final PermissionService _permission = GetIt.instance<PermissionService>();
 
   List<ChallengeApproval> _pending = [];
-  String _me = '';
   bool _loading = true;
   bool _busy = false;
 
@@ -43,11 +39,9 @@ class _ChallengeApprovalsPageState extends State<ChallengeApprovalsPage> {
   }
 
   Future<void> _load() async {
-    final me = _me.isNotEmpty ? _me : (await GetIt.instance<UserProfileRepository>().getCurrentUser()).name;
     final pending = _canApprove ? await _repo.pending(widget.tournament.id) : <ChallengeApproval>[];
     if (!mounted) return;
     setState(() {
-      _me = me;
       _pending = pending;
       _loading = false;
     });
@@ -55,12 +49,9 @@ class _ChallengeApprovalsPageState extends State<ChallengeApprovalsPage> {
 
   Future<void> _approve(ChallengeApproval c) async {
     setState(() => _busy = true);
+    // Approving only confirms the challenge — the ladder result is applied when
+    // the round's scorecard is submitted.
     await _repo.approve(c.id);
-    // The challenge now counts: if the current user sent it, move them up the
-    // ladder (mock stand-in for the result being recorded).
-    if (c.challengerName == _me) {
-      GetIt.instance<Top50LadderController>().recordUserWin(c.opponentName);
-    }
     await _load();
     if (mounted) setState(() => _busy = false);
   }

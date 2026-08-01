@@ -24,25 +24,13 @@ class Top50LadderController {
     ladder.value = await _repository.getLeaderboard();
   }
 
-  /// Records a challenge win for the logged-in user against [opponentName] and
-  /// applies position-based movement.
-  ///
-  /// Prototype note: in production this fires when the round's score is submitted
-  /// (§6), not when the challenge is created — wired here to the mock challenge
-  /// flow only so the ladder movement is demoable.
-  void recordUserWin(String opponentName) {
-    LeaderboardEntry? me;
-    for (final e in ladder.value) {
-      if (e.isCurrentUser) {
-        me = e;
-        break;
-      }
-    }
-    if (me == null) return;
+  /// Applies a completed challenge result to the ladder — called when the round's
+  /// scorecard is submitted (§6), not when the challenge is created.
+  void recordResult({required String winnerName, required String loserName}) {
     ladder.value = applyChallengeResult(
       ladder.value,
-      winnerName: me.playerName,
-      loserName: opponentName,
+      winnerName: winnerName,
+      loserName: loserName,
     );
   }
 }

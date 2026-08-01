@@ -9,14 +9,15 @@ import '../../tournament/domain/entities/tournament.dart';
 import '../../tournament/domain/repositories/challenge_approval_repository.dart';
 import '../../tournament/domain/repositories/tournament_repository.dart';
 import '../domain/entities/leaderboard_entry.dart';
-import 'top50_ladder_controller.dart';
 
-/// Sends a challenge to [entry]'s player. The path depends on the rules:
-///   - roster locked (48h) → frozen, nothing happens (§7)
-///   - same-club, 8+ tournament → submitted for club-admin approval (§3); it
-///     only counts once approved
-///   - otherwise → resolved immediately (mock): locked into a shared tee time
-///     and the ladder moves
+/// Sends a challenge to [entry]'s player. Sending is not winning: it records a
+/// challenge and locks both players into a shared tee time, with NO ladder
+/// movement. The result is decided when the round's scorecard is submitted (§6).
+///
+///   - roster locked (48h)        → frozen, nothing happens (§7)
+///   - same-club, 8+ tournament   → recorded pending club-admin approval (§3)
+///   - otherwise                  → recorded as a confirmed challenge
+///
 /// Only call once both players are in the same tournament + course.
 Future<void> sendChallenge(BuildContext context, LeaderboardEntry entry) async {
   final play = GetIt.instance<PlayController>();
@@ -30,25 +31,25 @@ Future<void> sendChallenge(BuildContext context, LeaderboardEntry entry) async {
     return;
   }
 
+  final me = await GetIt.instance<UserProfileRepository>().getCurrentUser();
+  if (!context.mounted) return;
+
   // Same-club challenges in an 8+ tournament need a Club Creator / sub-admin to
-  // approve them before they count toward the Club Leaderboard or Top 50 (§3).
+  // approve them before they count (§3); everything else is confirmed on send.
   final sameClub = play.isInClub(entry.clubName);
   final eightPlus = (tournament?.registeredPlayers ?? 0) >= Tournament.minPlayers;
-  if (sameClub && eightPlus) {
-    final me = await GetIt.instance<UserProfileRepository>().getCurrentUser();
-    await GetIt.instance<ChallengeApprovalRepository>().submit(
-      tournamentId: entry.tournamentId,
-      clubName: entry.clubName,
-      challengerName: me.name,
-      opponentName: entry.playerName,
-    );
-    if (!context.mounted) return;
-    await _notice(context, 'Sent for approval',
-        'Your challenge to ${entry.playerName} was sent to the ${entry.clubName} admins. It counts once approved.');
-    return;
-  }
+  final needsApproval = sameClub && eightPlus;
 
-  // Otherwise resolve immediately (mock): lock the tee time and move the ladder.
+  await GetIt.instance<ChallengeApprovalRepository>().submit(
+    tournamentId: entry.tournamentId,
+    clubName: entry.clubName,
+    challengerName: me.name,
+    opponentName: entry.playerName,
+    needsApproval: needsApproval,
+  );
+
+  // Lock both players into a shared tee time. No ladder movement here — the
+  // winner is decided when the scorecard is submitted.
   play.lockInChallenge(
     TeeSheetEntry(
       opponentName: entry.playerName,
@@ -58,17 +59,27 @@ Future<void> sendChallenge(BuildContext context, LeaderboardEntry entry) async {
       date: 'This weekend',
     ),
   );
-  GetIt.instance<Top50LadderController>().recordUserWin(entry.playerName);
 
   if (!context.mounted) return;
   final firstName = entry.playerName.split(' ').first;
+
+  if (needsApproval) {
+    await _notice(
+      context,
+      'Challenge sent',
+      "Your challenge to ${entry.playerName} was sent to the ${entry.clubName} admins, and you're locked "
+          "into a shared tee time at ${entry.teeTime}. It counts once approved and the round is scored.",
+    );
+    return;
+  }
+
   final viewTeeSheet = await showDialog<bool>(
     context: context,
     builder: (dialogContext) => AlertDialog(
-      title: const Text('Challenge Accepted'),
+      title: const Text('Challenge set'),
       content: Text(
         "You're locked in with $firstName at ${entry.teeTime} for ${entry.tournamentName}. "
-        "It's been added to your tee sheet.",
+        "The winner is decided when the scorecard is submitted.",
       ),
       actions: [
         TextButton(

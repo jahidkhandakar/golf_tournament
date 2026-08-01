@@ -28,6 +28,7 @@ class MockChallengeApprovalRepository implements ChallengeApprovalRepository {
     required String clubName,
     required String challengerName,
     required String opponentName,
+    required bool needsApproval,
   }) {
     final approval = ChallengeApproval(
       id: 'ca${DateTime.now().millisecondsSinceEpoch}',
@@ -35,7 +36,8 @@ class MockChallengeApprovalRepository implements ChallengeApprovalRepository {
       clubName: clubName,
       challengerName: challengerName,
       opponentName: opponentName,
-      status: ChallengeApprovalStatus.pending,
+      // Same-club 8+ waits for approval; everything else is confirmed on send.
+      status: needsApproval ? ChallengeApprovalStatus.pending : ChallengeApprovalStatus.approved,
       createdAt: DateTime.now(),
     );
     _approvals.add(approval);
@@ -53,10 +55,20 @@ class MockChallengeApprovalRepository implements ChallengeApprovalRepository {
   Future<int> pendingCount(String tournamentId) async => (await pending(tournamentId)).length;
 
   @override
+  Future<List<ChallengeApproval>> confirmedFor(String tournamentId) => _delayed(
+        _approvals
+            .where((a) => a.tournamentId == tournamentId && a.status == ChallengeApprovalStatus.approved)
+            .toList(),
+      );
+
+  @override
   Future<void> approve(String id) => _setStatus(id, ChallengeApprovalStatus.approved);
 
   @override
   Future<void> reject(String id) => _setStatus(id, ChallengeApprovalStatus.rejected);
+
+  @override
+  Future<void> markResolved(String id) => _setStatus(id, ChallengeApprovalStatus.resolved);
 
   Future<void> _setStatus(String id, ChallengeApprovalStatus status) {
     final index = _approvals.indexWhere((a) => a.id == id);

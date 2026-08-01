@@ -1,6 +1,10 @@
 import 'package:equatable/equatable.dart';
 
-enum ChallengeApprovalStatus { pending, approved, rejected }
+/// pending  — same-club challenge awaiting admin approval
+/// approved — confirmed challenge, locked into a tee time, awaiting the round
+/// rejected — admin declined it
+/// resolved — the round was scored and the ladder result applied (§6)
+enum ChallengeApprovalStatus { pending, approved, rejected, resolved }
 
 /// A same-club, in-tournament challenge awaiting a Club Creator / sub-admin
 /// decision (§3). Approval is what makes the challenge count toward the Club

@@ -5,8 +5,10 @@ import 'package:get_it/get_it.dart';
 import '../../../../core/permission/permission_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../top50/presentation/top50_ladder_controller.dart';
 import '../../domain/entities/player_score.dart';
 import '../../domain/entities/tournament.dart';
+import '../../domain/repositories/challenge_approval_repository.dart';
 import '../../domain/repositories/registration_repository.dart';
 import '../../domain/repositories/scorecard_repository.dart';
 import '../../domain/skins.dart';
@@ -104,12 +106,38 @@ class _ScorecardEntryPageState extends State<ScorecardEntryPage> {
     }
     setState(() => _busy = true);
     final card = await _repo.submit(widget.tournament.id, _scores);
+    // Submitting the scorecard is what resolves challenges (§6): the winner of
+    // each confirmed challenge is the lower gross, applied to the Top 50 ladder.
+    await _resolveChallenges();
     if (!mounted) return;
     setState(() {
       _submitted = card.submitted;
       _busy = false;
     });
     await _showResults();
+  }
+
+  Future<void> _resolveChallenges() async {
+    final repo = GetIt.instance<ChallengeApprovalRepository>();
+    final ladder = GetIt.instance<Top50LadderController>();
+    for (final c in await repo.confirmedFor(widget.tournament.id)) {
+      final challenger = _grossFor(c.challengerName);
+      final opponent = _grossFor(c.opponentName);
+      if (challenger == null || opponent == null || challenger == opponent) continue;
+      final challengerWon = challenger < opponent;
+      ladder.recordResult(
+        winnerName: challengerWon ? c.challengerName : c.opponentName,
+        loserName: challengerWon ? c.opponentName : c.challengerName,
+      );
+      await repo.markResolved(c.id);
+    }
+  }
+
+  int? _grossFor(String playerName) {
+    for (final s in _scores) {
+      if (s.playerName == playerName) return s.gross;
+    }
+    return null;
   }
 
   Future<void> _showResults() {
