@@ -7,6 +7,9 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/photo_avatar.dart';
+import '../../../profile/domain/repositories/user_profile_repository.dart';
+import '../../../tournament/domain/entities/challenge_approval.dart';
+import '../../../tournament/domain/repositories/challenge_approval_repository.dart';
 import '../../domain/entities/leaderboard_entry.dart';
 import '../challenge_action.dart';
 import '../top50_ladder_controller.dart';
@@ -27,11 +30,33 @@ class Top50Page extends StatefulWidget {
 
 class _Top50PageState extends State<Top50Page> {
   final Top50LadderController _ladder = GetIt.instance<Top50LadderController>();
+  final ChallengeApprovalRepository _challenges = GetIt.instance<ChallengeApprovalRepository>();
+
+  String _me = '';
+  List<ChallengeApproval> _incoming = [];
 
   @override
   void initState() {
     super.initState();
     _ladder.ensureLoaded();
+    _loadIncoming();
+  }
+
+  Future<void> _loadIncoming() async {
+    final me = _me.isNotEmpty ? _me : (await GetIt.instance<UserProfileRepository>().getCurrentUser()).name;
+    final incoming = await _challenges.incomingFor(me);
+    if (!mounted) return;
+    setState(() {
+      _me = me;
+      _incoming = incoming;
+    });
+  }
+
+  Future<void> _decline(ChallengeApproval c) async {
+    // Declining while co-registered drops the decliner on the ladder (§3).
+    _ladder.recordDecline(_me);
+    await _challenges.decline(c.id);
+    await _loadIncoming();
   }
 
   @override
@@ -55,6 +80,8 @@ class _Top50PageState extends State<Top50Page> {
 
             return Column(
               children: [
+                for (final c in _incoming)
+                  _IncomingChallengeCard(challenge: c, onDecline: () => _decline(c)),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
                   child: Row(
@@ -92,6 +119,50 @@ class _Top50PageState extends State<Top50Page> {
           },
         );
       },
+    );
+  }
+}
+
+/// A challenge aimed at the logged-in user. They can decline it — which drops
+/// them on the ladder (§3); otherwise it plays out and resolves at the scorecard.
+class _IncomingChallengeCard extends StatelessWidget {
+  const _IncomingChallengeCard({required this.challenge, required this.onDecline});
+
+  final ChallengeApproval challenge;
+  final VoidCallback onDecline;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryText = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
+    final secondaryText = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
+
+    return Card(
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      color: AppColors.gold.withValues(alpha: 0.10),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 8, 8, 8),
+        child: Row(
+          children: [
+            const Icon(Icons.sports_golf, color: AppColors.goldDark),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('${challenge.challengerName} challenged you', style: AppTextStyles.bodyBold(primaryText)),
+                  Text('Play it out, or decline (drops you on the ladder).',
+                      style: AppTextStyles.caption(secondaryText)),
+                ],
+              ),
+            ),
+            TextButton(
+              onPressed: onDecline,
+              child: Text('Decline', style: AppTextStyles.bodyBold(AppColors.error)),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

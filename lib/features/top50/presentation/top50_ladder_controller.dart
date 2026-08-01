@@ -33,4 +33,10 @@ class Top50LadderController {
       loserName: loserName,
     );
   }
+
+  /// Applies the decline penalty to [declinerName] — they drop the fixed number
+  /// of positions when they decline a challenge while co-registered (§3).
+  void recordDecline(String declinerName) {
+    ladder.value = applyDeclinePenalty(ladder.value, declinerName: declinerName);
+  }
 }

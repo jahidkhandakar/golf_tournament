@@ -131,7 +131,7 @@ class _ClubHome extends StatelessWidget {
                     label: const Text('Tournaments'),
                   ),
                 ),
-                if (role == ClubRole.creator) ...[
+                if (role.isStaff) ...[
                   const SizedBox(width: 8),
                   Expanded(
                     child: OutlinedButton.icon(

@@ -26,8 +26,11 @@ class _CreateTournamentPageState extends State<CreateTournamentPage> {
   final _courseController = TextEditingController();
   final _emailController = TextEditingController();
 
-  late final List<String> _myClubs =
-      GetIt.instance<PlayController>().createdClubs.value.toList();
+  // Clubs the user can create tournaments for — Club Creator and sub-admin (§4).
+  late final List<String> _myClubs = {
+    ...GetIt.instance<PlayController>().createdClubs.value,
+    ...GetIt.instance<PlayController>().subAdminClubs.value,
+  }.toList();
 
   String? _clubName;
   String _format = _formatOptions.first;
@@ -155,10 +158,10 @@ class _CreateTournamentPageState extends State<CreateTournamentPage> {
               children: [
                 Icon(Icons.lock_outline, size: 40, color: secondaryText),
                 const SizedBox(height: 12),
-                Text('Club Creators only', style: AppTextStyles.heading3(primaryText)),
+                Text('Club admins only', style: AppTextStyles.heading3(primaryText)),
                 const SizedBox(height: 6),
                 Text(
-                  'Only a Club Creator can create a tournament. Start a club first.',
+                  'Only a Club Creator or sub-admin can create a tournament.',
                   textAlign: TextAlign.center,
                   style: AppTextStyles.body(secondaryText),
                 ),

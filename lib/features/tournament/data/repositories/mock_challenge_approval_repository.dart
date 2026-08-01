@@ -15,6 +15,17 @@ class MockChallengeApprovalRepository implements ChallengeApprovalRepository {
       status: ChallengeApprovalStatus.pending,
       createdAt: DateTime.now().subtract(const Duration(hours: 2)),
     ),
+    // A confirmed challenge aimed at the logged-in user — they can decline it
+    // (and take the decline penalty).
+    ChallengeApproval(
+      id: 'ca2',
+      tournamentId: 't_riverbend',
+      clubName: 'Riverbend Golf Club',
+      challengerName: 'Erin Walsh',
+      opponentName: 'Jahid',
+      status: ChallengeApprovalStatus.approved,
+      createdAt: DateTime.now().subtract(const Duration(hours: 1)),
+    ),
   ];
 
   Future<T> _delayed<T>(T value) async {
@@ -62,10 +73,23 @@ class MockChallengeApprovalRepository implements ChallengeApprovalRepository {
       );
 
   @override
+  Future<List<ChallengeApproval>> incomingFor(String opponentName) => _delayed(
+        _approvals
+            .where((a) =>
+                a.opponentName == opponentName &&
+                (a.status == ChallengeApprovalStatus.pending ||
+                    a.status == ChallengeApprovalStatus.approved))
+            .toList(),
+      );
+
+  @override
   Future<void> approve(String id) => _setStatus(id, ChallengeApprovalStatus.approved);
 
   @override
   Future<void> reject(String id) => _setStatus(id, ChallengeApprovalStatus.rejected);
+
+  @override
+  Future<void> decline(String id) => _setStatus(id, ChallengeApprovalStatus.declined);
 
   @override
   Future<void> markResolved(String id) => _setStatus(id, ChallengeApprovalStatus.resolved);
