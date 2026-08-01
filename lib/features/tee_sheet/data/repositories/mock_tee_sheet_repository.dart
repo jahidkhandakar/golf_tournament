@@ -177,13 +177,18 @@ class MockTeeSheetRepository implements TeeSheetRepository {
         RosterPlayer(id: 'p$i', name: names[i], clubHandicap: _handicapFor(names[i])),
     ];
 
-    // Start with a handful of empty tee-time groups spaced by the interval; the
-    // admin drags the roster in and can add more as needed.
+    // Start with a handful of empty groups. Shotgun Start places each group on a
+    // hole sharing the single start time; Regular Start spaces them by interval
+    // off hole 1. The admin drags the roster in and can add more as needed.
+    final isShotgun = t.startType == StartType.shotgun;
     final groups = [
       for (var g = 1; g <= 4; g++)
         TeeGroup(
           groupNumber: g,
-          teeTime: _formatTime(t.teeOff.add(Duration(minutes: t.intervalMinutes * (g - 1)))),
+          teeTime: isShotgun
+              ? t.firstTeeTime
+              : _formatTime(t.teeOff.add(Duration(minutes: t.intervalMinutes * (g - 1)))),
+          startingHole: isShotgun ? g : null,
           slots: _emptySlots,
         ),
     ];
@@ -197,6 +202,7 @@ class MockTeeSheetRepository implements TeeSheetRepository {
       firstTeeTime: t.firstTeeTime,
       intervalMinutes: t.intervalMinutes,
       status: TeeSheetStatus.draft,
+      isShotgun: isShotgun,
       groups: groups,
       roster: roster,
       golfCourseEmail: t.golfCourseEmail,

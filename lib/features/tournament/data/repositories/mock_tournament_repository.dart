@@ -79,6 +79,25 @@ class MockTournamentRepository implements TournamentRepository {
       teamsPerTeeBox: 2,
       registeredPlayers: 16,
     ),
+    // A Shotgun Start tournament — the tee sheet places groups on holes, all
+    // sharing one start time. Riverbend, so the Club Creator can build it.
+    Tournament(
+      id: 't_riverbend_shotgun',
+      name: 'Riverbend Shotgun Scramble',
+      clubName: 'Riverbend Golf Club',
+      zone: 'Austin, TX',
+      format: 'Scramble',
+      courseName: 'Riverbend Championship Course',
+      date: _teeOff(6, 8, 0),
+      firstTeeTime: '8:00 AM',
+      teeOff: _teeOff(6, 8, 0),
+      intervalMinutes: 10, // unused for shotgun, but required
+      startType: StartType.shotgun,
+      teeBoxes: 18,
+      teamsPerTeeBox: 3,
+      golfCourseEmail: 'proshop@riverbendgolf.example',
+      registeredPlayers: 20,
+    ),
     // A member-club tournament that's already locked — demos the member-side
     // "Registration closed" state.
     Tournament(

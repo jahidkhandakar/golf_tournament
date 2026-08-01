@@ -180,6 +180,7 @@ class _TeeSheetBuilderPageState extends State<TeeSheetBuilderPage> {
                           for (final group in sheet.groups)
                             TeeGroupCard(
                               group: group,
+                              isShotgun: sheet.isShotgun,
                               onAssign: _assign,
                               onUnassign: _unassign,
                               onAddGuest: _addGuest,
@@ -204,7 +205,8 @@ class _TeeSheetBuilderPageState extends State<TeeSheetBuilderPage> {
                 },
                 doneMessage: sheet.golfCourseEmail == null
                     ? 'No course email on file'
-                    : 'Emailed to ${sheet.golfCourseEmail}',
+                    : 'Emailed to ${sheet.golfCourseEmail} — '
+                        '${sheet.isShotgun ? 'Shotgun start, whole course at ${sheet.firstTeeTime}' : 'Regular start, ${sheet.intervalMinutes}-min intervals'}',
               ),
             ),
     );
@@ -248,11 +250,15 @@ class _EventHeader extends StatelessWidget {
           const SizedBox(height: 6),
           Row(
             children: [
-              Icon(Icons.schedule, size: 14, color: secondaryText),
+              Icon(sheet.isShotgun ? Icons.golf_course : Icons.schedule, size: 14, color: secondaryText),
               const SizedBox(width: 4),
-              Text(
-                'First tee ${sheet.firstTeeTime} · ${sheet.intervalMinutes} min interval · ${sheet.assignedCount}/${sheet.slotCapacity} placed',
-                style: AppTextStyles.caption(secondaryText),
+              Expanded(
+                child: Text(
+                  sheet.isShotgun
+                      ? 'Shotgun start · all groups tee off ${sheet.firstTeeTime} · ${sheet.assignedCount}/${sheet.slotCapacity} placed'
+                      : 'First tee ${sheet.firstTeeTime} · ${sheet.intervalMinutes} min interval · ${sheet.assignedCount}/${sheet.slotCapacity} placed',
+                  style: AppTextStyles.caption(secondaryText),
+                ),
               ),
             ],
           ),

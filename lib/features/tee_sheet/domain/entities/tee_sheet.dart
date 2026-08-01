@@ -22,6 +22,7 @@ class TeeSheet extends Equatable {
     required this.status,
     required this.groups,
     required this.roster,
+    this.isShotgun = false,
     this.golfCourseEmail,
   });
 
@@ -41,6 +42,10 @@ class TeeSheet extends Equatable {
   final int intervalMinutes;
 
   final TeeSheetStatus status;
+
+  /// Shotgun Start: groups are placed on holes and share one start time. Regular
+  /// Start (false): groups are spaced by tee time off hole 1.
+  final bool isShotgun;
 
   /// Tee-time groups in order, one per tee time.
   final List<TeeGroup> groups;
@@ -78,6 +83,7 @@ class TeeSheet extends Equatable {
         status: status ?? this.status,
         groups: groups ?? this.groups,
         roster: roster ?? this.roster,
+        isShotgun: isShotgun,
         golfCourseEmail: golfCourseEmail ?? this.golfCourseEmail,
       );
 
@@ -91,6 +97,7 @@ class TeeSheet extends Equatable {
         firstTeeTime,
         intervalMinutes,
         status,
+        isShotgun,
         groups,
         roster,
         golfCourseEmail,

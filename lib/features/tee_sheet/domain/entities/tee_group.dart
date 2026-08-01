@@ -9,14 +9,18 @@ class TeeGroup extends Equatable {
     required this.groupNumber,
     required this.teeTime,
     required this.slots,
+    this.startingHole,
   });
 
   final int groupNumber;
 
-  /// Display tee time for this group, e.g. `7:10 AM`. Groups are spaced by the
-  /// sheet's interval (§5.3); the string is stored rather than computed so the
-  /// builder stays presentation-agnostic.
+  /// Display tee time for this group, e.g. `7:10 AM`. Regular Start groups are
+  /// spaced by the sheet's interval; a Shotgun Start shares one start time.
   final String teeTime;
+
+  /// For a Shotgun Start, the hole this group tees off from (all groups share
+  /// [teeTime]). Null for a Regular Start, where [teeTime] differs per group.
+  final int? startingHole;
 
   /// Always length 4, positions A–D in order.
   final List<PlayerSlot> slots;
@@ -31,8 +35,9 @@ class TeeGroup extends Equatable {
         groupNumber: groupNumber,
         teeTime: teeTime ?? this.teeTime,
         slots: slots ?? this.slots,
+        startingHole: startingHole,
       );
 
   @override
-  List<Object?> get props => [groupNumber, teeTime, slots];
+  List<Object?> get props => [groupNumber, teeTime, startingHole, slots];
 }

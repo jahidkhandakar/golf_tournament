@@ -12,6 +12,7 @@ class TeeGroupCard extends StatelessWidget {
   const TeeGroupCard({
     super.key,
     required this.group,
+    required this.isShotgun,
     required this.onAssign,
     required this.onUnassign,
     required this.onAddGuest,
@@ -19,6 +20,10 @@ class TeeGroupCard extends StatelessWidget {
   });
 
   final TeeGroup group;
+
+  /// Shotgun sheets show a fixed "Hole N" label; regular sheets show an editable
+  /// tee time.
+  final bool isShotgun;
   final void Function(int groupNumber, SlotPosition position, String playerId) onAssign;
   final void Function(int groupNumber, SlotPosition position) onUnassign;
   final void Function(int groupNumber, SlotPosition position) onAddGuest;
@@ -39,10 +44,8 @@ class TeeGroupCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                InkWell(
-                  onTap: () => onEditTime(group.groupNumber),
-                  borderRadius: BorderRadius.circular(8),
-                  child: Container(
+                if (isShotgun)
+                  Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: AppColors.gold.withValues(alpha: 0.16),
@@ -51,13 +54,32 @@ class TeeGroupCard extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(group.teeTime, style: AppTextStyles.bodyBold(AppColors.goldDark)),
+                        const Icon(Icons.golf_course, size: 13, color: AppColors.goldDark),
                         const SizedBox(width: 4),
-                        const Icon(Icons.edit, size: 12, color: AppColors.goldDark),
+                        Text('Hole ${group.startingHole}', style: AppTextStyles.bodyBold(AppColors.goldDark)),
                       ],
                     ),
+                  )
+                else
+                  InkWell(
+                    onTap: () => onEditTime(group.groupNumber),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.gold.withValues(alpha: 0.16),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(group.teeTime, style: AppTextStyles.bodyBold(AppColors.goldDark)),
+                          const SizedBox(width: 4),
+                          const Icon(Icons.edit, size: 12, color: AppColors.goldDark),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
                 const SizedBox(width: 8),
                 Text('Group ${group.groupNumber}', style: AppTextStyles.bodyBold(primaryText)),
                 const Spacer(),
