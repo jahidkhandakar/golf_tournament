@@ -1,3 +1,4 @@
+import '../../domain/entities/contest_config.dart';
 import '../../domain/entities/tournament.dart';
 import '../../domain/repositories/tournament_repository.dart';
 
@@ -78,6 +79,16 @@ class MockTournamentRepository implements TournamentRepository {
       teeBoxes: 9,
       teamsPerTeeBox: 2,
       registeredPlayers: 16,
+      // Skins side game with the handicap-deduction bands set (Stan's addition):
+      // low-handicap winners give up a % that's split among winners at 5.6+.
+      contests: ContestConfig(
+        holePars: ContestConfig.defaultPars(),
+        kpHoles: const [3, 7, 11, 16],
+        skinsPot: 200,
+        kpPot: 100,
+        skinsDeductMidPercent: 10,
+        skinsDeductPlusPercent: 20,
+      ),
     ),
     // A Shotgun Start tournament — the tee sheet places groups on holes, all
     // sharing one start time. Riverbend, so the Club Creator can build it.

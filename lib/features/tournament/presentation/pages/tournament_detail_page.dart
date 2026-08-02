@@ -16,14 +16,12 @@ import '../../../profile/domain/entities/user_profile.dart';
 import '../../../profile/domain/repositories/user_profile_repository.dart';
 import '../../domain/entities/invite.dart';
 import '../../domain/entities/play_request.dart';
-import '../../domain/entities/player_score.dart';
-import '../../domain/entities/scorecard.dart';
 import '../../domain/entities/tournament.dart';
+import '../../domain/live_results.dart';
 import '../../domain/repositories/challenge_approval_repository.dart';
 import '../../domain/repositories/invite_repository.dart';
 import '../../domain/repositories/registration_repository.dart';
-import '../../domain/repositories/scorecard_repository.dart';
-import '../../domain/skins.dart';
+import '../widgets/live_results_panel.dart';
 
 /// Tournament detail + registration (§1). The call-to-action is role-aware:
 /// members register directly, non-members Request to Play, and a Club Creator /
@@ -41,7 +39,6 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
   final RegistrationRepository _reg = GetIt.instance<RegistrationRepository>();
   final ChallengeApprovalRepository _challenges = GetIt.instance<ChallengeApprovalRepository>();
   final InviteRepository _invites = GetIt.instance<InviteRepository>();
-  final ScorecardRepository _scorecard = GetIt.instance<ScorecardRepository>();
   final PermissionService _permission = GetIt.instance<PermissionService>();
 
   late final ClubRole _role = _permission.roleInClub(widget.tournament.clubName);
@@ -53,7 +50,7 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
   Invite? _myInvite;
   List<PlayRequest> _pending = [];
   int _pendingChallenges = 0;
-  Scorecard? _results;
+  bool _resultsFinal = false;
   bool _loading = true;
   bool _busy = false;
 
@@ -76,7 +73,7 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
     final myRequest =
         _role == ClubRole.nonMember ? await _reg.myRequest(_tid, user.name) : null;
     final myInvite = _role.isStaff ? null : await _invites.inviteFor(_tid, user.name);
-    final results = await _scorecard.getIfSubmitted(_tid);
+    final resultsFinal = GetIt.instance<LiveResultsRegistry>().existing(_tid)?.isFinal ?? false;
     if (!mounted) return;
     setState(() {
       _user = user;
@@ -86,7 +83,7 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
       _registered = registered;
       _myRequest = myRequest;
       _myInvite = myInvite;
-      _results = results;
+      _resultsFinal = resultsFinal;
       _loading = false;
     });
   }
@@ -137,10 +134,10 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
               children: [
                 _InfoCard(tournament: t, registered: _count, isFull: _isFull),
                 const SizedBox(height: 16),
-                // Once scoring is submitted, results replace the registration
-                // flow as the tournament's home (§6).
-                if (_results != null)
-                  _ResultsView(tournament: t, scorecard: _results!)
+                // Once results are final, the live results board replaces the
+                // registration flow as the tournament's home (§6).
+                if (_resultsFinal)
+                  LiveResultsPanel(tournamentId: _tid)
                 else ...[
                   _LockBanner(tournament: t),
                   const SizedBox(height: 16),
@@ -274,99 +271,6 @@ class _InfoCard extends StatelessWidget {
           Expanded(child: Text(text, style: AppTextStyles.caption(color))),
         ],
       );
-}
-
-/// Final results, shown in place of the registration flow once scoring is in
-/// (§6): game winner, skins, and the full leaderboard by gross.
-class _ResultsView extends StatelessWidget {
-  const _ResultsView({required this.tournament, required this.scorecard});
-
-  final Tournament tournament;
-  final Scorecard scorecard;
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryText = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
-    final secondaryText = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
-
-    final ranked = [
-      for (final s in scorecard.scores)
-        if (s.gross != null) s,
-    ]..sort((a, b) => a.gross!.compareTo(b.gross!));
-    // Co-winners on a tie for lowest gross.
-    final int? lowGross = ranked.isEmpty ? null : ranked.first.gross;
-    final List<PlayerScore> winners =
-        lowGross == null ? const [] : ranked.where((s) => s.gross == lowGross).toList();
-
-    final isSkins = tournament.format.toLowerCase() == 'skins';
-    String? skinsSummary;
-    if (isSkins) {
-      final byHole = Skins.holeSkins(scorecard.scores);
-      if (byHole.isNotEmpty) {
-        final tally = <String, int>{};
-        for (final w in byHole.values) {
-          tally[w] = (tally[w] ?? 0) + 1;
-        }
-        skinsSummary = tally.entries.map((e) => '${e.key} — ${e.value} skin${e.value == 1 ? '' : 's'}').join(' · ');
-      } else {
-        final w = Skins.grossSkin(scorecard.scores);
-        skinsSummary = w == null ? 'No outright skin (tie)' : '$w — low gross';
-      }
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            const Icon(Icons.flag_outlined, size: 18, color: AppColors.goldDark),
-            const SizedBox(width: 6),
-            Text('Final results', style: AppTextStyles.heading3(primaryText)),
-          ],
-        ),
-        const SizedBox(height: 10),
-        if (winners.isNotEmpty)
-          Card(
-            color: AppColors.gold.withValues(alpha: 0.12),
-            child: ListTile(
-              leading: const Icon(Icons.emoji_events, color: AppColors.gold),
-              title: Text('${winners.map((w) => w.playerName).join(', ')} · $lowGross',
-                  style: AppTextStyles.bodyBold(primaryText)),
-              subtitle: Text(winners.length == 1 ? 'Game winner' : 'Game winners (tie)',
-                  style: AppTextStyles.caption(secondaryText)),
-            ),
-          ),
-        if (skinsSummary != null)
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.attach_money, color: AppColors.goldDark),
-              title: Text(skinsSummary, style: AppTextStyles.bodyBold(primaryText)),
-              subtitle: Text('Skins', style: AppTextStyles.caption(secondaryText)),
-            ),
-          ),
-        const SizedBox(height: 8),
-        Text('Leaderboard', style: AppTextStyles.bodyBold(primaryText)),
-        const SizedBox(height: 4),
-        for (var i = 0; i < ranked.length; i++)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Row(
-              children: [
-                SizedBox(width: 28, child: Text('${i + 1}', style: AppTextStyles.bodyBold(secondaryText))),
-                Expanded(child: Text(ranked[i].playerName, style: AppTextStyles.body(primaryText))),
-                Text('${ranked[i].gross}', style: AppTextStyles.bodyBold(primaryText)),
-              ],
-            ),
-          ),
-        const SizedBox(height: 12),
-        Text(
-          'Challenge outcomes update the Top 50 and Club Leaderboard when the ranking engines run.',
-          style: AppTextStyles.caption(secondaryText),
-        ),
-      ],
-    );
-  }
 }
 
 class _AdminPanel extends StatelessWidget {

@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import 'contest_config.dart';
+
 /// Lifecycle of a tournament. Roster locks 48h before the first tee time (§2);
 /// completed once scores are submitted (§6).
 enum TournamentStatus { open, rosterLocked, completed }
@@ -24,6 +26,7 @@ class Tournament extends Equatable {
     required this.format,
     required this.courseName,
     this.zone,
+    this.contests,
     required this.date,
     required this.firstTeeTime,
     required this.teeOff,
@@ -47,6 +50,11 @@ class Tournament extends Equatable {
   /// Free users joining an event outside their home zone consume a travel
   /// trial. Null is treated as the user's home zone.
   final String? zone;
+
+  /// Side-game setup: hole pars, KP and long-drive holes, payout mode, pots.
+  /// Null until the creator configures the games; the entry screen falls back
+  /// to defaults so score entry is never blocked.
+  final ContestConfig? contests;
 
   final DateTime date;
 
@@ -140,6 +148,7 @@ class Tournament extends Equatable {
         format,
         courseName,
         zone,
+        contests,
         date,
         firstTeeTime,
         teeOff,

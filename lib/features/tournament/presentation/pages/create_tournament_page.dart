@@ -6,6 +6,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/date_formatter.dart';
 import '../../../../core/utils/validators.dart';
+import '../../domain/entities/contest_config.dart';
 import '../../domain/entities/tournament.dart';
 import '../../domain/repositories/tournament_repository.dart';
 
@@ -38,6 +39,15 @@ class _CreateTournamentPageState extends State<CreateTournamentPage> {
   TimeOfDay? _teeTime;
   int _intervalMinutes = 10;
   StartType _startType = StartType.regular;
+  PayoutMode _payoutMode = PayoutMode.poolSplit;
+  bool _useCategories = false;
+  final Set<int> _kpHoles = {3, 7, 11, 16};
+  final Set<int> _longDriveHoles = {9};
+  int _skinsDeductMid = 0;
+  int _skinsDeductPlus = 0;
+  final _skinsPotController = TextEditingController(text: '0');
+  final _kpPotController = TextEditingController(text: '0');
+  final _ldPotController = TextEditingController(text: '0');
   int _groupsCount = 10;
   int _teeBoxes = Tournament.maxTeeBoxes;
   int _teamsPerTeeBox = Tournament.maxTeamsPerTeeBox;
@@ -54,6 +64,9 @@ class _CreateTournamentPageState extends State<CreateTournamentPage> {
     _nameController.dispose();
     _courseController.dispose();
     _emailController.dispose();
+    _skinsPotController.dispose();
+    _kpPotController.dispose();
+    _ldPotController.dispose();
     super.dispose();
   }
 
@@ -114,6 +127,18 @@ class _CreateTournamentPageState extends State<CreateTournamentPage> {
       teamsPerTeeBox: _teamsPerTeeBox,
       golfCourseEmail:
           _emailController.text.trim().isEmpty ? null : _emailController.text.trim(),
+      contests: ContestConfig(
+        holePars: ContestConfig.defaultPars(),
+        kpHoles: _kpHoles.toList()..sort(),
+        longDriveHoles: _useCategories ? (_longDriveHoles.toList()..sort()) : const [],
+        payoutMode: _payoutMode,
+        skinsDeductMidPercent: _skinsDeductMid,
+        skinsDeductPlusPercent: _skinsDeductPlus,
+        skinsPot: int.tryParse(_skinsPotController.text.trim()) ?? 0,
+        kpPot: int.tryParse(_kpPotController.text.trim()) ?? 0,
+        longDrivePot: _useCategories ? (int.tryParse(_ldPotController.text.trim()) ?? 0) : 0,
+        useCategories: _useCategories,
+      ),
     );
 
     setState(() => _busy = true);
@@ -302,6 +327,108 @@ class _CreateTournamentPageState extends State<CreateTournamentPage> {
               suffix: 'teams per tee box (×4 players)',
               onChanged: (v) => setState(() => _teamsPerTeeBox = v),
             ),
+          ],
+          const SizedBox(height: 20),
+          _label('Side games', primaryText),
+          const SizedBox(height: 8),
+          SegmentedButton<PayoutMode>(
+            segments: const [
+              ButtonSegment(value: PayoutMode.poolSplit, label: Text('Pot split')),
+              ButtonSegment(value: PayoutMode.carryover, label: Text('Carryover')),
+            ],
+            selected: {_payoutMode},
+            onSelectionChanged: (v) => setState(() => _payoutMode = v.first),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _payoutMode == PayoutMode.poolSplit
+                ? 'The pot divides evenly among the holes actually won.'
+                : 'An unwon hole rolls its value into the next one.',
+            style: AppTextStyles.caption(primaryText),
+          ),
+          const SizedBox(height: 12),
+          Row(children: [
+            Expanded(child: TextField(
+              controller: _skinsPotController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'Skins pot \$'),
+            )),
+            const SizedBox(width: 12),
+            Expanded(child: TextField(
+              controller: _kpPotController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'KP pot \$'),
+            )),
+            if (_useCategories) ...[
+              const SizedBox(width: 12),
+              Expanded(child: TextField(
+                controller: _ldPotController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Long drive pot \$'),
+              )),
+            ],
+          ]),
+          const SizedBox(height: 12),
+          _label('Skins deductions', primaryText),
+          const SizedBox(height: 4),
+          Text(
+            'Deducted from low handicap winners and split among winners at 5.6 and above. Adjustable any time until results go final.',
+            style: AppTextStyles.caption(primaryText),
+          ),
+          Row(children: [
+            const Expanded(child: Text('Handicap 0 to 5.5')),
+            DropdownButton<int>(
+              value: _skinsDeductMid,
+              items: [
+                for (final v in ContestConfig.deductionOptions)
+                  DropdownMenuItem(value: v, child: Text(v == 0 ? 'Off' : '$v%')),
+              ],
+              onChanged: (v) => setState(() => _skinsDeductMid = v ?? 0),
+            ),
+          ]),
+          Row(children: [
+            const Expanded(child: Text('Plus handicaps (below 0)')),
+            DropdownButton<int>(
+              value: _skinsDeductPlus,
+              items: [
+                for (final v in ContestConfig.deductionOptions)
+                  DropdownMenuItem(value: v, child: Text(v == 0 ? 'Off' : '$v%')),
+              ],
+              onChanged: (v) => setState(() => _skinsDeductPlus = v ?? 0),
+            ),
+          ]),
+          const SizedBox(height: 12),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: const Text('Special event categories'),
+            subtitle: const Text('Split KPs and long drives into Men, Senior Men, Women, Senior Women'),
+            value: _useCategories,
+            onChanged: (v) => setState(() => _useCategories = v),
+          ),
+          const SizedBox(height: 8),
+          _label('KP holes', primaryText),
+          const SizedBox(height: 6),
+          Wrap(spacing: 6, runSpacing: 6, children: [
+            for (var h = 1; h <= 18; h++)
+              FilterChip(
+                label: Text('$h'),
+                selected: _kpHoles.contains(h),
+                onSelected: (v) => setState(() => v ? _kpHoles.add(h) : _kpHoles.remove(h)),
+              ),
+          ]),
+          if (_useCategories) ...[
+            const SizedBox(height: 12),
+            _label('Long drive holes', primaryText),
+            const SizedBox(height: 6),
+            Wrap(spacing: 6, runSpacing: 6, children: [
+              for (var h = 1; h <= 18; h++)
+                FilterChip(
+                  label: Text('$h'),
+                  selected: _longDriveHoles.contains(h),
+                  onSelected: (v) =>
+                      setState(() => v ? _longDriveHoles.add(h) : _longDriveHoles.remove(h)),
+                ),
+            ]),
           ],
           const SizedBox(height: 10),
           Container(
