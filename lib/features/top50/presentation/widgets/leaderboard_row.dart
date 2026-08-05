@@ -52,10 +52,8 @@ class LeaderboardRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(entry.playerName, style: AppTextStyles.bodyBold(primaryText)),
-                    Text(
-                      '${entry.globalHandicap != null ? 'HCP ${entry.globalHandicap!.toStringAsFixed(1)}' : 'No global HCP'} · ${entry.distanceMiles.toStringAsFixed(0)} mi',
-                      style: AppTextStyles.caption(secondaryText),
-                    ),
+                    Text('${entry.distanceMiles.toStringAsFixed(0)} mi',
+                        style: AppTextStyles.caption(secondaryText)),
                   ],
                 ),
               ),

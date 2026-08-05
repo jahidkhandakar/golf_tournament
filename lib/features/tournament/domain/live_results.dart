@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import 'entities/contest_config.dart';
 import 'entities/player_score.dart';
+import 'kp_live.dart';
 import 'skins.dart';
 
 /// Whether results are still being entered or locked as final.
@@ -38,6 +39,9 @@ class LiveResults extends ChangeNotifier {
   int _deductMid;
   int _deductPlus;
 
+  final Set<int> _kpPins = {};
+  final List<KpEntry> _kpEntries = [];
+
   /// The live deduction settings. The creator can adjust these any time until
   /// results go final; the board recomputes immediately.
   int get deductMidPercent => _deductMid;
@@ -56,8 +60,12 @@ class LiveResults extends ChangeNotifier {
 
   ResultsStatus get status => _status;
   bool get isFinal => _status == ResultsStatus.finalized;
+  bool _finalResultsPushSent = false;
+  bool get finalResultsPushSent => _finalResultsPushSent;
 
   List<String> get players => _scores.keys.toList();
+
+  List<int> holesForPlayer(String player) => List.unmodifiable(_scores[player] ?? List.filled(18, 0));
 
   int scoreFor(String player, int hole) => _scores[player]?[hole - 1] ?? 0;
 
@@ -98,6 +106,75 @@ class LiveResults extends ChangeNotifier {
             holes: e.value.any((v) => v > 0) ? List<int>.from(e.value) : null,
           ))
       .toList();
+
+  Set<int> get kpPinnedHoles => Set.unmodifiable(_kpPins);
+
+  void pinKpHole(int hole) {
+    if (isFinal || !config.kpHoles.contains(hole)) return;
+    if (_kpPins.add(hole)) notifyListeners();
+  }
+
+  List<KpEntry> kpBoard(int hole, ContestCategory category) {
+    final list = _kpEntries
+        .where((e) => e.hole == hole && e.category == category)
+        .toList()
+      ..sort((a, b) => a.distanceFeet.compareTo(b.distanceFeet));
+    return list;
+  }
+
+  KpSubmitResult submitKp({
+    required int hole,
+    required String player,
+    required String measuredBy,
+    required ContestCategory category,
+    required double distanceFeet,
+  }) {
+    if (isFinal) return KpSubmitResult.resultsFinal;
+    if (!config.kpHoles.contains(hole)) return KpSubmitResult.holeNotKp;
+    if (player == measuredBy) return KpSubmitResult.measurerIsPlayer;
+    final board = kpBoard(hole, category);
+    if (board.isNotEmpty && distanceFeet >= board.first.distanceFeet) {
+      return KpSubmitResult.notCloser;
+    }
+    for (var i = 0; i < _kpEntries.length; i++) {
+      final e = _kpEntries[i];
+      if (e.hole == hole && e.category == category && e.photosRetained) {
+        _kpEntries[i] = e.copyWith(photosRetained: false);
+      }
+    }
+    _kpEntries.add(KpEntry(
+      hole: hole,
+      player: player,
+      measuredBy: measuredBy,
+      category: category,
+      distanceFeet: distanceFeet,
+      recordedAt: DateTime.now(),
+    ));
+    notifyListeners();
+    return KpSubmitResult.accepted;
+  }
+
+  void removeKpEntry(KpEntry entry) {
+    if (isFinal) return;
+    _kpEntries.remove(entry);
+    notifyListeners();
+  }
+
+  List<({int hole, ContestCategory category, String player, double distanceFeet})>
+      get kpLiveLeaders {
+    final out = <({int hole, ContestCategory category, String player, double distanceFeet})>[];
+    for (final hole in config.kpHoles) {
+      for (final cat in config.useCategories
+          ? const [ContestCategory.men, ContestCategory.seniorMen, ContestCategory.women, ContestCategory.seniorWomen]
+          : const [ContestCategory.open]) {
+        final board = kpBoard(hole, cat);
+        if (board.isNotEmpty) {
+          out.add((hole: hole, category: cat, player: board.first.player, distanceFeet: board.first.distanceFeet));
+        }
+      }
+    }
+    return out;
+  }
 
   /// Live tournament-wide skins under the configured rule, payout mode, and
   /// current deduction settings.
@@ -166,6 +243,8 @@ class LiveResults extends ChangeNotifier {
   bool finalize() {
     if (isFinal) return false;
     _status = ResultsStatus.finalized;
+    _finalResultsPushSent = true;
+    // Backend: send push notification to all tournament players.
     notifyListeners();
     return true;
   }

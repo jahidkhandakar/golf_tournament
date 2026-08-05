@@ -5,5 +5,4 @@ abstract class UserProfileRepository {
 
   /// Publish or clear the user's optional global handicap (§ item 6). Pass null
   /// to unpublish it.
-  Future<UserProfile> updateGlobalHandicap(double? value);
 }

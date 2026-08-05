@@ -68,6 +68,13 @@ class _LookingTabState extends State<LookingTab> {
                 children: [
                   const SponsoredBanner(),
                   ListTile(
+                    leading: const Icon(Icons.sports_esports_outlined),
+                    title: const Text('Indoor Golf'),
+                    subtitle: const Text('Simulator leagues and Sim Social Rounds'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => context.push(AppRoutes.indoor),
+                  ),
+                  ListTile(
                     leading: const Icon(Icons.people_outline),
                     title: const Text('Browse golfers near you'),
                     trailing: const Icon(Icons.chevron_right),

@@ -12,6 +12,7 @@ class Club extends Equatable {
     required this.name,
     required this.location,
     required this.members,
+    this.isPrivate = false,
   });
 
   final String id;
@@ -19,11 +20,16 @@ class Club extends Equatable {
   final String location;
   final List<ClubMember> members;
 
+  /// Private clubs are invisible in discovery, search, and all public feeds.
+  /// Invite is by creator-issued access code only. Events never feed the zone
+  /// Top 50. Conversion is one way: private can go public, never back.
+  final bool isPrivate;
+
   int get memberCount => members.length;
 
   Club withMembers(List<ClubMember> members) =>
-      Club(id: id, name: name, location: location, members: members);
+      Club(id: id, name: name, location: location, members: members, isPrivate: isPrivate);
 
   @override
-  List<Object?> get props => [id, name, location, members];
+  List<Object?> get props => [id, name, location, members, isPrivate];
 }

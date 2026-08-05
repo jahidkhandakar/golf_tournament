@@ -79,6 +79,13 @@ class _MyClubsPageState extends State<MyClubsPage> {
               return ListView(
                 padding: const EdgeInsets.only(bottom: 24),
                 children: [
+          ListTile(
+            leading: const Icon(Icons.vpn_key_outlined),
+            title: const Text('Join Private Club'),
+            subtitle: const Text('Have an access code? Enter it here.'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push(AppRoutes.joinPrivateClub),
+          ),
                   _SectionTitle('Your Clubs', secondaryText),
                   for (final club in myClubs)
                     _ClubCard(

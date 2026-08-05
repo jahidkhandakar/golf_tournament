@@ -35,6 +35,10 @@ class AppRoutes {
   static const String teeSheet = '/tee-sheet';
   static const String teeSheetBuilder = '/tee-sheet/builder';
   static const String nearbyGolfers = '/golfers';
+  static const String kpLive = '/tournaments/kp-live';
+  static const String privateMembers = '/club/private-members';
+  static const String joinPrivateClub = '/join-private-club';
+  static const String indoor = '/indoor';
 
   static String chatDetail(String conversationId) => '/messages/chat/$conversationId';
   static String marketplaceListingDetail(String id) => '/marketplace/$id';

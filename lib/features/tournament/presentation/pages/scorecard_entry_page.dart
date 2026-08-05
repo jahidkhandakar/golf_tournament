@@ -213,7 +213,10 @@ class _ScorecardEntryPageState extends State<ScorecardEntryPage> {
             ),
         ],
       ),
-      body: ListView(
+      body: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           _header(live, primaryText, secondaryText),
@@ -240,6 +243,13 @@ class _ScorecardEntryPageState extends State<ScorecardEntryPage> {
               icon: const Icon(Icons.lock_outline),
               label: const Text('Final Results'),
             ),
+        ],
+          )),
+          _SkinsStrip(
+            live: live,
+            onHoleTap: (hole) => setState(() => _hole = hole),
+            onTrophy: () => _showWinnersSheet(context, live),
+          ),
         ],
       ),
     );
@@ -537,4 +547,129 @@ class _ScorecardEntryPageState extends State<ScorecardEntryPage> {
     }
     return null;
   }
+}
+
+
+/// The 18-hole skins status strip on the right edge of the score entry screen.
+/// White = open (no scores yet), Green = currently winning (one outright best
+/// at birdie or better), Red = cut (tied or no qualifying score). Tap a tile
+/// to jump entry to that hole. Trophy tile at the bottom opens the winners
+/// sheet. 44px wide, never shrinks the entry area.
+class _SkinsStrip extends StatelessWidget {
+  const _SkinsStrip({required this.live, required this.onHoleTap, required this.onTrophy});
+  final LiveResults live;
+  final void Function(int hole) onHoleTap;
+  final VoidCallback onTrophy;
+
+  @override
+  Widget build(BuildContext context) {
+    final skins = live.skins;
+    final won = {for (final s in skins) s.hole};
+    // Determine which holes are cut: scores exist but no skin won
+    final scored = <int>{};
+    for (final p in live.players) {
+      final holes = live.holesForPlayer(p);
+      for (var h = 0; h < 18; h++) {
+        if (holes[h] > 0) scored.add(h + 1);
+      }
+    }
+
+    return SizedBox(
+      width: 44,
+      child: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: 18,
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              itemBuilder: (context, i) {
+                final hole = i + 1;
+                final isWon = won.contains(hole);
+                final isScored = scored.contains(hole);
+                final isCut = isScored && !isWon;
+                final color = isWon
+                    ? const Color(0xFF2E7D32)
+                    : isCut
+                        ? const Color(0xFFCC4444)
+                        : Colors.white;
+                final textColor = isWon || isCut ? Colors.white : Colors.black87;
+                return GestureDetector(
+                  onTap: () => onHoleTap(hole),
+                  child: Container(
+                    height: 44,
+                    margin: const EdgeInsets.symmetric(vertical: 1),
+                    decoration: BoxDecoration(
+                      color: color,
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      '$hole',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: textColor,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          GestureDetector(
+            onTap: onTrophy,
+            child: Container(
+              height: 44,
+              width: 44,
+              margin: const EdgeInsets.only(top: 2, bottom: 4),
+              decoration: BoxDecoration(
+                color: AppColors.gold,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              alignment: Alignment.center,
+              child: const Icon(Icons.emoji_events, color: Colors.white, size: 22),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+void _showWinnersSheet(BuildContext context, LiveResults live) {
+  final skins = live.skins;
+  final winners = skins.where((s) => s.value > 0).toList();
+  final totalPot = winners.fold<double>(0, (sum, s) => sum + s.value);
+  showModalBottomSheet(
+    context: context,
+    builder: (context) => Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            winners.isEmpty ? 'No skins won yet' : '${winners.length} skin${winners.length == 1 ? '' : 's'} won',
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          if (totalPot > 0)
+            Text('Total payout: \$${totalPot.toStringAsFixed(0)}',
+                style: const TextStyle(fontSize: 14, color: Colors.grey)),
+          const SizedBox(height: 12),
+          for (final s in winners)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                children: [
+                  SizedBox(width: 50, child: Text('Hole ${s.hole}', style: const TextStyle(fontWeight: FontWeight.w600))),
+                  Expanded(child: Text('${s.winner}${s.wonWithPar ? ' (par)' : ''}${s.deductPercent > 0 ? ' (${s.deductPercent}% deducted)' : ''}')),
+                  Text('\$${s.value.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF6B5A17))),
+                ],
+              ),
+            ),
+        ],
+      ),
+    ),
+  );
 }

@@ -92,7 +92,7 @@ class TeeBoxEngine {
   ///
   ///   No handicap entered      -> the club middle range color (Blue under
   ///                               default settings)
-  ///   Official handicap entered -> the club range settings apply the same way
+  ///   Handicap entered -> the club range settings apply the same way
   ///                               as a member
   ///
   /// Guest handicap entries are used for that tee sheet only. They are never

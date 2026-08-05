@@ -16,7 +16,6 @@ class MockLeaderboardRepository implements LeaderboardRepository {
     LeaderboardEntry(
       position: 1,
       playerName: 'Erin Walsh',
-      globalHandicap: 2.1,
       roundsPlayed: 34,
       distanceMiles: 12,
       clubName: 'Oakmont Hills',
@@ -28,7 +27,6 @@ class MockLeaderboardRepository implements LeaderboardRepository {
     LeaderboardEntry(
       position: 2,
       playerName: 'Marcus Thompson',
-      globalHandicap: 3.4,
       roundsPlayed: 41,
       distanceMiles: 25,
       clubName: 'Riverbend Golf Club',
@@ -43,7 +41,6 @@ class MockLeaderboardRepository implements LeaderboardRepository {
     LeaderboardEntry(
       position: 3,
       playerName: 'Alex Rivera',
-      globalHandicap: 3.7,
       roundsPlayed: 31,
       distanceMiles: 30,
       clubName: 'Riverbend Golf Club',
@@ -55,7 +52,6 @@ class MockLeaderboardRepository implements LeaderboardRepository {
     LeaderboardEntry(
       position: 4,
       playerName: 'Priya Kapoor',
-      globalHandicap: 4.0,
       roundsPlayed: 28,
       distanceMiles: 40,
       clubName: 'Riverbend Golf Club',
@@ -67,7 +63,6 @@ class MockLeaderboardRepository implements LeaderboardRepository {
     LeaderboardEntry(
       position: 5,
       playerName: 'Devon Lee',
-      globalHandicap: 5.2,
       roundsPlayed: 22,
       distanceMiles: 55,
       clubName: 'Pine Valley Muni',
@@ -82,7 +77,6 @@ class MockLeaderboardRepository implements LeaderboardRepository {
       position: 6,
       playerName: 'Jahid',
       isCurrentUser: true,
-      globalHandicap: 6.9,
       roundsPlayed: 24,
       distanceMiles: 0,
       clubName: 'Riverbend Golf Club',
@@ -94,7 +88,6 @@ class MockLeaderboardRepository implements LeaderboardRepository {
     LeaderboardEntry(
       position: 7,
       playerName: 'Sam Ortiz',
-      globalHandicap: 6.8,
       roundsPlayed: 19,
       distanceMiles: 58,
       clubName: 'Pine Valley Muni',
@@ -106,7 +99,6 @@ class MockLeaderboardRepository implements LeaderboardRepository {
     LeaderboardEntry(
       position: 8,
       playerName: 'Dana Reyes',
-      globalHandicap: 7.5,
       roundsPlayed: 26,
       distanceMiles: 62,
       clubName: 'Oakmont Hills',
@@ -118,7 +110,6 @@ class MockLeaderboardRepository implements LeaderboardRepository {
     LeaderboardEntry(
       position: 9,
       playerName: 'Jordan Blake',
-      globalHandicap: 8.1,
       roundsPlayed: 15,
       distanceMiles: 70,
       clubName: 'Hill Country Club',
@@ -130,7 +121,6 @@ class MockLeaderboardRepository implements LeaderboardRepository {
     LeaderboardEntry(
       position: 10,
       playerName: 'Casey Nguyen',
-      globalHandicap: 9.4,
       roundsPlayed: 18,
       distanceMiles: 95,
       clubName: 'Lakeside Links',
@@ -142,7 +132,6 @@ class MockLeaderboardRepository implements LeaderboardRepository {
     LeaderboardEntry(
       position: 11,
       playerName: 'Riley Foster',
-      globalHandicap: 10.2,
       roundsPlayed: 12,
       distanceMiles: 110,
       clubName: 'Pine Valley Muni',
@@ -154,7 +143,6 @@ class MockLeaderboardRepository implements LeaderboardRepository {
     LeaderboardEntry(
       position: 12,
       playerName: 'Taylor Brooks',
-      globalHandicap: 11.6,
       roundsPlayed: 20,
       distanceMiles: 130,
       clubName: 'Lakeside Links',

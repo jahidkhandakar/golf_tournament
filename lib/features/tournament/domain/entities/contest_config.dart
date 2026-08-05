@@ -52,7 +52,16 @@ class ContestConfig extends Equatable {
     this.useCategories = false,
     this.skinsDeductMidPercent = 0,
     this.skinsDeductPlusPercent = 0,
+    this.kpLiveEnabled = true,
+    this.guestsInSideGames = false,
   });
+
+  /// Per-player participation: players opted out of skins or KPs. Default is
+  /// everyone in. Managed from the tee-box tap list before the round.
+  /// Non-participants can't win or cut a hole. KP-out players can still
+  /// measure for a teammate.
+  final Set<String> skinsOptOut = const {};
+  final Set<String> kpOptOut = const {};
 
   /// Par for holes 1 to 18 in order. Needed for skins: birdie or better is
   /// only knowable against the hole's par.
@@ -87,6 +96,14 @@ class ContestConfig extends Equatable {
 
   /// The selectable deduction options: off, then 10 to 50 percent in steps
   /// of 5.
+  /// KP Live: on-course measuring with photo proof. On by default; creator
+  /// can switch to placard entry only.
+  final bool kpLiveEnabled;
+
+  /// Guests compete in side games. Default off — course-backfill strangers
+  /// shouldn't win members' money unless they bought in.
+  final bool guestsInSideGames;
+
   static const List<int> deductionOptions = [0, 10, 15, 20, 25, 30, 35, 40, 45, 50];
 
   int parFor(int hole) =>
@@ -117,6 +134,8 @@ class ContestConfig extends Equatable {
         useCategories,
         skinsDeductMidPercent,
         skinsDeductPlusPercent,
+        kpLiveEnabled,
+        guestsInSideGames,
       ];
 }
 

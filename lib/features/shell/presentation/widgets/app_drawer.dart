@@ -26,17 +26,6 @@ const _destinations = [
 ];
 
 // ignore: unused_element
-const _removedDestinations = [
-  _DrawerDestination('My Clubs', Icons.sports_golf_outlined, AppRoutes.myClubs),
-  _DrawerDestination('Tournaments', Icons.emoji_events_outlined, AppRoutes.tournaments),
-  _DrawerDestination('Tee Sheet', Icons.event_available_outlined, AppRoutes.teeSheet),
-  // Admin-only (Club Creator / sub-admin). Shown to everyone for now; gate on
-  // the club role once PermissionService knows about it.
-  _DrawerDestination('Tee Sheet Builder', Icons.edit_calendar_outlined, AppRoutes.teeSheetBuilder),
-  _DrawerDestination('Marketplace', Icons.storefront_outlined, AppRoutes.marketplace),
-  _DrawerDestination('Help & Support', Icons.help_outline, AppRoutes.helpSupport),
-  _DrawerDestination('About & Legal', Icons.info_outline, AppRoutes.aboutLegal),
-];
 // _removedDestinations is kept for reference while these entry points are
 // relocated into their features (My Club page, tournament screens, Home
 // marketplace, Settings). Remove once relocation lands.

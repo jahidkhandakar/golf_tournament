@@ -44,10 +44,8 @@ class GolferTile extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  Text(
-                    '${golfer.globalHandicap != null ? 'HCP ${golfer.globalHandicap!.toStringAsFixed(1)}' : 'No global HCP'} · ${golfer.distanceMiles.toStringAsFixed(0)} mi',
-                    style: AppTextStyles.caption(secondaryText),
-                  ),
+                  Text('${golfer.distanceMiles.toStringAsFixed(0)} mi',
+                      style: AppTextStyles.caption(secondaryText)),
                 ],
               ),
             ),

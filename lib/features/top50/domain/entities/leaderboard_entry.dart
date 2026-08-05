@@ -4,7 +4,6 @@ class LeaderboardEntry extends Equatable {
   const LeaderboardEntry({
     required this.position,
     required this.playerName,
-    required this.globalHandicap,
     required this.roundsPlayed,
     required this.distanceMiles,
     required this.clubName,
@@ -27,7 +26,6 @@ class LeaderboardEntry extends Equatable {
 
   /// Global (worldwide) handicap shown on the cross-club Top 50 ladder.
   /// Optional — Top 50 rank is position-based, not handicap-based.
-  final double? globalHandicap;
   final int roundsPlayed;
   final double distanceMiles;
 
@@ -45,7 +43,6 @@ class LeaderboardEntry extends Equatable {
   LeaderboardEntry copyWith({int? position}) => LeaderboardEntry(
         position: position ?? this.position,
         playerName: playerName,
-        globalHandicap: globalHandicap,
         roundsPlayed: roundsPlayed,
         distanceMiles: distanceMiles,
         clubName: clubName,
@@ -61,7 +58,6 @@ class LeaderboardEntry extends Equatable {
         position,
         playerName,
         isCurrentUser,
-        globalHandicap,
         roundsPlayed,
         distanceMiles,
         clubName,

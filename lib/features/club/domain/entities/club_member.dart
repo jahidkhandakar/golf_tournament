@@ -9,6 +9,7 @@ class ClubMember extends Equatable {
     this.leaderboardOptedIn = true,
     this.leaderboardPosition,
     this.isAdmin = false,
+    this.displayName,
   });
 
   final String id;
@@ -32,6 +33,13 @@ class ClubMember extends Equatable {
   final int? leaderboardPosition;
 
   final bool isAdmin;
+
+  /// Alias shown inside a private club. Members set it themselves after
+  /// redeeming their access code. Null means the account name shows. The
+  /// alias never leaves the club: outside, the member is their normal self.
+  final String? displayName;
+
+  String get shownName => displayName ?? name;
 
   /// Ranked = opted in with an established handicap and a stored position.
   bool get isRanked => leaderboardOptedIn && roundsPlayed >= 3 && leaderboardPosition != null;

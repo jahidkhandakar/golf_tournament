@@ -9,7 +9,6 @@ class MockGolfersRepository implements GolfersRepository {
     NearbyGolfer(
       id: 'gf1',
       name: 'Marcus Thompson',
-      globalHandicap: 3.4,
       distanceMiles: 3.4,
       homeClub: 'Riverbend Golf Club',
       roundsPlayed: 41,
@@ -18,7 +17,6 @@ class MockGolfersRepository implements GolfersRepository {
     NearbyGolfer(
       id: 'gf2',
       name: 'Dana Reyes',
-      globalHandicap: 7.5,
       distanceMiles: 6.1,
       homeClub: 'Oakmont Hills',
       roundsPlayed: 26,
@@ -27,7 +25,6 @@ class MockGolfersRepository implements GolfersRepository {
     NearbyGolfer(
       id: 'gf3',
       name: 'Priya Kapoor',
-      globalHandicap: 4.0,
       distanceMiles: 9.8,
       homeClub: 'Riverbend Golf Club',
       roundsPlayed: 28,
@@ -36,7 +33,6 @@ class MockGolfersRepository implements GolfersRepository {
     NearbyGolfer(
       id: 'gf4',
       name: 'Sam Ortiz',
-      globalHandicap: null, // hasn't published a global handicap
       distanceMiles: 12.3,
       homeClub: 'Pine Valley Muni',
       roundsPlayed: 19,
@@ -45,7 +41,6 @@ class MockGolfersRepository implements GolfersRepository {
     NearbyGolfer(
       id: 'gf5',
       name: 'Erin Walsh',
-      globalHandicap: 2.1,
       distanceMiles: 15.7,
       homeClub: 'Oakmont Hills',
       roundsPlayed: 34,
@@ -54,7 +49,6 @@ class MockGolfersRepository implements GolfersRepository {
     NearbyGolfer(
       id: 'gf6',
       name: 'Devon Lee',
-      globalHandicap: 5.2,
       distanceMiles: 22.4,
       homeClub: 'Pine Valley Muni',
       roundsPlayed: 22,
@@ -63,7 +57,6 @@ class MockGolfersRepository implements GolfersRepository {
     NearbyGolfer(
       id: 'gf7',
       name: 'Alex Rivera',
-      globalHandicap: 3.7,
       distanceMiles: 30,
       homeClub: 'Hill Country Club',
       roundsPlayed: 31,
@@ -72,7 +65,6 @@ class MockGolfersRepository implements GolfersRepository {
     NearbyGolfer(
       id: 'gf8',
       name: 'Riley Foster',
-      globalHandicap: 10.2,
       distanceMiles: 45,
       homeClub: 'Pine Valley Muni',
       roundsPlayed: 12,
@@ -81,7 +73,6 @@ class MockGolfersRepository implements GolfersRepository {
     NearbyGolfer(
       id: 'gf9',
       name: 'Taylor Brooks',
-      globalHandicap: 11.6,
       distanceMiles: 52,
       homeClub: 'Lakeside Links',
       roundsPlayed: 20,
@@ -90,7 +81,6 @@ class MockGolfersRepository implements GolfersRepository {
     NearbyGolfer(
       id: 'gf10',
       name: 'Jordan Blake',
-      globalHandicap: 8.1,
       distanceMiles: 74,
       homeClub: 'Hill Country Club',
       roundsPlayed: 15,
@@ -99,7 +89,6 @@ class MockGolfersRepository implements GolfersRepository {
     NearbyGolfer(
       id: 'gf11',
       name: 'Casey Nguyen',
-      globalHandicap: 9.4,
       distanceMiles: 108,
       homeClub: 'Lakeside Links',
       roundsPlayed: 18,

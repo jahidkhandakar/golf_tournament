@@ -31,6 +31,10 @@ import '../../features/tournament/domain/entities/tournament.dart';
 import '../../features/tournament/presentation/pages/challenge_approvals_page.dart';
 import '../../features/tournament/presentation/pages/create_tournament_page.dart';
 import '../../features/tournament/presentation/pages/invite_players_page.dart';
+import '../../features/club/presentation/pages/join_private_club_page.dart';
+import '../../features/indoor/presentation/pages/indoor_page.dart';
+import '../../features/club/presentation/pages/private_members_page.dart';
+import '../../features/tournament/presentation/pages/kp_live_page.dart';
 import '../../features/tournament/presentation/pages/scorecard_entry_page.dart';
 import '../../features/tournament/presentation/pages/tournament_detail_page.dart';
 import '../../features/tournament/presentation/pages/tournaments_list_page.dart';
@@ -274,6 +278,29 @@ class AppRouter {
         path: AppRoutes.teeSheetBuilder,
         name: 'teeSheetBuilder',
         builder: (context, state) => const TeeSheetBuilderPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.indoor,
+        name: 'indoor',
+        builder: (context, state) => const IndoorPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.joinPrivateClub,
+        name: 'joinPrivateClub',
+        builder: (context, state) => const JoinPrivateClubPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.privateMembers,
+        name: 'privateMembers',
+        builder: (context, state) {
+          final args = state.extra as Map<String, String>;
+          return PrivateMembersPage(clubId: args['id']!, clubName: args['name']!);
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.kpLive,
+        name: 'kpLive',
+        builder: (context, state) => KpLivePage(tournament: state.extra as Tournament),
       ),
     ],
   );

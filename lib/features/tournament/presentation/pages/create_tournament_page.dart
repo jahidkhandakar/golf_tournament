@@ -43,6 +43,8 @@ class _CreateTournamentPageState extends State<CreateTournamentPage> {
   bool _useCategories = false;
   final Set<int> _kpHoles = {3, 7, 11, 16};
   final Set<int> _longDriveHoles = {9};
+  bool _kpLiveEnabled = true;
+  bool _showAmounts = false;
   int _skinsDeductMid = 0;
   int _skinsDeductPlus = 0;
   final _skinsPotController = TextEditingController(text: '0');
@@ -131,6 +133,8 @@ class _CreateTournamentPageState extends State<CreateTournamentPage> {
         holePars: ContestConfig.defaultPars(),
         kpHoles: _kpHoles.toList()..sort(),
         longDriveHoles: _useCategories ? (_longDriveHoles.toList()..sort()) : const [],
+        kpLiveEnabled: _kpLiveEnabled,
+        // showAmounts passed to tournament, not config
         payoutMode: _payoutMode,
         skinsDeductMidPercent: _skinsDeductMid,
         skinsDeductPlusPercent: _skinsDeductPlus,
@@ -329,6 +333,14 @@ class _CreateTournamentPageState extends State<CreateTournamentPage> {
             ),
           ],
           const SizedBox(height: 20),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: const Text('Show amounts'),
+            subtitle: const Text('Display dollar amounts during the round. Amounts purge 24 hours after final results. Names remain.'),
+            value: _showAmounts,
+            onChanged: (v) => setState(() => _showAmounts = v),
+          ),
+          const SizedBox(height: 12),
           _label('Side games', primaryText),
           const SizedBox(height: 8),
           SegmentedButton<PayoutMode>(
@@ -404,6 +416,14 @@ class _CreateTournamentPageState extends State<CreateTournamentPage> {
             subtitle: const Text('Split KPs and long drives into Men, Senior Men, Women, Senior Women'),
             value: _useCategories,
             onChanged: (v) => setState(() => _useCategories = v),
+          ),
+          const SizedBox(height: 8),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: const Text('KP Live'),
+            subtitle: const Text('Players measure closest to the pin on the course with photo proof. Off means placard entry only.'),
+            value: _kpLiveEnabled,
+            onChanged: (v) => setState(() => _kpLiveEnabled = v),
           ),
           const SizedBox(height: 8),
           _label('KP holes', primaryText),

@@ -33,6 +33,8 @@ import '../../features/top50/presentation/top50_ladder_controller.dart';
 import '../../features/tournament/data/repositories/mock_challenge_approval_repository.dart';
 import '../../features/tournament/data/repositories/mock_invite_repository.dart';
 import '../../features/tournament/data/repositories/mock_registration_repository.dart';
+import '../../features/club/domain/private_club.dart';
+import '../../features/indoor/domain/indoor.dart';
 import '../../features/tournament/data/player_directory.dart';
 import '../../features/tournament/data/repositories/mock_tournament_repository.dart';
 import '../../features/tournament/domain/repositories/challenge_approval_repository.dart';
@@ -87,6 +89,8 @@ Future<void> setupLocator() async {
   sl.registerLazySingleton<ChallengeApprovalRepository>(() => MockChallengeApprovalRepository());
   sl.registerLazySingleton<InviteRepository>(() => MockInviteRepository());
   sl.registerLazySingleton<PlayerDirectory>(() => PlayerDirectory());
+  sl.registerLazySingleton<PrivateClubState>(() => PrivateClubState());
+  sl.registerLazySingleton<IndoorState>(() => IndoorState());
   sl.registerLazySingleton<LiveResultsRegistry>(() => LiveResultsRegistry());
   sl.registerLazySingleton<TeeSheetRepository>(() => MockTeeSheetRepository(sl(), sl()));
 }

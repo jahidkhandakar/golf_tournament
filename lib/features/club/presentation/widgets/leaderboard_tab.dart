@@ -63,6 +63,7 @@ class _LeaderboardTabState extends State<LeaderboardTab> {
       for (final m in widget.members)
         if (m.isRanked) m,
     ]..sort((a, b) => a.leaderboardPosition!.compareTo(b.leaderboardPosition!));
+    final rules = _ClubLadderRules(ranked.length);
 
     return ValueListenableBuilder<Map<String, int>>(
       valueListenable: _state.positions,
@@ -78,8 +79,6 @@ class _LeaderboardTabState extends State<LeaderboardTab> {
             _Row(name: 'You', handicap: _userHandicap ?? 0, position: userPosition, isUser: true),
         ]..sort((a, b) => a.position.compareTo(b.position));
 
-        final liveCount = rows.length;
-
         return ListView(
           padding: const EdgeInsets.symmetric(vertical: 8),
           children: [
@@ -89,15 +88,17 @@ class _LeaderboardTabState extends State<LeaderboardTab> {
               onOptIn: () => _optIn(ranked),
               onOptOut: () => _state.optOut(widget.clubName),
             ),
-            if (liveCount < _goesLiveAt)
+            // Below the activation threshold the leaderboard is inactive (§ scaling rules).
+            if (!rules.isActive)
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                padding: const EdgeInsets.all(16),
                 child: Text(
-                  'Leaderboard goes live at $_goesLiveAt ranked members · $liveCount now.',
+                  'The club leaderboard activates when $_goesLiveAt members have opted in with an established handicap.',
                   style: AppTextStyles.caption(secondaryText),
                 ),
-              ),
-            for (var i = 0; i < rows.length; i++) _rowCard(rows[i], i + 1, primaryText, secondaryText),
+              )
+            else
+              for (var i = 0; i < rows.length; i++) _rowCard(rows[i], i + 1, primaryText, secondaryText),
           ],
         );
       },
@@ -208,4 +209,30 @@ class _OptInCard extends StatelessWidget {
       ),
     );
   }
+}
+
+
+/// Club Leaderboard size-scaled rules. These derive from the number of ranked
+/// (opted-in + established handicap + stored position) members.
+class _ClubLadderRules {
+  _ClubLadderRules(this.rankedCount);
+  final int rankedCount;
+
+  /// Challenge range: 30% of ranked members, floor 3, ceiling 15.
+  int get challengeRange => (rankedCount * 0.30).round().clamp(3, 15);
+
+  /// Top 10 gate activates at 25+ ranked members.
+  bool get top10GateActive => rankedCount >= 25;
+
+  /// Bottom 5 unranked group appears at 15+ ranked members.
+  bool get showBottom5 => rankedCount >= 15;
+
+  /// Leaderboard goes live at 8 ranked members.
+  bool get isActive => rankedCount >= 8;
+
+  /// Entry position for a new player who beats someone in the top half.
+  int get entryTopHalf => (rankedCount / 2).ceil();
+
+  /// Entry position for a new player who beats someone in the bottom half.
+  int get entryBottomHalf => (rankedCount * 0.9).round().clamp(1, rankedCount);
 }

@@ -35,6 +35,10 @@ class Tournament extends Equatable {
     this.groupsCount = 10,
     this.teeBoxes = maxTeeBoxes,
     this.teamsPerTeeBox = maxTeamsPerTeeBox,
+    this.standbyPlayers = const [],
+    this.showAmounts = false,
+    this.courseCountry = 'US',
+    this.templateName,
     this.golfCourseEmail,
     this.registeredPlayers = 0,
     this.status = TournamentStatus.open,
@@ -78,6 +82,24 @@ class Tournament extends Equatable {
   /// the capacity.
   final int teeBoxes;
   final int teamsPerTeeBox;
+
+  /// Standby list: FIFO order. Staff promotes into the roster at any time,
+  /// bypassing the 48-hour lock. Travel trial consumed on promotion only.
+  /// A replacement inherits nothing from the player they replaced.
+  final List<String> standbyPlayers;
+
+  /// Creator display toggle for money amounts. Default off. When on, amounts
+  /// show during the round and purge 24 hours after Final — permanently, no
+  /// archive, no export. Names survive.
+  final bool showAmounts;
+
+  /// The golf course's country, used for amateur-status cap lookup. Course
+  /// country governs because that's where the competition physically happens.
+  final String courseCountry;
+
+  /// If this tournament was created from a saved template, or if the creator
+  /// saved these settings as a template for reuse.
+  final String? templateName;
 
   final String? golfCourseEmail;
   final int registeredPlayers;
@@ -157,6 +179,10 @@ class Tournament extends Equatable {
         groupsCount,
         teeBoxes,
         teamsPerTeeBox,
+        standbyPlayers,
+        showAmounts,
+        courseCountry,
+        templateName,
         golfCourseEmail,
         registeredPlayers,
         status,
