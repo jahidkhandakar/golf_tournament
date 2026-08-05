@@ -68,8 +68,10 @@ class _MyClubsPageState extends State<MyClubsPage> {
             builder: (context, joined, _) {
               final query = _searchController.text.trim().toLowerCase();
               final myClubs = allClubs.where((c) => joined.contains(c.name)).toList();
+              // Private clubs are invisible in discovery and search — they are
+              // reachable only by redeeming an access code.
               final discover = allClubs
-                  .where((c) => !joined.contains(c.name))
+                  .where((c) => !joined.contains(c.name) && !c.isPrivate)
                   .where((c) =>
                       query.isEmpty ||
                       c.name.toLowerCase().contains(query) ||

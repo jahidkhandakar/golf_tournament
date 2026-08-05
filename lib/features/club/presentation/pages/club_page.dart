@@ -141,6 +141,21 @@ class _ClubHome extends StatelessWidget {
                     ),
                   ),
                 ],
+                // Private-club gatekeeper: only the creator/sub-admins of a
+                // private club manage member slots and access codes.
+                if (role.isStaff && club.isPrivate) ...[
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => context.push(
+                        AppRoutes.privateMembers,
+                        extra: {'id': club.id, 'name': club.name},
+                      ),
+                      icon: const Icon(Icons.vpn_key_outlined, size: 18),
+                      label: const Text('Members'),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

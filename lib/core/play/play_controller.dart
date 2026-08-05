@@ -35,12 +35,12 @@ class TeeSheetEntry {
 ///   - Pine Valley / Hill Country / Lakeside → join the club first
 class PlayController {
   final ValueNotifier<Set<String>> joinedClubs =
-      ValueNotifier<Set<String>>({'Riverbend Golf Club', 'Oakmont Hills'});
+      ValueNotifier<Set<String>>({'Riverbend Golf Club', 'Oakmont Hills', 'The Cedar Room'});
 
   /// Clubs the user created (they are the Club Creator). Seeded so the logged-in
   /// user runs Riverbend — the club behind the seeded tournament / tee sheet.
   final ValueNotifier<Set<String>> createdClubs =
-      ValueNotifier<Set<String>>({'Riverbend Golf Club'});
+      ValueNotifier<Set<String>>({'Riverbend Golf Club', 'The Cedar Room'});
 
   /// Clubs where the user has been appointed a sub-admin.
   final ValueNotifier<Set<String>> subAdminClubs = ValueNotifier<Set<String>>({});

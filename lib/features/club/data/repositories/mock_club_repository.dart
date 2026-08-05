@@ -83,6 +83,18 @@ class MockClubRepository implements ClubRepository {
         ClubMember(id: 'm16', name: 'Taylor Brooks', clubHandicap: 11.6),
       ],
     ),
+    // Private club the logged-in user runs (see PlayController.createdClubs).
+    // Invisible in discovery; the creator manages member slots + access codes
+    // from the Club tab's "Members" button.
+    Club(
+      id: 'c6',
+      name: 'The Cedar Room',
+      location: 'Austin, TX',
+      isPrivate: true,
+      members: [
+        ClubMember(id: 'm22', name: 'Jahid', clubHandicap: 7.4, isAdmin: true),
+      ],
+    ),
   ];
 
   @override
