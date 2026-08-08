@@ -96,8 +96,93 @@ class IndoorLeague {
   bool get entryOpen => startedWeeksAgo <= 3;
 }
 
+/// A booked simulator session. The sim board replaces the tee sheet: one
+/// column per simulator (bay), and the creator drags/assigns players into
+/// bays and makes the teams. There is no self-pairing — only the session
+/// creator arranges the bays. Displayed in the app only; no email to any
+/// course. Used for both league sessions and one-time Sim Social Rounds.
+class SimSession {
+  SimSession({
+    required this.id,
+    required this.title,
+    required this.booking,
+    this.isSocialRound = false,
+    List<String> roster = const [],
+  }) : roster = [...roster];
+
+  final String id;
+  final String title;
+  final SimBooking booking;
+
+  /// Sim Social Rounds are one-time events, the only indoor format open to
+  /// invited non-league players. League sessions are members only.
+  final bool isSocialRound;
+
+  /// Everyone booked into this session, whether or not they have a bay yet.
+  final List<String> roster;
+
+  /// bay index (0 .. sims-1) -> the players assigned to that simulator.
+  final Map<int, List<String>> bays = {};
+
+  int get bayCount => booking.sims;
+
+  /// Players a single bay can hold: one per booked hour, plus one when the
+  /// creator allowed an extra per sim.
+  int get perBayCapacity => booking.hoursPerSim + (booking.allowExtraPerSim ? 1 : 0);
+
+  List<String> playersInBay(int index) => List.unmodifiable(bays[index] ?? const []);
+
+  bool isBayFull(int index) => (bays[index]?.length ?? 0) >= perBayCapacity;
+
+  /// Players in the roster not yet placed in any bay.
+  List<String> get unassigned {
+    final placed = bays.values.expand((b) => b).toSet();
+    return roster.where((p) => !placed.contains(p)).toList();
+  }
+}
+
 class IndoorState extends ChangeNotifier {
   final List<IndoorLeague> leagues = [];
+  final List<SimSession> sessions = [];
+
+  SimSession createSession({
+    required String title,
+    required SimBooking booking,
+    bool isSocialRound = false,
+    List<String> roster = const [],
+  }) {
+    final session = SimSession(
+      id: 'sim_${sessions.length + 1}',
+      title: title,
+      booking: booking,
+      isSocialRound: isSocialRound,
+      roster: roster,
+    );
+    sessions.add(session);
+    notifyListeners();
+    return session;
+  }
+
+  /// Move [player] into [bayIndex], removing them from any other bay first
+  /// (reassignment). No-op when the target bay is full. Passing a negative
+  /// [bayIndex] returns the player to the unassigned pool.
+  void assignToBay(SimSession session, String player, int bayIndex) {
+    for (final b in session.bays.values) {
+      b.remove(player);
+    }
+    if (bayIndex >= 0 && bayIndex < session.bayCount && !session.isBayFull(bayIndex)) {
+      session.bays.putIfAbsent(bayIndex, () => []).add(player);
+    }
+    if (!session.roster.contains(player)) session.roster.add(player);
+    notifyListeners();
+  }
+
+  void addToRoster(SimSession session, String player) {
+    if (player.isEmpty || session.roster.contains(player)) return;
+    session.roster.add(player);
+    notifyListeners();
+  }
+
 
   IndoorLeague createLeague({
     required String name,

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/indoor.dart';
@@ -70,6 +72,33 @@ class _IndoorPageState extends State<IndoorPage> {
     );
   }
 
+  /// A one-time Sim Social Round: create the session and open its sim board so
+  /// the creator can place the invited players into bays. Seeded with a small
+  /// roster to arrange (real rosters arrive once the backend is wired).
+  Future<void> _createSocialRound() async {
+    final session = _state.createSession(
+      title: 'Sim Social Round',
+      booking: const SimBooking(sims: 2, hoursPerSim: 4),
+      isSocialRound: true,
+      roster: const ['Ana Ruiz', 'Ben Cole', 'Cam Diaz', 'Drew Kim', 'Eli Fox', 'Fay Ng'],
+    );
+    if (!mounted) return;
+    context.push(AppRoutes.simBoard, extra: session.id);
+  }
+
+  /// Open the sim board for a league, creating a session on first use.
+  void _openLeagueBoard(IndoorLeague league) {
+    final existing = _state.sessions.where((s) => s.title == league.name);
+    final session = existing.isNotEmpty
+        ? existing.first
+        : _state.createSession(
+            title: league.name,
+            booking: league.booking,
+            roster: [for (final m in league.members) m.player],
+          );
+    context.push(AppRoutes.simBoard, extra: session.id);
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -87,11 +116,16 @@ class _IndoorPageState extends State<IndoorPage> {
           const SizedBox(width: 10),
           Expanded(child: OutlinedButton.icon(icon: const Icon(Icons.sports_golf),
             label: const Text('Sim Social Round'),
-            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Sim Social Round created (mock). One-time game, open to invited non-league players.'))))),
+            onPressed: _createSocialRound)),
         ]),
         const SizedBox(height: 16),
-        for (final l in _state.leagues) _LeagueCard(league: l, primaryText: primaryText, secondaryText: secondaryText),
+        for (final l in _state.leagues)
+          _LeagueCard(
+            league: l,
+            primaryText: primaryText,
+            secondaryText: secondaryText,
+            onOpenBoard: () => _openLeagueBoard(l),
+          ),
         if (_state.leagues.isEmpty)
           Padding(padding: const EdgeInsets.only(top: 24),
             child: Text('No leagues yet. Create the first one above.', style: AppTextStyles.body(secondaryText))),
@@ -101,10 +135,16 @@ class _IndoorPageState extends State<IndoorPage> {
 }
 
 class _LeagueCard extends StatelessWidget {
-  const _LeagueCard({required this.league, required this.primaryText, required this.secondaryText});
+  const _LeagueCard({
+    required this.league,
+    required this.primaryText,
+    required this.secondaryText,
+    required this.onOpenBoard,
+  });
   final IndoorLeague league;
   final Color primaryText;
   final Color secondaryText;
+  final VoidCallback onOpenBoard;
 
   @override
   Widget build(BuildContext context) {
@@ -137,6 +177,15 @@ class _LeagueCard extends StatelessWidget {
         const SizedBox(height: 6),
         Text('Weeks run Monday to midnight Sunday. Bank up to 2 extra Rounds ahead; unlimited makeups in a week when behind. Entry closes 3 weeks in. Skins need a witnessed round: both players checked in and playing, verified at check-in, one silent random moment, and session close against the pinned sim location.',
           style: AppTextStyles.caption(secondaryText)),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: OutlinedButton.icon(
+            icon: const Icon(Icons.grid_view, size: 18),
+            label: const Text('Sim board'),
+            onPressed: onOpenBoard,
+          ),
+        ),
       ]),
     );
   }
