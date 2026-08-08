@@ -54,14 +54,22 @@ class ContestConfig extends Equatable {
     this.skinsDeductPlusPercent = 0,
     this.kpLiveEnabled = true,
     this.guestsInSideGames = false,
+    this.skinsOptOut = const {},
+    this.kpOptOut = const {},
+    this.guests = const {},
   });
 
   /// Per-player participation: players opted out of skins or KPs. Default is
   /// everyone in. Managed from the tee-box tap list before the round.
   /// Non-participants can't win or cut a hole. KP-out players can still
   /// measure for a teammate.
-  final Set<String> skinsOptOut = const {};
-  final Set<String> kpOptOut = const {};
+  final Set<String> skinsOptOut;
+  final Set<String> kpOptOut;
+
+  /// Course-backfill guests in this tournament. When [guestsInSideGames] is
+  /// off (default) they are invisible to the skins engine and KP boards — they
+  /// can't win and can't cut a hole — matching the server-side rule.
+  final Set<String> guests;
 
   /// Par for holes 1 to 18 in order. Needed for skins: birdie or better is
   /// only knowable against the hole's par.
@@ -136,7 +144,22 @@ class ContestConfig extends Equatable {
         skinsDeductPlusPercent,
         kpLiveEnabled,
         guestsInSideGames,
+        skinsOptOut,
+        kpOptOut,
+        guests,
       ];
+
+  /// Whether [player] competes in skins: not opted out, and (when guests are
+  /// excluded) not a guest. Mirrors the server-side participation rule.
+  bool participatesInSkins(String player) =>
+      !skinsOptOut.contains(player) &&
+      (guestsInSideGames || !guests.contains(player));
+
+  /// Whether [player] may be recorded as a KP / long-drive winner. KP-out
+  /// players can still measure for a teammate — this only blocks winning.
+  bool canWinContest(String player) =>
+      !kpOptOut.contains(player) &&
+      (guestsInSideGames || !guests.contains(player));
 }
 
 /// A recorded KP or long-drive winner: the players write their names on the

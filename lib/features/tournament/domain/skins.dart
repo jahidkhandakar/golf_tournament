@@ -62,6 +62,9 @@ class Skins {
       final par = config.parFor(hole);
       final entries = <({String player, int score})>[];
       for (final s in allScores) {
+        // Opted-out players and (when excluded) guests are invisible to the
+        // skins engine: they can neither win nor cut a hole.
+        if (!config.participatesInSkins(s.playerName)) continue;
         final holes = s.holes;
         if (holes == null || holes.length < hole) continue;
         final v = holes[hole - 1];

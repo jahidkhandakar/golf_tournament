@@ -208,11 +208,15 @@ class LiveResults extends ChangeNotifier {
 
   void recordContestWinner(ContestWinner winner) {
     if (isFinal) return;
+    // A KP-out player (or an excluded guest) can measure for a teammate but
+    // cannot be recorded as the winner. Selecting them clears the slot.
+    final eligible =
+        winner.playerName.isNotEmpty && config.canWinContest(winner.playerName);
     _contestWinners.removeWhere((w) =>
         w.hole == winner.hole &&
         w.category == winner.category &&
         w.isLongDrive == winner.isLongDrive);
-    if (winner.playerName.isNotEmpty) _contestWinners.add(winner);
+    if (eligible) _contestWinners.add(winner);
     notifyListeners();
   }
 
