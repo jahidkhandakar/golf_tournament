@@ -14,7 +14,11 @@ import '../widgets/profile_header.dart';
 import '../widgets/profile_stats_section.dart';
 import '../widgets/round_history_section.dart';
 
-typedef _ProfileData = ({UserProfile user, List<Round> rounds, List<Challenge> challenges});
+typedef _ProfileData = ({
+  UserProfile user,
+  List<Round> rounds,
+  List<Challenge> challenges
+});
 
 /// The current user's own profile — reached from the drawer header, pushed
 /// on top of the shell (so it gets its own AppBar with a back button).
@@ -33,67 +37,70 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<_ProfileData> _load() async {
     final user = await GetIt.instance<UserProfileRepository>().getCurrentUser();
     final rounds = await GetIt.instance<RoundRepository>().getRoundHistory();
-    final challenges = await GetIt.instance<ChallengeRepository>().getChallengeHistory();
+    final challenges =
+        await GetIt.instance<ChallengeRepository>().getChallengeHistory();
     return (user: user, rounds: rounds, challenges: challenges);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('My Profile')),
-      body: FutureBuilder<_ProfileData>(
-        future: _future,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final data = snapshot.data!;
-          final isDark = Theme.of(context).brightness == Brightness.dark;
-          final primaryText = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
+    // Body only — the shell provides the AppBar for the Profile tab, and the
+    // pushed /myProfile route supplies its own AppBar with a back button.
+    return FutureBuilder<_ProfileData>(
+      future: _future,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        final data = snapshot.data!;
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final primaryText =
+            isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
 
-          final secondaryText = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
+        final secondaryText =
+            isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
 
-          return ListView(
-            padding: const EdgeInsets.only(bottom: 24),
-            children: [
-              ProfileHeader(
-                name: data.user.name,
-                tier: data.user.tier,
-                clubHandicap: data.user.clubHandicap,
-                homeClub: data.user.homeClub,
-              ),
-              Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16),
-                child: ListTile(
-                  leading: const Icon(Icons.emoji_events_outlined, color: AppColors.gold),
-                  title: Text('Currently playing', style: AppTextStyles.caption(secondaryText)),
-                  subtitle: Text(
-                    '${data.user.currentTournament}\n${data.user.currentCourse}',
-                    style: AppTextStyles.bodyBold(primaryText),
-                  ),
-                  isThreeLine: true,
+        return ListView(
+          padding: const EdgeInsets.only(bottom: 24),
+          children: [
+            ProfileHeader(
+              name: data.user.name,
+              tier: data.user.tier,
+              clubHandicap: data.user.clubHandicap,
+              homeClub: data.user.homeClub,
+            ),
+            Card(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              child: ListTile(
+                leading: const Icon(Icons.emoji_events_outlined,
+                    color: AppColors.gold),
+                title: Text('Currently playing',
+                    style: AppTextStyles.caption(secondaryText)),
+                subtitle: Text(
+                  '${data.user.currentTournament}\n${data.user.currentCourse}',
+                  style: AppTextStyles.bodyBold(primaryText),
                 ),
+                isThreeLine: true,
               ),
-              const SizedBox(height: 8),
-              const SizedBox(height: 8),
-              ProfileStatsSection(rounds: data.rounds),
-              const SizedBox(height: 16),
-              _SectionTitle(title: 'Round History', color: primaryText),
-              RoundHistorySection(rounds: data.rounds),
-              const SizedBox(height: 16),
-              _SectionTitle(title: 'Challenge History', color: primaryText),
-              ChallengeHistorySection(challenges: data.challenges),
-            ],
-          );
-        },
-      ),
+            ),
+            const SizedBox(height: 8),
+            const SizedBox(height: 8),
+            ProfileStatsSection(rounds: data.rounds),
+            const SizedBox(height: 16),
+            _SectionTitle(title: 'Round History', color: primaryText),
+            RoundHistorySection(rounds: data.rounds),
+            const SizedBox(height: 16),
+            _SectionTitle(title: 'Challenge History', color: primaryText),
+            ChallengeHistorySection(challenges: data.challenges),
+          ],
+        );
+      },
     );
   }
 }
 
 /// Publish or clear the optional global handicap shown to golfers worldwide
 /// (§ item 6).
-
 
 class _SectionTitle extends StatelessWidget {
   const _SectionTitle({required this.title, required this.color});

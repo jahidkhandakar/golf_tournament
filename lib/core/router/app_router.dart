@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/about_legal/presentation/pages/about_legal_page.dart';
@@ -89,7 +90,8 @@ class AppRouter {
       // StatefulShellRoute.indexedStack keeps each branch's navigator alive
       // (IndexedStack under the hood) so switching tabs preserves state.
       StatefulShellRoute.indexedStack(
-        builder: (context, state, navigationShell) => MainShell(navigationShell: navigationShell),
+        builder: (context, state, navigationShell) =>
+            MainShell(navigationShell: navigationShell),
         branches: [
           StatefulShellBranch(
             routes: [
@@ -163,7 +165,8 @@ class AppRouter {
       GoRoute(
         path: '/messages/chat/:conversationId',
         name: 'chatDetail',
-        builder: (context, state) => ChatDetailPage(conversation: state.extra as Conversation),
+        builder: (context, state) =>
+            ChatDetailPage(conversation: state.extra as Conversation),
       ),
       GoRoute(
         path: AppRoutes.myClubs,
@@ -193,17 +196,20 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.termsOfService,
         name: 'termsOfService',
-        builder: (context, state) => const LegalTextPage(title: 'Terms & Conditions', body: _termsPlaceholder),
+        builder: (context, state) => const LegalTextPage(
+            title: 'Terms & Conditions', body: _termsPlaceholder),
       ),
       GoRoute(
         path: AppRoutes.privacyPolicy,
         name: 'privacyPolicy',
-        builder: (context, state) => const LegalTextPage(title: 'Privacy Policy', body: _privacyPlaceholder),
+        builder: (context, state) => const LegalTextPage(
+            title: 'Privacy Policy', body: _privacyPlaceholder),
       ),
       GoRoute(
         path: AppRoutes.createClub,
         name: 'createClub',
-        builder: (context, state) => const PlaceholderScaffold(title: 'Start a Club'),
+        builder: (context, state) =>
+            const PlaceholderScaffold(title: 'Start a Club'),
       ),
       GoRoute(
         path: AppRoutes.createTournament,
@@ -218,27 +224,32 @@ class AppRouter {
       GoRoute(
         path: '/tournaments/:id',
         name: 'tournamentDetail',
-        builder: (context, state) => TournamentDetailPage(tournament: state.extra as Tournament),
+        builder: (context, state) =>
+            TournamentDetailPage(tournament: state.extra as Tournament),
       ),
       GoRoute(
         path: '/tournaments/:id/challenges',
         name: 'challengeApprovals',
-        builder: (context, state) => ChallengeApprovalsPage(tournament: state.extra as Tournament),
+        builder: (context, state) =>
+            ChallengeApprovalsPage(tournament: state.extra as Tournament),
       ),
       GoRoute(
         path: '/tournaments/:id/invite',
         name: 'invitePlayers',
-        builder: (context, state) => InvitePlayersPage(tournament: state.extra as Tournament),
+        builder: (context, state) =>
+            InvitePlayersPage(tournament: state.extra as Tournament),
       ),
       GoRoute(
         path: '/tournaments/:id/tee-sheet',
         name: 'teeSheetBuilderFor',
-        builder: (context, state) => TeeSheetBuilderPage(tournament: state.extra as Tournament),
+        builder: (context, state) =>
+            TeeSheetBuilderPage(tournament: state.extra as Tournament),
       ),
       GoRoute(
         path: '/tournaments/:id/scorecard',
         name: 'scorecardEntry',
-        builder: (context, state) => ScorecardEntryPage(tournament: state.extra as Tournament),
+        builder: (context, state) =>
+            ScorecardEntryPage(tournament: state.extra as Tournament),
       ),
       GoRoute(
         path: AppRoutes.marketplace,
@@ -248,7 +259,8 @@ class AppRouter {
       GoRoute(
         path: '/marketplace/:id',
         name: 'marketplaceListingDetail',
-        builder: (context, state) => ListingDetailPage(listing: state.extra as MarketplaceListing),
+        builder: (context, state) =>
+            ListingDetailPage(listing: state.extra as MarketplaceListing),
       ),
       GoRoute(
         path: AppRoutes.createLookingPost,
@@ -258,17 +270,24 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.myProfile,
         name: 'myProfile',
-        builder: (context, state) => const ProfilePage(),
+        // Pushed full-screen (from the drawer): ProfilePage is body-only, so
+        // wrap it with its own titled AppBar and back button here.
+        builder: (context, state) => Scaffold(
+          appBar: AppBar(title: const Text('My Profile')),
+          body: const ProfilePage(),
+        ),
       ),
       GoRoute(
         path: '/golfers/:id',
         name: 'golferProfile',
-        builder: (context, state) => GolferProfilePage(golfer: state.extra as NearbyGolfer),
+        builder: (context, state) =>
+            GolferProfilePage(golfer: state.extra as NearbyGolfer),
       ),
       GoRoute(
         path: '/top50/challenge/:playerName',
         name: 'challengePlayer',
-        builder: (context, state) => ChallengePlayerPage(entry: state.extra as LeaderboardEntry),
+        builder: (context, state) =>
+            ChallengePlayerPage(entry: state.extra as LeaderboardEntry),
       ),
       GoRoute(
         path: AppRoutes.teeSheet,
@@ -288,7 +307,8 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.simBoard,
         name: 'simBoard',
-        builder: (context, state) => SimBoardPage(sessionId: state.extra as String),
+        builder: (context, state) =>
+            SimBoardPage(sessionId: state.extra as String),
       ),
       GoRoute(
         path: AppRoutes.joinPrivateClub,
@@ -300,13 +320,15 @@ class AppRouter {
         name: 'privateMembers',
         builder: (context, state) {
           final args = state.extra as Map<String, String>;
-          return PrivateMembersPage(clubId: args['id']!, clubName: args['name']!);
+          return PrivateMembersPage(
+              clubId: args['id']!, clubName: args['name']!);
         },
       ),
       GoRoute(
         path: AppRoutes.kpLive,
         name: 'kpLive',
-        builder: (context, state) => KpLivePage(tournament: state.extra as Tournament),
+        builder: (context, state) =>
+            KpLivePage(tournament: state.extra as Tournament),
       ),
     ],
   );

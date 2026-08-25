@@ -48,8 +48,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   @override
   Widget build(BuildContext context) {
+    // No AppBar here — the shell provides the "Notifications" title for this
+    // tab. Keeps the Scaffold for the "Clear all" bottom bar.
     return Scaffold(
-      appBar: AppBar(title: const Text('Notifications')),
       body: FutureBuilder<List<AppNotification>>(
         future: _future,
         builder: (context, snapshot) {
@@ -62,7 +63,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
           }
           return ListView.separated(
             itemCount: notifications.length,
-            separatorBuilder: (context, index) => const Divider(height: 1, indent: 72),
+            separatorBuilder: (context, index) =>
+                const Divider(height: 1, indent: 72),
             itemBuilder: (context, index) {
               final notification = notifications[index];
               return Dismissible(
