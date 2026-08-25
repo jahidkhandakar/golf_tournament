@@ -48,57 +48,63 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   @override
   Widget build(BuildContext context) {
-    // No AppBar here — the shell provides the "Notifications" title for this
-    // tab. Keeps the Scaffold for the "Clear all" bottom bar.
-    return Scaffold(
-      body: FutureBuilder<List<AppNotification>>(
-        future: _future,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final notifications = snapshot.data!;
-          if (notifications.isEmpty) {
-            return const Center(child: Text('No notifications yet.'));
-          }
-          return ListView.separated(
-            itemCount: notifications.length,
-            separatorBuilder: (context, index) =>
-                const Divider(height: 1, indent: 72),
-            itemBuilder: (context, index) {
-              final notification = notifications[index];
-              return Dismissible(
-                key: ValueKey(notification.id),
-                direction: DismissDirection.horizontal,
-                background: _swipeBackground(Alignment.centerLeft),
-                secondaryBackground: _swipeBackground(Alignment.centerRight),
-                onDismissed: (_) => _removeNotification(notification.id),
-                child: NotificationTile(
-                  notification: notification,
-                  onTap: () => _markRead(notification),
-                ),
-              );
-            },
-          );
-        },
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: _clearAll,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.error,
-                side: const BorderSide(color: AppColors.error),
+    // Body only — the shell provides the "Notifications" AppBar for this tab.
+    // The "Clear all" button lives in the body (not a nested bottomNavigationBar,
+    // which the shell's own bottom nav would obscure).
+    return FutureBuilder<List<AppNotification>>(
+      future: _future,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        final notifications = snapshot.data!;
+        if (notifications.isEmpty) {
+          return const Center(child: Text('No notifications yet.'));
+        }
+        return Column(
+          children: [
+            Expanded(
+              child: ListView.separated(
+                itemCount: notifications.length,
+                separatorBuilder: (context, index) =>
+                    const Divider(height: 1, indent: 72),
+                itemBuilder: (context, index) {
+                  final notification = notifications[index];
+                  return Dismissible(
+                    key: ValueKey(notification.id),
+                    direction: DismissDirection.horizontal,
+                    background: _swipeBackground(Alignment.centerLeft),
+                    secondaryBackground: _swipeBackground(Alignment.centerRight),
+                    onDismissed: (_) => _removeNotification(notification.id),
+                    child: NotificationTile(
+                      notification: notification,
+                      onTap: () => _markRead(notification),
+                    ),
+                  );
+                },
               ),
-              icon: const Icon(Icons.delete_sweep_outlined),
-              label: const Text('Clear all'),
             ),
-          ),
-        ),
-      ),
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: _clearAll,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.error,
+                      side: const BorderSide(color: AppColors.error),
+                    ),
+                    icon: const Icon(Icons.delete_sweep_outlined),
+                    label: const Text('Clear all'),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

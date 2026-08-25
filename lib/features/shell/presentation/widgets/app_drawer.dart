@@ -21,6 +21,7 @@ class _DrawerDestination {
 }
 
 const _destinations = [
+  _DrawerDestination('Global Marketplace', Icons.storefront_outlined, AppRoutes.marketplace),
   _DrawerDestination('Settings', Icons.settings_outlined, AppRoutes.settings),
   _DrawerDestination('Subscription & Payment', Icons.payment_outlined, AppRoutes.subscriptionPayment),
 ];

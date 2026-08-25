@@ -125,7 +125,9 @@ class AppRouter {
               GoRoute(
                 path: AppRoutes.profile,
                 name: 'profile',
-                builder: (context, state) => const ProfilePage(),
+                // The 4th tab is "Users" — browse nearby golfers. The user's own
+                // profile lives in the drawer ("My Profile" → /myProfile).
+                builder: (context, state) => const NearbyGolfersPage(),
               ),
             ],
           ),

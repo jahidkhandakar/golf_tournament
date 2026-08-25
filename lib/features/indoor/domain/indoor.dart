@@ -70,6 +70,21 @@ class LeagueRound {
 /// A 10-round indoor league. Money follows the outdoor pattern exactly: the
 /// app never collects or stores it. Entry fee is a display-only text line.
 /// The creator enters the week's skins winners at week's end.
+/// A one-time invite to a private league. The creator generates a code and
+/// hands it to the invited player, who redeems it to join — no one can join a
+/// private league on their own. Mirrors the private-club member-slot pattern.
+class LeagueInvite {
+  LeagueInvite({
+    required this.code,
+    required this.invitedName,
+    this.redeemed = false,
+  });
+
+  final String code;
+  String invitedName;
+  bool redeemed;
+}
+
 class IndoorLeague {
   IndoorLeague({
     required this.id,
@@ -79,6 +94,9 @@ class IndoorLeague {
     this.entryFeeNote = '',
     this.totalRounds = 10,
     this.startedWeeksAgo = 0,
+    this.isPrivate = false,
+    this.clubName,
+    this.createdByMe = true,
   });
   final String id;
   final String name;
@@ -88,8 +106,18 @@ class IndoorLeague {
   final int totalRounds;
   final int startedWeeksAgo;
 
+  /// Private leagues are invite-only and invisible to non-members — nobody can
+  /// join on their own. Can stand alone or sit inside a private club ([clubName]).
+  final bool isPrivate;
+  final String? clubName;
+
+  /// The logged-in user created this league (so they can see and manage it even
+  /// when it's private).
+  final bool createdByMe;
+
   final List<FlightMember> members = [];
   final List<LeagueRound> rounds = [];
+  final List<LeagueInvite> invites = [];
 
   /// Entry closes 3 weeks in: the 3-games-per-week ceiling makes catching up
   /// impossible after that.
@@ -189,6 +217,8 @@ class IndoorState extends ChangeNotifier {
     required String facilityName,
     required SimBooking booking,
     String entryFeeNote = '',
+    bool isPrivate = false,
+    String? clubName,
   }) {
     final league = IndoorLeague(
       id: 'league_${leagues.length + 1}',
@@ -196,10 +226,47 @@ class IndoorState extends ChangeNotifier {
       facilityName: facilityName,
       booking: booking,
       entryFeeNote: entryFeeNote,
+      isPrivate: isPrivate,
+      clubName: clubName,
     );
     leagues.add(league);
     notifyListeners();
     return league;
+  }
+
+  /// Creator generates a one-time invite code for a private league.
+  LeagueInvite createInvite(IndoorLeague league, String invitedName) {
+    final invite = LeagueInvite(code: _generateCode(), invitedName: invitedName);
+    league.invites.add(invite);
+    notifyListeners();
+    return invite;
+  }
+
+  /// Redeem an invite code to join a private league. Returns the league on
+  /// success, null if the code is unknown or already used. This is the only way
+  /// into a private league — there is no self-join.
+  IndoorLeague? redeemInvite(String code, String memberName) {
+    for (final league in leagues) {
+      for (final invite in league.invites) {
+        if (invite.code == code && !invite.redeemed) {
+          invite.redeemed = true;
+          if (!league.members.any((m) => m.player == memberName)) {
+            league.members.add(FlightMember(player: memberName));
+          }
+          notifyListeners();
+          return league;
+        }
+      }
+    }
+    return null;
+  }
+
+  String _generateCode() {
+    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+    final seed = DateTime.now().microsecondsSinceEpoch;
+    String part(int offset) => List.generate(
+        4, (i) => chars[(seed >> (i * 5 + offset)) % chars.length]).join();
+    return 'GGW-${part(0)}-${part(3)}';
   }
 
   void submitRound(IndoorLeague league, LeagueRound round) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
@@ -30,7 +31,7 @@ class _IndoorPageState extends State<IndoorPage> {
     final nameCtrl = TextEditingController();
     final facilityCtrl = TextEditingController();
     final feeCtrl = TextEditingController();
-    var sims = 2, hours = 4; var extra = false;
+    var sims = 2, hours = 4; var extra = false; var isPrivate = false;
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) => StatefulBuilder(builder: (context, setD) => AlertDialog(
@@ -54,6 +55,9 @@ class _IndoorPageState extends State<IndoorPage> {
           ]),
           SwitchListTile(contentPadding: EdgeInsets.zero, title: const Text('Allow one extra per sim'),
             subtitle: const Text('Rarely finishable'), value: extra, onChanged: (v) => setD(() => extra = v)),
+          SwitchListTile(contentPadding: EdgeInsets.zero, title: const Text('Private (invite only)'),
+            subtitle: const Text('Invisible to others; members join by invite code only'),
+            value: isPrivate, onChanged: (v) => setD(() => isPrivate = v)),
           Text('Capacity: ${SimBooking(sims: sims, hoursPerSim: hours, allowExtraPerSim: extra).capacity} players',
             style: const TextStyle(fontWeight: FontWeight.bold)),
         ])),
@@ -69,7 +73,73 @@ class _IndoorPageState extends State<IndoorPage> {
       facilityName: facilityCtrl.text.trim(),
       booking: SimBooking(sims: sims, hoursPerSim: hours, allowExtraPerSim: extra),
       entryFeeNote: feeCtrl.text.trim(),
+      isPrivate: isPrivate,
     );
+  }
+
+  /// Creator invites a member to a private league: enter their name, get a
+  /// one-time code to hand over. No one can join a private league on their own.
+  Future<void> _inviteMember(IndoorLeague league) async {
+    final ctrl = TextEditingController();
+    final name = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Invite a member'),
+        content: TextField(controller: ctrl, autofocus: true,
+          decoration: const InputDecoration(labelText: 'Invited player name')),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+          ElevatedButton(onPressed: () => Navigator.of(context).pop(ctrl.text.trim()),
+            child: const Text('Generate invite')),
+        ],
+      ),
+    );
+    if (name == null || name.isEmpty) return;
+    final invite = _state.createInvite(league, name);
+    if (!mounted) return;
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Invite code'),
+        content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('Hand this code to $name. It works once, and it is the only way to join this private league.'),
+          const SizedBox(height: 12),
+          SelectableText(invite.code, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+        ]),
+        actions: [
+          TextButton(
+            onPressed: () { Clipboard.setData(ClipboardData(text: invite.code)); Navigator.of(context).pop(); },
+            child: const Text('Copy and close')),
+        ],
+      ),
+    );
+  }
+
+  /// Join a private league with an invite code handed over by its creator.
+  Future<void> _joinPrivateLeague() async {
+    final ctrl = TextEditingController();
+    final code = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Join a private league'),
+        content: TextField(controller: ctrl, autofocus: true,
+          textCapitalization: TextCapitalization.characters,
+          decoration: const InputDecoration(labelText: 'Invite code')),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+          ElevatedButton(onPressed: () => Navigator.of(context).pop(ctrl.text.trim()),
+            child: const Text('Join')),
+        ],
+      ),
+    );
+    if (code == null || code.isEmpty) return;
+    final league = _state.redeemInvite(code.toUpperCase(), 'Jahid');
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(league == null
+          ? 'That invite code is unknown or already used.'
+          : 'Joined ${league.name}.'),
+    ));
   }
 
   /// A one-time Sim Social Round: create the session and open its sim board so
@@ -118,13 +188,23 @@ class _IndoorPageState extends State<IndoorPage> {
             label: const Text('Sim Social Round'),
             onPressed: _createSocialRound)),
         ]),
-        const SizedBox(height: 16),
+        const SizedBox(height: 6),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton.icon(
+            icon: const Icon(Icons.vpn_key_outlined, size: 18),
+            label: const Text('Join a private league with a code'),
+            onPressed: _joinPrivateLeague,
+          ),
+        ),
+        const SizedBox(height: 10),
         for (final l in _state.leagues)
           _LeagueCard(
             league: l,
             primaryText: primaryText,
             secondaryText: secondaryText,
             onOpenBoard: () => _openLeagueBoard(l),
+            onInvite: () => _inviteMember(l),
           ),
         if (_state.leagues.isEmpty)
           Padding(padding: const EdgeInsets.only(top: 24),
@@ -140,11 +220,13 @@ class _LeagueCard extends StatelessWidget {
     required this.primaryText,
     required this.secondaryText,
     required this.onOpenBoard,
+    required this.onInvite,
   });
   final IndoorLeague league;
   final Color primaryText;
   final Color secondaryText;
   final VoidCallback onOpenBoard;
+  final VoidCallback onInvite;
 
   @override
   Widget build(BuildContext context) {
@@ -160,6 +242,17 @@ class _LeagueCard extends StatelessWidget {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
           Expanded(child: Text(league.name, style: AppTextStyles.heading3(primaryText))),
+          if (league.isPrivate) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: AppColors.gold.withValues(alpha: 0.18),
+                borderRadius: BorderRadius.circular(12)),
+              child: Text('Private · invite only',
+                style: AppTextStyles.caption(AppColors.goldDark)),
+            ),
+            const SizedBox(width: 6),
+          ],
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
@@ -178,14 +271,21 @@ class _LeagueCard extends StatelessWidget {
         Text('Weeks run Monday to midnight Sunday. Bank up to 2 extra Rounds ahead; unlimited makeups in a week when behind. Entry closes 3 weeks in. Skins need a witnessed round: both players checked in and playing, verified at check-in, one silent random moment, and session close against the pinned sim location.',
           style: AppTextStyles.caption(secondaryText)),
         const SizedBox(height: 8),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: OutlinedButton.icon(
+        Row(children: [
+          OutlinedButton.icon(
             icon: const Icon(Icons.grid_view, size: 18),
             label: const Text('Sim board'),
             onPressed: onOpenBoard,
           ),
-        ),
+          if (league.isPrivate) ...[
+            const SizedBox(width: 8),
+            OutlinedButton.icon(
+              icon: const Icon(Icons.person_add_alt, size: 18),
+              label: const Text('Invite member'),
+              onPressed: onInvite,
+            ),
+          ],
+        ]),
       ]),
     );
   }

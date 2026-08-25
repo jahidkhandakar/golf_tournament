@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/permission/feature.dart';
 import '../../../../core/permission/permission_service.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/upgrade_prompt.dart';
 import '../../domain/entities/looking_post.dart';
 import '../../domain/repositories/looking_repository.dart';
@@ -67,18 +68,36 @@ class _LookingTabState extends State<LookingTab> {
                 padding: const EdgeInsets.only(bottom: 16),
                 children: [
                   const SponsoredBanner(),
-                  ListTile(
-                    leading: const Icon(Icons.sports_esports_outlined),
-                    title: const Text('Indoor Golf'),
-                    subtitle: const Text('Simulator leagues and Sim Social Rounds'),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => context.push(AppRoutes.indoor),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+                    // Highlighted so Indoor Golf stands out from the plain rows.
+                    // Colour/border go on the ListTile itself (tileColor + shape)
+                    // so they paint on the tile's own Material — wrapping it in a
+                    // decorated Container would hide the ink splash.
+                    child: ListTile(
+                      tileColor: AppColors.gold.withValues(alpha: 0.12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: const BorderSide(color: AppColors.gold),
+                      ),
+                      leading: const Icon(Icons.sports_esports_outlined,
+                          color: AppColors.goldDark),
+                      title: const Text('Indoor Golf',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle:
+                          const Text('Simulator leagues and Sim Social Rounds'),
+                      trailing: const Icon(Icons.chevron_right,
+                          color: AppColors.goldDark),
+                      onTap: () => context.push(AppRoutes.indoor),
+                    ),
                   ),
                   ListTile(
                     leading: const Icon(Icons.people_outline),
                     title: const Text('Browse golfers near you'),
                     trailing: const Icon(Icons.chevron_right),
-                    onTap: () => context.push(AppRoutes.nearbyGolfers),
+                    // Route to the Users tab (same golfers list) rather than a
+                    // separate pushed page.
+                    onTap: () => context.go(AppRoutes.profile),
                   ),
                   for (final post in posts)
                     LookingPostCard(

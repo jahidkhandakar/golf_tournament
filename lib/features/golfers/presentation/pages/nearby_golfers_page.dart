@@ -47,9 +47,10 @@ class _NearbyGolfersPageState extends State<NearbyGolfersPage> {
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
                   child: Row(
                     children: [
-                      Icon(Icons.groups_outlined, size: 16, color: secondaryText),
-                      const SizedBox(width: 4),
-                      Text('Golfers within $radius mi', style: AppTextStyles.caption(secondaryText)),
+                      Icon(Icons.groups_outlined, size: 20, color: secondaryText),
+                      const SizedBox(width: 6),
+                      Text('Golfers within $radius mi',
+                          style: AppTextStyles.heading3(secondaryText)),
                     ],
                   ),
                 ),
