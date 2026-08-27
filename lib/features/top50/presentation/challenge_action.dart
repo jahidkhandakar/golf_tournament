@@ -27,7 +27,7 @@ Future<void> sendChallenge(BuildContext context, LeaderboardEntry entry) async {
   // The 48h roster lock also freezes new challenges (§7).
   if (tournament != null && tournament.isRosterLocked) {
     await _notice(context, 'Challenges frozen',
-        'This tournament locked 48 hours before tee off — no new challenges can be sent.');
+        'This event locked 48 hours before tee off — no new challenges can be sent.');
     return;
   }
 

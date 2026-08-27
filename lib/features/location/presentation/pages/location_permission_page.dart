@@ -51,7 +51,7 @@ class _LocationPermissionPageState extends State<LocationPermissionPage> {
                 Text('Enable Location', style: AppTextStyles.heading1(primaryText), textAlign: TextAlign.center),
                 const SizedBox(height: 8),
                 Text(
-                  'We use your location to find clubs, outings and players near you.',
+                  'We use your location to find clubs, pickups and players near you.',
                   style: AppTextStyles.body(secondaryText),
                   textAlign: TextAlign.center,
                 ),

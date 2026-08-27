@@ -10,13 +10,13 @@ const _faqs = <_Faq>[
   (
     question: 'What is a "Club"?',
     answer:
-        "A Club is a tournament round hosted by a golf club. You can request to play in one from the "
+        "A Club is an event hosted by a golf club. You can request to play in one from the "
         "Home tab, and the club will review and confirm your spot."
   ),
   (
-    question: "What's the difference between a Club and an Outing?",
+    question: "What's the difference between a Club and a Pickup?",
     answer:
-        'Clubs are tournaments hosted by golf clubs. Outings are casual, player-organized rounds — lighter '
+        'Clubs are events hosted by golf clubs. Pickups are casual, player-organized rounds — lighter '
         "weight, capped at 10 players, and never counted toward your handicap."
   ),
   (

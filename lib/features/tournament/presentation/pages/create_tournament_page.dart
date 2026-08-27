@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../../../core/labels/app_labels.dart';
 import '../../../../core/play/play_controller.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -101,7 +102,7 @@ class _CreateTournamentPageState extends State<CreateTournamentPage> {
 
     if (club == null) return;
     if (!Validators.isNotEmpty(_nameController.text) || !Validators.isNotEmpty(_courseController.text)) {
-      messenger.showSnackBar(const SnackBar(content: Text('Add a tournament name and course.')));
+      messenger.showSnackBar(const SnackBar(content: Text('Add an event name and course.')));
       return;
     }
     if (_date == null || _teeTime == null) {
@@ -157,11 +158,11 @@ class _CreateTournamentPageState extends State<CreateTournamentPage> {
     return showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Tournament created'),
+        title: const Text('${AppLabels.event} created'),
         content: Text(
           '${t.name} is set up for ${t.clubName}.\n'
           'Capacity ${t.capacity} players · first tee ${t.firstTeeTime}.\n\n'
-          'Build the tee sheet from your tournaments when you\'re ready.',
+          'Build the tee sheet from your events when you\'re ready.',
         ),
         actions: [
           TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Done')),
@@ -178,7 +179,7 @@ class _CreateTournamentPageState extends State<CreateTournamentPage> {
 
     if (_clubName == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Create Tournament')),
+        appBar: AppBar(title: const Text('Create ${AppLabels.event}')),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(32),
@@ -190,7 +191,7 @@ class _CreateTournamentPageState extends State<CreateTournamentPage> {
                 Text('Club admins only', style: AppTextStyles.heading3(primaryText)),
                 const SizedBox(height: 6),
                 Text(
-                  'Only a Club Creator or sub-admin can create a tournament.',
+                  'Only a Club Creator or sub-admin can create an event.',
                   textAlign: TextAlign.center,
                   style: AppTextStyles.body(secondaryText),
                 ),
@@ -206,7 +207,7 @@ class _CreateTournamentPageState extends State<CreateTournamentPage> {
         : Tournament.isValidGroups(_groupsCount);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Create Tournament')),
+      appBar: AppBar(title: const Text('Create ${AppLabels.event}')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -222,7 +223,7 @@ class _CreateTournamentPageState extends State<CreateTournamentPage> {
             Text(_clubName!, style: AppTextStyles.body(secondaryText)),
           const SizedBox(height: 20),
 
-          _label('Tournament name', primaryText),
+          _label('${AppLabels.event} name', primaryText),
           const SizedBox(height: 8),
           TextField(
             controller: _nameController,
@@ -465,7 +466,7 @@ class _CreateTournamentPageState extends State<CreateTournamentPage> {
                   child: Text(
                     capacityValid
                         ? 'Capacity $_capacity players  ·  min ${Tournament.minPlayers}, max ${Tournament.maxPlayers}'
-                        : 'A tournament needs ${Tournament.minPlayers}–${Tournament.maxPlayers} players (this is $_capacity). Fewer than ${Tournament.minPlayers} is a Small Outing.',
+                        : 'An event needs ${Tournament.minPlayers}–${Tournament.maxPlayers} players (this is $_capacity). Fewer than ${Tournament.minPlayers} is a Pickup.',
                     style: AppTextStyles.caption(capacityValid ? AppColors.goldDark : AppColors.error),
                   ),
                 ),
@@ -487,7 +488,7 @@ class _CreateTournamentPageState extends State<CreateTournamentPage> {
             onPressed: (_busy || !capacityValid) ? null : _submit,
             child: _busy
                 ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                : const Text('Create Tournament'),
+                : const Text('Create ${AppLabels.event}'),
           ),
         ],
       ),

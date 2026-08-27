@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../../../core/labels/app_labels.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/club_round.dart';
@@ -65,7 +66,7 @@ class _SearchPageState extends State<SearchPage> {
           cursorColor: AppColors.white,
           style: AppTextStyles.body(AppColors.white),
           decoration: InputDecoration(
-            hintText: 'Search clubs, outings, players...',
+            hintText: 'Search clubs, pickups, players...',
             hintStyle: AppTextStyles.body(AppColors.white),
             border: InputBorder.none,
           ),
@@ -113,7 +114,7 @@ class _SearchPageState extends State<SearchPage> {
                   ),
               ],
               if (outings.isNotEmpty) ...[
-                _SectionLabel(title: 'Outings', color: primaryText),
+                _SectionLabel(title: AppLabels.pickup, color: primaryText),
                 for (final outing in outings)
                   OutingCard(outing: outing, onJoin: () => _showMock('Joined "${outing.title}" (mock)')),
               ],

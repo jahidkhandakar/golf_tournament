@@ -122,7 +122,7 @@ class _KpLivePageState extends State<KpLivePage> {
       KpSubmitResult.accepted => 'Recorded. $player leads hole $hole.',
       KpSubmitResult.notCloser => 'Not closer than the leader. First recorded stands, it must be beaten, not matched.',
       KpSubmitResult.measurerIsPlayer => 'The measurer cannot record their own ball.',
-      KpSubmitResult.holeNotKp => 'That hole is not a KP hole in this tournament.',
+      KpSubmitResult.holeNotKp => 'That hole is not a KP hole in this event.',
       KpSubmitResult.resultsFinal => 'Results are final.',
     };
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));

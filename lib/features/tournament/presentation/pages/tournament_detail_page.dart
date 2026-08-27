@@ -6,6 +6,7 @@ import '../../../../core/permission/club_role.dart';
 import '../../../../core/location/location_state.dart';
 import '../../../../core/play/trial_controller.dart';
 import '../../../../core/permission/permission_service.dart';
+import '../../../../core/labels/app_labels.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/user/user_tier.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -157,7 +158,7 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
         icon: Icons.check_circle_outline,
         color: AppColors.success,
         title: "You're registered",
-        subtitle: "You're in this tournament. See the tee sheet once it's published.",
+        subtitle: "You're in this event. See the tee sheet once it's published.",
       );
     }
     // A pending invite takes precedence over the normal register / request CTA.
@@ -182,7 +183,7 @@ class _InviteActions extends StatelessWidget {
           icon: Icons.mail_outline,
           color: AppColors.goldDark,
           title: "You're invited",
-          subtitle: '${invite.clubName} invited you to this tournament. Accept to join directly.',
+          subtitle: '${invite.clubName} invited you to this event. Accept to join directly.',
         ),
         const SizedBox(height: 10),
         Row(
@@ -400,7 +401,7 @@ class _MemberActions extends StatelessWidget {
           onPressed: (state._busy || state._isFull)
               ? null
               : () => state._registerWithTravelGate(context),
-          child: Text(state._isFull ? 'Tournament full' : 'Register'),
+          child: Text(state._isFull ? '${AppLabels.event} full' : 'Register'),
         ),
       ],
     );
@@ -461,7 +462,7 @@ class _NonMemberActions extends StatelessWidget {
               ? null
               : () => state._run(() =>
                   state._reg.requestToPlay(state._tid, state._user!.name, state._user!.homeClub)),
-          child: Text(state._isFull ? 'Tournament full' : 'Request to Play'),
+          child: Text(state._isFull ? '${AppLabels.event} full' : 'Request to Play'),
         ),
       ],
     );

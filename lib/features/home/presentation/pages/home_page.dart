@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/labels/app_labels.dart';
 import '../../../../core/location/location_state.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -10,8 +11,9 @@ import '../widgets/club_rounds_tab.dart';
 import '../widgets/looking_tab.dart';
 import '../widgets/outings_tab.dart';
 
-// The first tab lists club-run tournament rounds ([ClubRound]); it's labelled
-// "Tournaments" since that's what those cards are.
+// The first tab lists club-run tournament rounds ([ClubRound]); the internal
+// enum stays `tournaments`, but it's displayed via AppLabels.events ("Events").
+// Likewise `outings` displays as AppLabels.pickup ("Pickup").
 enum _HomeTab { tournaments, outings, looking }
 
 /// Rendered as the Home tab's body inside [MainShell]. Kept deliberately lean:
@@ -40,9 +42,9 @@ class _HomePageState extends State<HomePage> {
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
           child: SegmentedButton<_HomeTab>(
             segments: const [
-              ButtonSegment(value: _HomeTab.tournaments, label: Text('Tournaments')),
-              ButtonSegment(value: _HomeTab.outings, label: Text('Outings')),
-              ButtonSegment(value: _HomeTab.looking, label: Text('Looking')),
+              ButtonSegment(value: _HomeTab.tournaments, label: Text(AppLabels.events)),
+              ButtonSegment(value: _HomeTab.outings, label: Text(AppLabels.pickup)),
+              ButtonSegment(value: _HomeTab.looking, label: Text(AppLabels.looking)),
             ],
             selected: {_selected},
             onSelectionChanged: (selection) => setState(() => _selected = selection.first),

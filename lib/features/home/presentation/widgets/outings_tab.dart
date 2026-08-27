@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../../../core/labels/app_labels.dart';
 import '../../../../core/location/location_state.dart';
 import '../../../../core/permission/feature.dart';
 import '../../../../core/permission/permission_service.dart';
@@ -36,18 +37,18 @@ class _OutingsTabState extends State<OutingsTab> {
   void _onCreateOuting() {
     final permissionService = GetIt.instance<PermissionService>();
     if (!permissionService.can(Feature.createOuting)) {
-      UpgradePrompt.show(context, message: 'Upgrade to create unlimited outings.');
+      UpgradePrompt.show(context, message: 'Upgrade to create unlimited pickups.');
       return;
     }
     if (!_trials.canUseHomeTrial) {
       UpgradePrompt.show(
         context,
-        message: "You've used your ${TrialController.limitPerCounter} free home outings. Upgrade for unlimited outings.",
+        message: "You've used your ${TrialController.limitPerCounter} free home pickups. Upgrade for unlimited pickups.",
       );
       return;
     }
     setState(() => _trials.useHomeTrial());
-    _showMock('Outing created (mock)');
+    _showMock('Pickup created (mock)');
   }
 
   @override
@@ -73,7 +74,7 @@ class _OutingsTabState extends State<OutingsTab> {
               ElevatedButton.icon(
                 onPressed: _onCreateOuting,
                 icon: const Icon(Icons.add, size: 18),
-                label: const Text('Create Outing'),
+                label: const Text('Create ${AppLabels.pickup}'),
               ),
             ],
           ),
@@ -98,7 +99,7 @@ class _OutingsTabState extends State<OutingsTab> {
                         Padding(
                           padding: const EdgeInsets.all(24),
                           child: Center(
-                            child: Text('No outings within $radius mi', style: AppTextStyles.body(secondaryText)),
+                            child: Text('No pickups within $radius mi', style: AppTextStyles.body(secondaryText)),
                           ),
                         )
                       else

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/labels/app_labels.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -26,7 +27,7 @@ class _TournamentsListPageState extends State<TournamentsListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Tournaments')),
+      appBar: AppBar(title: const Text(AppLabels.events)),
       body: FutureBuilder<List<Tournament>>(
         future: _future,
         builder: (context, snapshot) {

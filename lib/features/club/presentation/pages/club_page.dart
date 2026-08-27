@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/club/active_club_state.dart';
 import '../../../../core/permission/club_role.dart';
 import '../../../../core/play/play_controller.dart';
+import '../../../../core/labels/app_labels.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/club.dart';
@@ -128,7 +129,7 @@ class _ClubHome extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: () => context.push(AppRoutes.tournaments),
                     icon: const Icon(Icons.emoji_events_outlined, size: 18),
-                    label: const Text('Tournaments'),
+                    label: const Text(AppLabels.events),
                   ),
                 ),
                 if (role.isStaff) ...[

@@ -450,7 +450,7 @@ class _ScorecardEntryPageState extends State<ScorecardEntryPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Skins (live, tournament wide)', style: AppTextStyles.bodyBold(primaryText)),
+        Text('Skins (live, event wide)', style: AppTextStyles.bodyBold(primaryText)),
         const SizedBox(height: 6),
         if (skins.isEmpty)
           Text('No skins won yet. Birdie or better takes a hole outright; a lone par can claim an open hole.',
@@ -472,7 +472,7 @@ class _ScorecardEntryPageState extends State<ScorecardEntryPage> {
   Widget _placards(LiveResults live, Color primaryText, Color secondaryText) {
     final config = _config;
     if (config.kpHoles.isEmpty && config.longDriveHoles.isEmpty) {
-      return Text('No KP or long drive holes configured for this tournament.',
+      return Text('No KP or long drive holes configured for this event.',
           style: AppTextStyles.caption(secondaryText));
     }
     Widget section(String title, List<int> holes, bool isLd, Map<int, double> values) {

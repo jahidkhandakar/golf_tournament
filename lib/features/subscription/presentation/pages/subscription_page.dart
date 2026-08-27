@@ -18,12 +18,12 @@ class _Plan {
 
 const _plans = [
   _Plan(UserTier.free, '\$0/mo', [
-    '2 free outings per month',
-    'Browse clubs, outings & players',
+    '2 free pickups per month',
+    'Browse clubs, pickups & players',
     'Unlimited messaging',
   ]),
   _Plan(UserTier.paid, '\$9.99/mo', [
-    'Unlimited outings',
+    'Unlimited pickups',
     'Post to Looking to Play',
     'Challenge other players',
   ]),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../../../core/labels/app_labels.dart';
 import '../../../../core/play/play_controller.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -106,7 +107,7 @@ class ChallengePlayerPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          'You need to join ${entry.clubName} before you can enter this tournament.',
+                          'You need to join ${entry.clubName} before you can enter this event.',
                           style: AppTextStyles.body(secondaryText),
                         ),
                         const SizedBox(height: 12),
@@ -129,7 +130,7 @@ class ChallengePlayerPage extends StatelessWidget {
                       const SizedBox(height: 12),
                       ElevatedButton(
                         onPressed: () => play.joinTournament(entry.tournamentId, entry.courseName),
-                        child: const Text('Join Tournament'),
+                        child: const Text('Join ${AppLabels.event}'),
                       ),
                     ],
                   );

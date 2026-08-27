@@ -20,7 +20,7 @@ const _sentMessage =
 const _acceptedMessage =
     'Request accepted. You are confirmed. Watch your notifications for tee times and updates.';
 const _deniedMessage =
-    'Not this time, this may be full, but do not count yourself out. Clubs and tournaments '
+    'Not this time, this may be full, but do not count yourself out. Clubs and events '
     'post new openings all the time, feel free to request again whenever you see one.';
 
 class ClubRoundsTab extends StatefulWidget {
@@ -104,7 +104,7 @@ class _ClubRoundsTabState extends State<ClubRoundsTab> {
                   Padding(
                     padding: const EdgeInsets.all(24),
                     child: Center(
-                      child: Text('No tournaments within $radius mi', style: AppTextStyles.body(secondaryText)),
+                      child: Text('No events within $radius mi', style: AppTextStyles.body(secondaryText)),
                     ),
                   )
                 else

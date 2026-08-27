@@ -56,7 +56,7 @@ const _termsPlaceholder =
 const _privacyPlaceholder =
     'This is a placeholder Privacy Policy for GGW Connect. Real policy details will be provided before '
     'launch. Location, profile and activity data are used only to power features like nearby clubs, '
-    'outings and player matchmaking, and are never sold to third parties.';
+    'pickups and player matchmaking, and are never sold to third parties.';
 
 class AppRouter {
   AppRouter._();
