@@ -150,7 +150,9 @@ class _MainShellState extends State<MainShell> {
             initialLocation: index == widget.navigationShell.currentIndex,
           );
           if (index == 4) {
-            setState(() => _unreadNotificationsFuture = _countUnreadNotifications());
+            setState(() {
+              _unreadNotificationsFuture = _countUnreadNotifications();
+            });
           }
         },
         destinations: [

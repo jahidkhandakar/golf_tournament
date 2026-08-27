@@ -12,7 +12,6 @@ import '../../../../core/widgets/upgrade_prompt.dart';
 import '../../domain/entities/outing.dart';
 import '../../domain/repositories/outing_repository.dart';
 import 'outing_card.dart';
-import 'sponsored_banner.dart';
 
 class OutingsTab extends StatefulWidget {
   const OutingsTab({super.key});
@@ -92,9 +91,8 @@ class _OutingsTabState extends State<OutingsTab> {
                 builder: (context, radius, _) {
                   final outings = allOutings.where((o) => o.distanceMiles <= radius).toList();
                   return ListView(
-                    padding: const EdgeInsets.only(bottom: 16),
+                    padding: const EdgeInsets.only(top: 4, bottom: 16),
                     children: [
-                      const SponsoredBanner(),
                       if (outings.isEmpty)
                         Padding(
                           padding: const EdgeInsets.all(24),

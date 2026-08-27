@@ -10,7 +10,6 @@ import '../../../../core/widgets/upgrade_prompt.dart';
 import '../../domain/entities/looking_post.dart';
 import '../../domain/repositories/looking_repository.dart';
 import 'looking_post_card.dart';
-import 'sponsored_banner.dart';
 
 class LookingTab extends StatefulWidget {
   const LookingTab({super.key});
@@ -36,7 +35,9 @@ class _LookingTabState extends State<LookingTab> {
     }
     final created = await context.push(AppRoutes.createLookingPost);
     if (created == true) {
-      setState(() => _future = _load());
+      setState(() {
+        _future = _load();
+      });
       if (mounted) _showMock('Post created');
     }
   }
@@ -65,9 +66,8 @@ class _LookingTabState extends State<LookingTab> {
               }
               final posts = snapshot.data!;
               return ListView(
-                padding: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.only(top: 4, bottom: 16),
                 children: [
-                  const SponsoredBanner(),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
                     // Highlighted so Indoor Golf stands out from the plain rows.

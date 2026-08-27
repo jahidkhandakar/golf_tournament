@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/club_member.dart';
+import '../pages/event_results_page.dart';
 
 typedef _ResultTemplate = ({String eventName, String date, String format, String score});
 
@@ -38,7 +39,9 @@ class ResultsTab extends StatelessWidget {
       itemCount: count,
       itemBuilder: (context, index) {
         final template = _templates[index];
-        final winner = members[index % members.length];
+        // Card shows only name / date / format (Stan): no score, no single
+        // winner — many events are skins games with no one champion. Tap opens
+        // the full results with every player's score.
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           child: ListTile(
@@ -48,11 +51,20 @@ class ResultsTab extends StatelessWidget {
             ),
             title: Text(template.eventName, style: AppTextStyles.bodyBold(primaryText)),
             subtitle: Text(
-              '${template.date} · ${template.format}\nWinner: ${winner.name}',
+              '${template.date} · ${template.format}',
               style: AppTextStyles.caption(secondaryText),
             ),
-            isThreeLine: true,
-            trailing: Text(template.score, style: AppTextStyles.heading3(AppColors.goldDark)),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => EventResultsPage(
+                  eventName: template.eventName,
+                  date: template.date,
+                  format: template.format,
+                  members: members,
+                ),
+              ),
+            ),
           ),
         );
       },

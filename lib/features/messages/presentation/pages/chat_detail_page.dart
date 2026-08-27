@@ -52,7 +52,9 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     if (text.isEmpty) return;
     _controller.clear();
     await _repository.sendMessage(widget.conversation.id, text);
-    setState(() => _future = _loadMessages());
+    setState(() {
+      _future = _loadMessages();
+    });
   }
 
   @override

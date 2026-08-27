@@ -11,7 +11,6 @@ import '../../../../core/widgets/info_dialog.dart';
 import '../../domain/entities/club_round.dart';
 import '../../domain/repositories/club_round_repository.dart';
 import 'club_round_card.dart';
-import 'sponsored_banner.dart';
 
 enum _RequestStatus { none, pending, accepted, denied }
 
@@ -97,9 +96,8 @@ class _ClubRoundsTabState extends State<ClubRoundsTab> {
           builder: (context, radius, _) {
             final clubRounds = allRounds.where((c) => c.distanceMiles <= radius).toList();
             return ListView(
-              padding: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.only(top: 4, bottom: 16),
               children: [
-                const SponsoredBanner(),
                 if (clubRounds.isEmpty)
                   Padding(
                     padding: const EdgeInsets.all(24),

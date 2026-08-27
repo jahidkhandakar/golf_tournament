@@ -10,6 +10,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../widgets/club_rounds_tab.dart';
 import '../widgets/looking_tab.dart';
 import '../widgets/outings_tab.dart';
+import '../widgets/sponsored_banner.dart';
 
 // The first tab lists club-run tournament rounds ([ClubRound]); the internal
 // enum stays `tournaments`, but it's displayed via AppLabels.events ("Events").
@@ -18,8 +19,9 @@ enum _HomeTab { tournaments, outings, looking }
 
 /// Rendered as the Home tab's body inside [MainShell]. Kept deliberately lean:
 /// the segmented control leads, followed by a single compact context bar
-/// (zone + a Marketplace shortcut). The sponsored placement lives inside each
-/// tab's list so it scrolls away instead of pinning chrome to the top.
+/// (zone + a Marketplace shortcut) and the sponsored ad window. The sponsored
+/// window is pinned here (outside the tab lists) so it stays fixed and visible
+/// while only the lower category content scrolls.
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -38,19 +40,33 @@ class _HomePageState extends State<HomePage> {
 
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-          child: SegmentedButton<_HomeTab>(
-            segments: const [
-              ButtonSegment(value: _HomeTab.tournaments, label: Text(AppLabels.events)),
-              ButtonSegment(value: _HomeTab.outings, label: Text(AppLabels.pickup)),
-              ButtonSegment(value: _HomeTab.looking, label: Text(AppLabels.looking)),
+        // Fixed header: category tabs + context bar + sponsored ad window.
+        // Given an opaque background so scrolling content can never bleed
+        // through the transparent gaps behind it.
+        ColoredBox(
+          color: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                child: SegmentedButton<_HomeTab>(
+                  segments: const [
+                    ButtonSegment(value: _HomeTab.tournaments, label: Text(AppLabels.events)),
+                    ButtonSegment(value: _HomeTab.outings, label: Text(AppLabels.pickup)),
+                    ButtonSegment(value: _HomeTab.looking, label: Text(AppLabels.looking)),
+                  ],
+                  selected: {_selected},
+                  onSelectionChanged: (selection) =>
+                      setState(() => _selected = selection.first),
+                ),
+              ),
+              _ContextBar(locationState: locationState, secondaryText: secondaryText),
+              // Fixed sponsored ad window — stays put while the tab content scrolls.
+              const SponsoredBanner(),
             ],
-            selected: {_selected},
-            onSelectionChanged: (selection) => setState(() => _selected = selection.first),
           ),
         ),
-        _ContextBar(locationState: locationState, secondaryText: secondaryText),
         Expanded(
           child: IndexedStack(
             index: _HomeTab.values.indexOf(_selected),

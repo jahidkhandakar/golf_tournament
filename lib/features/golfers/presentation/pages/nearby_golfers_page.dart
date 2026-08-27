@@ -24,6 +24,15 @@ class _NearbyGolfersPageState extends State<NearbyGolfersPage> {
   late final Future<List<NearbyGolfer>> _future =
       GetIt.instance<GolfersRepository>().getNearbyGolfers();
 
+  final TextEditingController _searchController = TextEditingController();
+  String _query = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -40,11 +49,16 @@ class _NearbyGolfersPageState extends State<NearbyGolfersPage> {
         return ValueListenableBuilder<int>(
           valueListenable: radiusNotifier,
           builder: (context, radius, _) {
-            final golfers = allGolfers.where((g) => g.distanceMiles <= radius).toList();
+            final golfers = allGolfers
+                .where((g) =>
+                    g.distanceMiles <= radius &&
+                    (_query.isEmpty ||
+                        g.name.toLowerCase().contains(_query.toLowerCase())))
+                .toList();
             return Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
                   child: Row(
                     children: [
                       Icon(Icons.groups_outlined, size: 20, color: secondaryText),
@@ -54,10 +68,42 @@ class _NearbyGolfersPageState extends State<NearbyGolfersPage> {
                     ],
                   ),
                 ),
+                // Search by name (Stan): filters the list below as you type.
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (value) => setState(() => _query = value),
+                    textInputAction: TextInputAction.search,
+                    decoration: InputDecoration(
+                      isDense: true,
+                      hintText: 'Search golfers by name',
+                      prefixIcon: const Icon(Icons.search, size: 20),
+                      suffixIcon: _query.isEmpty
+                          ? null
+                          : IconButton(
+                              icon: const Icon(Icons.clear, size: 20),
+                              tooltip: 'Clear',
+                              onPressed: () {
+                                _searchController.clear();
+                                setState(() => _query = '');
+                              },
+                            ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                ),
                 Expanded(
                   child: golfers.isEmpty
                       ? Center(
-                          child: Text('No golfers within $radius mi', style: AppTextStyles.body(secondaryText)),
+                          child: Text(
+                            _query.isEmpty
+                                ? 'No golfers within $radius mi'
+                                : 'No golfers match "$_query"',
+                            style: AppTextStyles.body(secondaryText),
+                          ),
                         )
                       : GridView.builder(
                           padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),

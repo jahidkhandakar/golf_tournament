@@ -24,17 +24,23 @@ class _NotificationsPageState extends State<NotificationsPage> {
   Future<void> _markRead(AppNotification notification) async {
     if (notification.isRead) return;
     await _repository.markRead(notification.id);
-    setState(() => _future = _load());
+    setState(() {
+      _future = _load();
+    });
   }
 
   Future<void> _removeNotification(String id) async {
     await _repository.remove(id);
-    setState(() => _future = _load());
+    setState(() {
+      _future = _load();
+    });
   }
 
   Future<void> _clearAll() async {
     await _repository.clearAll();
-    setState(() => _future = _load());
+    setState(() {
+      _future = _load();
+    });
   }
 
   Widget _swipeBackground(Alignment alignment) {
