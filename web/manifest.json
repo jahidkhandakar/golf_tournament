@@ -1,6 +1,6 @@
 {
-    "name": "golf_game_play",
-    "short_name": "golf_game_play",
+    "name": "GGW Connect",
+    "short_name": "GGW Connect",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
