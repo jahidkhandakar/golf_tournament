@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/permission/feature.dart';
+import '../../../../core/permission/permission_service.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -157,6 +159,17 @@ class _DrawerContent extends StatelessWidget {
                   leading: Icon(destination.icon),
                   title: Text(destination.label),
                   onTap: () => onNavigate(context, destination.route),
+                ),
+              // Admin Console entry. Gated on Feature.adminConsole, which is
+              // the correct gate — but PermissionService.can() is still a
+              // blanket `return true` stub, so this is visible to everyone for
+              // review. Server-side role checks decide real visibility (App
+              // Admin plus users they grant access).
+              if (GetIt.instance<PermissionService>().can(Feature.adminConsole))
+                ListTile(
+                  leading: const Icon(Icons.admin_panel_settings_outlined),
+                  title: const Text('Admin Console'),
+                  onTap: () => onNavigate(context, AppRoutes.adminConsole),
                 ),
             ],
           ),
