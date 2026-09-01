@@ -297,4 +297,58 @@ Unauthorized copying, modification, distribution, or use of this software via an
 
 ---
 
+## Product naming
+
+The app is branded **GGW Connect**. The repo and some identifiers still say
+"Golf_tournament" / "golfgameplay" for historical reasons — renaming them would
+break remotes, signing and CI, so they stay.
+
+Two labels are **display-only** renames; the underlying models and API keep
+their original names:
+
+| Shown in the UI | Called in code / API |
+|---|---|
+| Events | Tournaments |
+| Pickup | Outings |
+
+## Status
+
+Frontend is **functionally complete** against the backend spec (§1–17), with a
+clean analyzer run. Feature set covers tournaments/events, the club challenge
+ladder, live side games (skins / KP), private clubs, and the indoor simulator
+domain.
+
+Scoring logic lives in a pure Dart engine mirrored by a TypeScript port on the
+server, so both agree on results — if you change one, change the other.
+
+Note **`globalHandicap` was removed** by product decision; club handicap only.
+Do not reintroduce it.
+
+## Related repositories
+
+| Repo | Role |
+|---|---|
+| **this repo** | Flutter app |
+| `golf-app-server-v2` | Express + MongoDB API |
+| `ggw-connect-dashboard` | React creator dashboard (spec §14) |
+
+## Security note
+
+This project family has carried supply-chain malware. Before building an
+unfamiliar checkout:
+
+```bash
+grep -rE 'folderOpen|allowAutomaticTasks' .vscode 2>/dev/null
+ls public/fonts/fa-solid-400.woff2 2>/dev/null   # not a real FontAwesome file
+git ls-tree -r HEAD --name-only | while read f; do
+  git show "HEAD:$f" | awk -v F="$f" 'length($0)>2000 {print "SUSPECT: " F; exit}'
+done
+```
+
+Genuine FontAwesome ships `fa-solid-900`, never `fa-solid-400`, and a real
+`.woff2` starts with the bytes `wOF2`. Commit subject lines are not
+trustworthy — read the diff.
+
+---
+
 *For support or inquiries, please use the Contact Us feature within the app.*
