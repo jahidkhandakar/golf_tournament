@@ -50,19 +50,48 @@ class _HomePageState extends State<HomePage> {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                child: SegmentedButton<_HomeTab>(
-                  segments: const [
-                    ButtonSegment(value: _HomeTab.tournaments, label: Text(AppLabels.events)),
-                    ButtonSegment(value: _HomeTab.outings, label: Text(AppLabels.pickup)),
-                    ButtonSegment(value: _HomeTab.looking, label: Text(AppLabels.looking)),
-                  ],
-                  selected: {_selected},
-                  onSelectionChanged: (selection) =>
-                      setState(() => _selected = selection.first),
-                ),
+                child: Row(children: [
+                  for (final (t, label, fx) in [
+                    (_HomeTab.tournaments, AppLabels.events, 5),
+                    (_HomeTab.outings, AppLabels.pickup, 5),
+                    (_HomeTab.looking, 'Looking to Play', 8),
+                  ])
+                    Expanded(
+                      flex: fx,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 2),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(10),
+                          onTap: () => setState(() => _selected = t),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 9),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: _selected == t ? AppColors.navy : Colors.transparent,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: _selected == t ? AppColors.navy : AppColors.greyLight),
+                            ),
+                            child: Text(label,
+                              maxLines: 1, overflow: TextOverflow.fade, softWrap: false,
+                              style: TextStyle(fontSize: 13,
+                                color: _selected == t ? Colors.white : null,
+                                fontWeight: _selected == t ? FontWeight.w600 : FontWeight.w400)),
+                          ),
+                        ),
+                      ),
+                    ),
+                ]),
               ),
               _ContextBar(locationState: locationState, secondaryText: secondaryText),
               // Fixed sponsored ad window — stays put while the tab content scrolls.
+
+          // Indoor Golf entry: compact, centered, deliberately secondary to the
+          // three outdoor options above. One-line move if placement changes.
+          Center(child: TextButton.icon(
+            icon: const Icon(Icons.sports_golf, size: 18),
+            label: const Text('Indoor Golf'),
+            onPressed: () => context.push(AppRoutes.indoor),
+          )),
               const SponsoredBanner(),
             ],
           ),

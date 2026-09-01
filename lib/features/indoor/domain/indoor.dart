@@ -1,293 +1,192 @@
 import 'package:flutter/foundation.dart';
 
-/// Indoor golf: simulator events and 10-round leagues. Indoor is a separate
-/// world from outdoor by design (patent separation): its own unofficial
-/// Indoor Handicap, no Top 50, no club ladders, nothing indoor ever attaches
-/// to or mixes with outdoor records. Indoor leagues and games are standalone,
-/// created by any user, never nested under an outdoor club.
-///
-/// One-time events are called Sim Social Rounds. League games are titled
-/// Round 1 through Round 10.
-
-/// Capacity: sims booked x hours per sim, always even by construction, with a
-/// creator toggle allowing one extra player per sim (rarely finishable).
-class SimBooking {
-  const SimBooking({required this.sims, required this.hoursPerSim, this.allowExtraPerSim = false});
-  final int sims;
-  final int hoursPerSim;
-  final bool allowExtraPerSim;
-  int get capacity => sims * hoursPerSim + (allowExtraPerSim ? sims : 0);
+/// Indoor golf, revised flow. Season leagues run 3 to 18 weeks, one Round per
+/// week (Mon 00:00 to Sun 23:59). Creation requires WEEK 1's course only;
+/// later weeks are fillable or editable anytime until that week publishes.
+/// One indoor add-on price covers league creation; public listing is an
+/// approval on top, not a separate product. Witness verification ships in
+/// two phases: check-in plus mutual close-confirmation first, the silent
+/// random mid-session check as backend phase 2. Feed is CREATOR-ONLY
+/// everywhere, indoor and outdoor, sub-admins read like everyone else.
+/// Friend groups and In/Out replies are ONE invite system shared with
+/// outdoor Pickups, built once. Sims and hours are NOT league-creation
+/// fields: they are entered per booking when a player books their week at the
+/// front desk. The weekly course rotation, with each course's rating and
+/// slope, is set at creation and feeds the Indoor Handicap all season.
+class WeekCourse {
+  WeekCourse({required this.week, this.course = '', this.rating = 72.0, this.slope = 113});
+  final int week;
+  String course;
+  double rating;
+  int slope;
 }
 
-/// A league member's flight allocation. Flights form after the first 3 rounds
-/// establish the Indoor Handicap; the creator sets the flight order. Weekly
-/// points, lowest score wins within each flight. Season end pays a net and a
-/// gross winner per flight.
+/// A front-desk booking: which sim, how many players, how many hours.
+class SimBookingEntry {
+  SimBookingEntry({required this.week, required this.sim, required this.players, required this.hours});
+  final int week; final int sim; final List<String> players; final int hours;
+}
+
 class FlightMember {
-  FlightMember({required this.player, this.indoorHandicap, this.flight, this.points = 0, this.roundsPlayed = 0});
+  FlightMember({required this.player, this.indoorHandicap, this.flight, this.totalScore = 0, this.roundsPlayed = 0});
   final String player;
-  double? indoorHandicap;
-  int? flight;
-  int points;
-  int roundsPlayed;
+  double? indoorHandicap; int? flight;
+  /// Season standing is TOTAL SCORE, golf style: admin enters weekly scores,
+  /// totals accumulate, lowest total leads.
+  int totalScore; int roundsPlayed;
   bool get established => roundsPlayed >= 3;
 }
 
-enum WitnessStatus { pending, verified, failed, overridden }
+enum WitnessStatus { pending, verified, adminVerified, failed, overridden }
 
-/// One league round on a player's card. Credited to the next unfilled week
-/// (Monday through midnight Sunday). Max 3 games in a week when banking
-/// ahead; unlimited makeups within a week when behind, capped by the 10-game
-/// total. Late entry closes 3 weeks after the league starts.
 class LeagueRound {
-  LeagueRound({
-    required this.player,
-    required this.weekNumber,
-    required this.gross,
-    this.witness,
-    this.status = WitnessStatus.pending,
-  });
-  final String player;
-  final int weekNumber;
-  final int gross;
-
-  /// The witnessing league member. Must be a checked-in playing member of the
-  /// same sim session: both players verify each other at session close. A
-  /// witness who is not playing is not accepted.
-  String? witness;
-
-  /// Witness verification runs on three discrete proximity checks against the
-  /// creator's pinned sim location: session check-in, one silent random-time
-  /// mid-session check, and session close. Pass or fail plus timestamp only;
-  /// no coordinates are ever stored, no movement history. An unverified round
-  /// still counts for standings and season prizes but is not eligible for
-  /// that week's skins. Creator can override for genuine failures.
-  WitnessStatus status;
-
-  bool get skinsEligible => status == WitnessStatus.verified || status == WitnessStatus.overridden;
+  LeagueRound({required this.player, required this.weekNumber, required this.gross,
+    this.witness, this.status = WitnessStatus.pending, this.isMakeup = false, this.net, this.skinsIn = false, this.kpIn = false});
+  final String player; final int weekNumber; final int gross; final double? net;
+  /// Witness: a checked-in playing league member of the same session. Solo
+  /// bookings: the admin may verify instead, physically at the sim, passing
+  /// the same proximity checks, verify-only. Screen photos count only when
+  /// the verifier takes and sends them.
+  String? witness; WitnessStatus status;
+  /// Makeups (any time up to the last week) count for season prizes only:
+  /// never skins, never weekly prizes. Banked rounds are normal rounds.
+  final bool isMakeup;
+  /// Entered weekly at the front desk at booking; shown as tags on result cards.
+  final bool skinsIn; final bool kpIn;
+  bool get skinsEligible => !isMakeup &&
+      (status == WitnessStatus.verified || status == WitnessStatus.adminVerified || status == WitnessStatus.overridden);
 }
 
-/// A 10-round indoor league. Money follows the outdoor pattern exactly: the
-/// app never collects or stores it. Entry fee is a display-only text line.
-/// The creator enters the week's skins winners at week's end.
-/// A one-time invite to a private league. The creator generates a code and
-/// hands it to the invited player, who redeems it to join — no one can join a
-/// private league on their own. Mirrors the private-club member-slot pattern.
-class LeagueInvite {
-  LeagueInvite({
-    required this.code,
-    required this.invitedName,
-    this.redeemed = false,
-  });
+/// One skins winner row: name, hole and score, amount won.
+/// Weekly prize row: low gross or low net winner in a flight.
+class WeeklyPrize { const WeeklyPrize(this.flight, this.type, this.player, this.score, this.prize);
+  final int flight; final String type; final String player; final int score;
+  /// Admin free text set when building the league, e.g. 50 range balls gift card.
+  final String prize; }
 
-  final String code;
-  String invitedName;
-  bool redeemed;
-}
+class SkinResult { const SkinResult(this.player, this.hole, this.score, this.amount, [this.label = '']);
+  final String player; final int hole; final int score; final double amount;
+  /// e.g. Birdie, Eagle, Albatross, Hole in one.
+  final String label; }
+/// One KP row: name, hole, distance, prize.
+class KpResult { const KpResult(this.player, this.hole, this.distanceFeet, this.prize);
+  final String player; final int hole; final double distanceFeet; final double prize; }
 
 class IndoorLeague {
-  IndoorLeague({
-    required this.id,
-    required this.name,
-    required this.facilityName,
-    required this.booking,
-    this.entryFeeNote = '',
-    this.totalRounds = 10,
-    this.startedWeeksAgo = 0,
-    this.isPrivate = false,
-    this.clubName,
-    this.createdByMe = true,
-  });
-  final String id;
-  final String name;
-  final String facilityName;
-  final SimBooking booking;
-  final String entryFeeNote;
-  final int totalRounds;
-  final int startedWeeksAgo;
+  IndoorLeague({required this.id, required this.name, required this.facilityName,
+    required this.seasonWeeks, this.entryFeeNote = '', this.skinsOn = true,
+    this.allowScreenPhotos = false, this.midSeasonPrizes = false, this.showAmounts = false,
+    this.entryCutoffWeek = 0, this.deductMid = 0, this.deductPlus = 0,
+    this.isPublic = false, this.publicApproved = false, this.makeupCutoffWeeksBehind = 0}) :
+    courses = [for (var w = 1; w <= seasonWeeks; w++) WeekCourse(week: w)];
+  final String id; final String name; final String facilityName;
+  /// 3 to 18 weeks.
+  final int seasonWeeks;
+  final String entryFeeNote; final bool skinsOn; final bool allowScreenPhotos;
+  final bool midSeasonPrizes; final bool showAmounts;
+  /// Entry stays open at the creator's discretion; default mid-season.
+  final int entryCutoffWeek;
 
-  /// Private leagues are invite-only and invisible to non-members — nobody can
-  /// join on their own. Can stand alone or sit inside a private club ([clubName]).
-  final bool isPrivate;
-  final String? clubName;
+  /// Two paid categories, indoor-only fees separate from outdoor. Private:
+  /// pay and go, invite-only, viewable by invited users anywhere in the world
+  /// (cross-country play; the verifier's photo result goes to the admin).
+  /// Public: reserved for simulator facility managers, listed to every user
+  /// in the 60-mile zone, and requires GGW admin verification after payment.
+  /// Until approved it behaves as private.
+  final bool isPublic; bool publicApproved;
 
-  /// The logged-in user created this league (so they can see and manage it even
-  /// when it's private).
-  final bool createdByMe;
-
+  /// Makeup deadline, creator's choice. 0 (default) = makeups allowed to the
+  /// end of the league, because a member who paid and had life happen should
+  /// not be locked out. A positive N = fall more than N weeks behind and the
+  /// remaining missed rounds forfeit. Season-prizes-only rule still applies.
+  final int makeupCutoffWeeksBehind;
+  final int deductMid; final int deductPlus;
+  final List<WeekCourse> courses;
   final List<FlightMember> members = [];
   final List<LeagueRound> rounds = [];
-  final List<LeagueInvite> invites = [];
+  final List<SimBookingEntry> bookings = [];
+  int currentWeek = 1;
 
-  /// Entry closes 3 weeks in: the 3-games-per-week ceiling makes catching up
-  /// impossible after that.
-  bool get entryOpen => startedWeeksAgo <= 3;
+  /// Weeks whose results the admin has published. Scores entered any time,
+  /// visible to members only after publish. Publish window: Sunday night to
+  /// Tuesday 1800. Deadline shown to users: Tuesday 1800.
+  final Set<int> publishedWeeks = {};
+
+  /// Weekly prize rows entered by the admin at publish.
+  final Map<int, List<SkinResult>> weekSkins = {};
+  final Map<int, List<KpResult>> weekKps = {};
+  final Map<int, List<WeeklyPrize>> weekPrizes = {};
+
+  /// Per-player missed rounds, evaluated only after a week is PUBLISHED (not
+  /// at the week deadline): players may play before deadline and forget to
+  /// send scores, and timestamps or the front desk prove it, so nothing is
+  /// missed until the admin publishes without a score for them. Includes the
+  /// course name so the player knows what to play at the makeup. Shown on the
+  /// player's own card and to admin; admin also sees the full missed list.
+  List<WeekCourse> missedFor(String player) => [
+        for (final w in publishedWeeks)
+          if (!rounds.any((r) => r.player == player && r.weekNumber == w))
+            courses[w - 1]
+      ];
+
+  /// Admin view: every player with missed rounds.
+  Map<String, List<WeekCourse>> get missedByPlayer => {
+        for (final m in members)
+          if (missedFor(m.player).isNotEmpty) m.player: missedFor(m.player)
+      };
 }
 
-/// A booked simulator session. The sim board replaces the tee sheet: one
-/// column per simulator (bay), and the creator drags/assigns players into
-/// bays and makes the teams. There is no self-pairing — only the session
-/// creator arranges the bays. Displayed in the app only; no email to any
-/// course. Used for both league sessions and one-time Sim Social Rounds.
-class SimSession {
-  SimSession({
-    required this.id,
-    required this.title,
-    required this.booking,
-    this.isSocialRound = false,
-    List<String> roster = const [],
-  }) : roster = [...roster];
+/// One-time game: Sim Social Round. Skins-or-casual, sims and hours entered
+/// at creation, open to invited non-league players.
+class CasualRound {
+  CasualRound({required this.id, required this.name, required this.facilityName,
+    required this.withSkins, required this.sims, required this.hours, this.extraPerSim = false, this.startTime});
+  final String id; final String name; final String facilityName; final bool withSkins;
+  final DateTime? startTime;
+  final int sims; final int hours; final bool extraPerSim;
 
-  final String id;
-  final String title;
-  final SimBooking booking;
+  /// Private invites reply In or Out (public socials take no replies, anyone
+  /// joins). In adds the player to the visible list everyone invited can see,
+  /// Out included. Status changeable until the deadline, so someone can jump
+  /// back in to even the numbers.
+  final Map<String, String> invitedReplies = {};
+  int get capacity => sims * hours + (extraPerSim ? sims : 0);
 
-  /// Sim Social Rounds are one-time events, the only indoor format open to
-  /// invited non-league players. League sessions are members only.
-  final bool isSocialRound;
+  /// Nobody can join after start time. The listing stays visible for 3 hours
+  /// past start so a late-starting group can see who is missing, then it is
+  /// deleted forever: no stats are kept for Sim Socials, so nothing archives.
+  bool get joinable => startTime == null || DateTime.now().isBefore(startTime!);
+  bool get expired => startTime != null && DateTime.now().isAfter(startTime!.add(const Duration(hours: 3)));
+}
 
-  /// Everyone booked into this session, whether or not they have a bay yet.
-  final List<String> roster;
+/// App-wide simulator course directory: first entry saves name, rating and
+/// slope for everyone; later leagues confirm the numbers or edit their own copy.
+class CourseDirectory {
+  static final Map<String, (double, int)> courses = {};
+  static void save(String n, double r, int sl) { if (n.trim().isNotEmpty) courses[n.trim()] = (r, sl); }
+}
 
-  /// bay index (0 .. sims-1) -> the players assigned to that simulator.
-  final Map<int, List<String>> bays = {};
-
-  int get bayCount => booking.sims;
-
-  /// Players a single bay can hold: one per booked hour, plus one when the
-  /// creator allowed an extra per sim.
-  int get perBayCapacity => booking.hoursPerSim + (booking.allowExtraPerSim ? 1 : 0);
-
-  List<String> playersInBay(int index) => List.unmodifiable(bays[index] ?? const []);
-
-  bool isBayFull(int index) => (bays[index]?.length ?? 0) >= perBayCapacity;
-
-  /// Players in the roster not yet placed in any bay.
-  List<String> get unassigned {
-    final placed = bays.values.expand((b) => b).toSet();
-    return roster.where((p) => !placed.contains(p)).toList();
-  }
+/// Saved friend groups, indoor and outdoor, for private Sim Social or Pickup
+/// invites. Invite page shows accepted and "can't play" responses.
+class FriendGroup {
+  FriendGroup({required this.name, required this.members});
+  final String name; final List<String> members;
 }
 
 class IndoorState extends ChangeNotifier {
+  final List<FriendGroup> friendGroups = [];
   final List<IndoorLeague> leagues = [];
-  final List<SimSession> sessions = [];
-
-  SimSession createSession({
-    required String title,
-    required SimBooking booking,
-    bool isSocialRound = false,
-    List<String> roster = const [],
-  }) {
-    final session = SimSession(
-      id: 'sim_${sessions.length + 1}',
-      title: title,
-      booking: booking,
-      isSocialRound: isSocialRound,
-      roster: roster,
-    );
-    sessions.add(session);
-    notifyListeners();
-    return session;
-  }
-
-  /// Move [player] into [bayIndex], removing them from any other bay first
-  /// (reassignment). No-op when the target bay is full. Passing a negative
-  /// [bayIndex] returns the player to the unassigned pool.
-  void assignToBay(SimSession session, String player, int bayIndex) {
-    for (final b in session.bays.values) {
-      b.remove(player);
-    }
-    if (bayIndex >= 0 && bayIndex < session.bayCount && !session.isBayFull(bayIndex)) {
-      session.bays.putIfAbsent(bayIndex, () => []).add(player);
-    }
-    if (!session.roster.contains(player)) session.roster.add(player);
-    notifyListeners();
-  }
-
-  void addToRoster(SimSession session, String player) {
-    if (player.isEmpty || session.roster.contains(player)) return;
-    session.roster.add(player);
-    notifyListeners();
-  }
-
-
-  IndoorLeague createLeague({
-    required String name,
-    required String facilityName,
-    required SimBooking booking,
-    String entryFeeNote = '',
-    bool isPrivate = false,
-    String? clubName,
-  }) {
-    final league = IndoorLeague(
-      id: 'league_${leagues.length + 1}',
-      name: name,
-      facilityName: facilityName,
-      booking: booking,
-      entryFeeNote: entryFeeNote,
-      isPrivate: isPrivate,
-      clubName: clubName,
-    );
-    leagues.add(league);
-    notifyListeners();
-    return league;
-  }
-
-  /// Creator generates a one-time invite code for a private league.
-  LeagueInvite createInvite(IndoorLeague league, String invitedName) {
-    final invite = LeagueInvite(code: _generateCode(), invitedName: invitedName);
-    league.invites.add(invite);
-    notifyListeners();
-    return invite;
-  }
-
-  /// Redeem an invite code to join a private league. Returns the league on
-  /// success, null if the code is unknown or already used. This is the only way
-  /// into a private league — there is no self-join.
-  IndoorLeague? redeemInvite(String code, String memberName) {
-    for (final league in leagues) {
-      for (final invite in league.invites) {
-        if (invite.code == code && !invite.redeemed) {
-          invite.redeemed = true;
-          if (!league.members.any((m) => m.player == memberName)) {
-            league.members.add(FlightMember(player: memberName));
-          }
-          notifyListeners();
-          return league;
-        }
-      }
-    }
-    return null;
-  }
-
-  String _generateCode() {
-    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
-    final seed = DateTime.now().microsecondsSinceEpoch;
-    String part(int offset) => List.generate(
-        4, (i) => chars[(seed >> (i * 5 + offset)) % chars.length]).join();
-    return 'GGW-${part(0)}-${part(3)}';
-  }
-
-  void submitRound(IndoorLeague league, LeagueRound round) {
-    league.rounds.add(round);
-    final m = league.members.firstWhere((x) => x.player == round.player,
-        orElse: () {
-      final nm = FlightMember(player: round.player);
-      league.members.add(nm);
-      return nm;
-    });
-    m.roundsPlayed += 1;
-    notifyListeners();
-  }
-
-  void verifyRound(LeagueRound round, {required bool passedProximity}) {
-    round.status = passedProximity ? WitnessStatus.verified : WitnessStatus.failed;
-    notifyListeners();
-  }
-
-  void creatorOverride(LeagueRound round) {
-    round.status = WitnessStatus.overridden;
-    notifyListeners();
+  final List<CasualRound> casuals = [];
+  IndoorLeague addLeague(IndoorLeague l) { leagues.add(l); notifyListeners(); return l; }
+  CasualRound addCasual(CasualRound c) { casuals.add(c); notifyListeners(); return c; }
+  /// Purge run: permanently removes expired Sim Socials. Backend runs this on
+  /// a schedule; the mock filters on read.
+  void purgeExpired() { casuals.removeWhere((c) => c.expired); notifyListeners(); }
+  void addBooking(IndoorLeague l, SimBookingEntry b) { l.bookings.add(b); notifyListeners(); }
+  void submitRound(IndoorLeague l, LeagueRound r) {
+    l.rounds.add(r);
+    final m = l.members.firstWhere((x) => x.player == r.player, orElse: () {
+      final nm = FlightMember(player: r.player); l.members.add(nm); return nm; });
+    m.roundsPlayed += 1; notifyListeners();
   }
 }

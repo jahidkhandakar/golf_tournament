@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../features/admin/presentation/pages/admin_console_page.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/about_legal/presentation/pages/about_legal_page.dart';
@@ -34,7 +35,6 @@ import '../../features/tournament/presentation/pages/create_tournament_page.dart
 import '../../features/tournament/presentation/pages/invite_players_page.dart';
 import '../../features/club/presentation/pages/join_private_club_page.dart';
 import '../../features/indoor/presentation/pages/indoor_page.dart';
-import '../../features/indoor/presentation/pages/sim_board_page.dart';
 import '../../features/club/presentation/pages/private_members_page.dart';
 import '../../features/tournament/presentation/pages/kp_live_page.dart';
 import '../../features/tournament/presentation/pages/scorecard_entry_page.dart';
@@ -65,6 +65,7 @@ class AppRouter {
     initialLocation: AppRoutes.splash,
     routes: [
       // Pre-login flow: splash -> login/sign up -> location permission -> shell.
+      GoRoute(path: AppRoutes.adminConsole, builder: (context, state) => const AdminConsolePage()),
       GoRoute(
         path: AppRoutes.splash,
         name: 'splash',
@@ -305,12 +306,6 @@ class AppRouter {
         path: AppRoutes.indoor,
         name: 'indoor',
         builder: (context, state) => const IndoorPage(),
-      ),
-      GoRoute(
-        path: AppRoutes.simBoard,
-        name: 'simBoard',
-        builder: (context, state) =>
-            SimBoardPage(sessionId: state.extra as String),
       ),
       GoRoute(
         path: AppRoutes.joinPrivateClub,

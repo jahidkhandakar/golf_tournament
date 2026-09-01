@@ -4,6 +4,7 @@ class AppRoutes {
 
   // Pre-login flow
   static const String splash = '/splash';
+  static const String adminConsole = '/admin-console';
   static const String login = '/login';
   static const String signUp = '/sign-up';
   static const String locationPermission = '/location-permission';
@@ -39,7 +40,6 @@ class AppRoutes {
   static const String privateMembers = '/club/private-members';
   static const String joinPrivateClub = '/join-private-club';
   static const String indoor = '/indoor';
-  static const String simBoard = '/indoor/sim-board';
 
   static String chatDetail(String conversationId) => '/messages/chat/$conversationId';
   static String marketplaceListingDetail(String id) => '/marketplace/$id';

@@ -65,6 +65,58 @@ class LiveResults extends ChangeNotifier {
 
   List<String> get players => _scores.keys.toList();
 
+  /// Totals-first entry flow. Phase 1: the scorer enters each player's
+  /// 18-hole total with auto-advance. Phase 2: only notable holes get
+  /// entered as claims (Par, Birdie, Eagle, Albatross, Hole in one) tapped
+  /// onto a player. The skins engine runs on claims: unique best claim wins,
+  /// matching best claims cut, lone par wins only when no birdie is claimed.
+  /// A cut (red) hole still accepts a BETTER claim, which takes the skin:
+  /// red means nothing equal is worth entering, never that entry is blocked.
+  final Map<String, int> _totals = {};
+  final Map<int, List<({String player, int strokes, String label})>> _claims = {};
+
+  int? totalFor(String player) => _totals[player];
+  void setTotal(String player, int total) {
+    if (isFinal) return;
+    _totals[player] = total;
+    notifyListeners();
+  }
+
+  List<({String player, int strokes, String label})> claimsOn(int hole) =>
+      List.unmodifiable(_claims[hole] ?? const []);
+
+  void claimHole({required int hole, required String player, required int strokes, required String label}) {
+    if (isFinal) return;
+    _claims.putIfAbsent(hole, () => []).add((player: player, strokes: strokes, label: label));
+    notifyListeners();
+  }
+
+  void removeClaim(int hole, String player) {
+    if (isFinal) return;
+    _claims[hole]?.removeWhere((c) => c.player == player);
+    notifyListeners();
+  }
+
+  /// ENTRY LAYOUT RULINGS (build the page to these): Phase 1 totals has a
+  /// BACK button so a wrong total is fixed immediately. Phase 2 order is
+  /// hole FIRST, then the claim options appear, and the CURRENT BEST claim
+  /// on that hole is shown before entry, KP-style, so nothing gets typed
+  /// that does not beat it. Every claim commits through an explicit SUBMIT
+  /// button, never auto, because everyone fat-fingers.
+  /// TIEBREAK under totals-first: card-off needs hole detail the flow does
+  /// not collect, so on a tie the admin enters back-9 totals for the TIED
+  /// players only (then back-6, back-3 if still tied), from cards in hand.
+  /// Per-hole score endpoints are dropped for gaggles; claims are the API.
+  /// Strip status from claims: white = no claims (open), green = one outright
+  /// best (winning), red = tied best (cut).
+  String holeStatus(int hole) {
+    final cs = _claims[hole] ?? const [];
+    if (cs.isEmpty) return 'open';
+    final best = cs.map((c) => c.strokes).reduce((a, b) => a < b ? a : b);
+    return cs.where((c) => c.strokes == best).length == 1 ? 'winning' : 'cut';
+  }
+
+
   List<int> holesForPlayer(String player) => List.unmodifiable(_scores[player] ?? List.filled(18, 0));
 
   int scoreFor(String player, int hole) => _scores[player]?[hole - 1] ?? 0;

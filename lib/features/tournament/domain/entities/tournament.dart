@@ -36,6 +36,7 @@ class Tournament extends Equatable {
     this.teeBoxes = maxTeeBoxes,
     this.teamsPerTeeBox = maxTeamsPerTeeBox,
     this.standbyPlayers = const [],
+    this.subRequests = const [],
     this.showAmounts = false,
     this.courseCountry = 'US',
     this.templateName,
@@ -87,6 +88,11 @@ class Tournament extends Equatable {
   /// bypassing the 48-hour lock. Travel trial consumed on promotion only.
   /// A replacement inherits nothing from the player they replaced.
   final List<String> standbyPlayers;
+
+  /// Sub requests: a registered player who cannot make it requests a sub;
+  /// the open slot is offered to the standby list first, in order, before
+  /// staff fill it manually. The requester keeps no claim on the slot.
+  final List<String> subRequests;
 
   /// Creator display toggle for money amounts. Default off. When on, amounts
   /// show during the round and purge 24 hours after Final — permanently, no
@@ -180,6 +186,7 @@ class Tournament extends Equatable {
         teeBoxes,
         teamsPerTeeBox,
         standbyPlayers,
+        subRequests,
         showAmounts,
         courseCountry,
         templateName,

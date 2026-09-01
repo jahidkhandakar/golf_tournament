@@ -11,6 +11,10 @@ class AppColors {
   static const Color goldDark = Color(0xFFCA9E0C);
   static const Color goldLight = Color(0xFFF6D465);
 
+  /// Secondary brand color (pairs with [gold]); used for selected states such
+  /// as the Home category tabs.
+  static const Color navy = Color(0xFF0B1E3F);
+
   // Neutrals
   static const Color black = Color(0xFF1A1A1A);
   static const Color white = Color(0xFFFFFFFF);

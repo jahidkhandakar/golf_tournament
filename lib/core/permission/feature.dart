@@ -13,4 +13,6 @@ enum Feature {
   lookingToPlayPost,
   challengePlayer,
   changeLocation,
+  createIndoorLeague,
+  adminConsole,
 }
